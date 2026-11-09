@@ -1,0 +1,19 @@
+{
+  "name": "Caderno da Roça",
+  "short_name": "Roça",
+  "description": "Caderno de campo do produtor rural: chuva, leite, rebanho, gastos, vendas e guias para o semiárido.",
+  "lang": "pt-BR",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1311",
+  "theme_color": "#1a1311",
+  "categories": ["productivity", "business", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

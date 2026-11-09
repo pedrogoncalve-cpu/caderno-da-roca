@@ -1,0 +1,1337 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caderno da Roça</title>
+<meta name="description" content="Caderno de campo do produtor rural: chuva, leite, rebanho, gastos, vendas e guias técnicos para o semiárido.">
+<meta name="theme-color" content="#1a1311">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Caderno da Roça">
+<style>
+/* Layout: cabeçalho escuro fixo, conteúdo em coluna única (máx. 640px), barra de abas fixa embaixo com botões grandes para o polegar */
+:root{
+  --bg:#f7f5f2; --surface:#ffffff; --surface-2:#f0ece7; --line:#e2dcd5;
+  --fg:#1d1715; --muted:#6c615b;
+  --red:#b3201b; --red-ink:#ffffff; --red-soft:#f8e3e1;
+  --gold:#c98d10; --gold-soft:#fbefd2; --gold-ink:#5b3e00;
+  --black:#1a1311;
+  --good:#2f7d32; --good-soft:#e2f1e2; --warn:#b26a00; --warn-soft:#fdf0d9; --bad:#b3261e;
+  --rain:#2f6fb0; --rain-soft:#e1ecf8;
+  --font: "Segoe UI", Roboto, "Noto Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Segoe UI Black", "Arial Black", Roboto, system-ui, sans-serif;
+  --r:14px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#120f0e; --surface:#1d1816; --surface-2:#272120; --line:#352d2a;
+    --fg:#f3ece8; --muted:#a8998f;
+    --red:#e0473f; --red-ink:#ffffff; --red-soft:#3a1716;
+    --gold:#e9b23c; --gold-soft:#3a2c0e; --gold-ink:#f6d896;
+    --black:#0b0908;
+    --good:#6cc070; --good-soft:#1c3220; --warn:#f0a940; --warn-soft:#3a2a10; --bad:#ff7a70;
+    --rain:#7fb4ec; --rain-soft:#15283c;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#120f0e; --surface:#1d1816; --surface-2:#272120; --line:#352d2a;
+  --fg:#f3ece8; --muted:#a8998f;
+  --red:#e0473f; --red-ink:#ffffff; --red-soft:#3a1716;
+  --gold:#e9b23c; --gold-soft:#3a2c0e; --gold-ink:#f6d896;
+  --black:#0b0908;
+  --good:#6cc070; --good-soft:#1c3220; --warn:#f0a940; --warn-soft:#3a2a10; --bad:#ff7a70;
+  --rain:#7fb4ec; --rain-soft:#15283c;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:17px;line-height:1.45;-webkit-text-size-adjust:100%;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.2}
+.num{font-variant-numeric:tabular-nums}
+
+/* Cabeçalho */
+.top{position:sticky;top:0;z-index:20;background:var(--black);color:#fff;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px;min-height:60px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.brand svg{flex:none}
+.brand b{font-family:var(--font-display);font-size:20px;letter-spacing:.2px;white-space:nowrap}
+.brand small{display:block;font-size:13px;color:#d9c9a3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .spacer{flex:1}
+.top-stripe{height:4px;background:linear-gradient(90deg,var(--red) 0 70%,#e9b23c 70% 100%)}
+
+main{max-width:640px;margin:0 auto;padding-block:16px 24px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:18px}
+
+/* Abas */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.tabs-in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.tab{background:none;border:0;padding:8px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;color:var(--muted);cursor:pointer;min-height:64px}
+.tab svg{width:26px;height:26px}
+.tab[aria-current="page"]{color:var(--red);font-weight:700}
+.tab.plus .bubble{width:46px;height:46px;border-radius:50%;background:var(--red);color:var(--red-ink);display:grid;place-items:center;margin-top:-20px;box-shadow:0 4px 12px rgba(0,0,0,.25);border:3px solid var(--surface)}
+.tab.plus .bubble svg{width:28px;height:28px}
+.tab:focus-visible,.btn:focus-visible,.chip:focus-visible,.tile:focus-visible,.row:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* Blocos */
+.section{display:flex;flex-direction:column;gap:10px}
+.section-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.section-h h2{font-size:19px;font-weight:800}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.link{align-self:flex-start;background:none;border:0;color:var(--red);font-weight:700;cursor:pointer;padding:6px 0;font-size:15px}
+
+.banner{background:var(--gold-soft);color:var(--gold-ink);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.banner .btn{align-self:flex-start}
+
+.monthnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.monthnav h1{font-size:24px;font-family:var(--font-display);text-transform:capitalize}
+.iconbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer}
+.iconbtn:disabled{opacity:.35}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat .k{font-size:13px;color:var(--muted);font-weight:600}
+.stat .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+.stat .v small{font-size:15px;font-weight:600;color:var(--muted)}
+.stat .s{font-size:13px;color:var(--muted)}
+.stat.rain .v{color:var(--rain)}
+.stat.money.pos .v{color:var(--good)}
+.stat.money.neg .v{color:var(--bad)}
+
+/* Barras de lucro */
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:grid;grid-template-columns:96px 1fr;gap:10px;align-items:center}
+.bar-row .lbl{font-weight:700;font-size:15px}
+.bar-track{position:relative;height:30px;background:var(--surface-2);border-radius:8px;overflow:hidden}
+.bar-fill{position:absolute;top:0;bottom:0;border-radius:8px}
+.bar-val{position:absolute;inset:0;display:flex;align-items:center;padding:0 10px;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.bar-sub{grid-column:2;font-size:13px;color:var(--muted);margin-top:-6px}
+
+.chart{width:100%;height:auto;display:block}
+
+/* Listas */
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);background:none;border-left:0;border-right:0;border-top:0;text-align:left;width:100%;cursor:pointer}
+.row:last-child{border-bottom:0}
+.row .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}
+.row .ic svg{width:22px;height:22px}
+.row .tx{flex:1;min-width:0}
+.row .tx b{display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .tx span{display:block;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .amt{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:16px}
+.amt.pos{color:var(--good)} .amt.neg{color:var(--bad)} .amt.rain{color:var(--rain)}
+.empty{padding:22px 16px;text-align:center;color:var(--muted);font-size:15px}
+
+.ic-chuva{background:var(--rain-soft);color:var(--rain)}
+.ic-leite{background:var(--surface-2);color:var(--fg)}
+.ic-gasto{background:var(--red-soft);color:var(--red)}
+.ic-venda{background:var(--good-soft);color:var(--good)}
+.ic-plantio,.ic-colheita{background:var(--gold-soft);color:var(--gold-ink)}
+.ic-anotacao{background:var(--surface-2);color:var(--muted)}
+.ic-vaca{background:var(--surface-2);color:var(--fg)}
+.ic-boi{background:var(--red-soft);color:var(--red)}
+
+/* Alertas */
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);border-left-width:5px}
+.alert.warn{border-left-color:var(--warn)}
+.alert.info{border-left-color:var(--rain)}
+.alert.red{border-left-color:var(--red)}
+.alert .when{font-size:13px;color:var(--muted)}
+.alert .tx{flex:1;min-width:0}
+.alert b{display:block}
+
+/* Grade de lançamentos */
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);cursor:pointer;text-align:left;min-height:98px}
+.tile .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center}
+.tile .ic svg{width:24px;height:24px}
+.tile b{font-size:17px}
+.tile span{font-size:13px;color:var(--muted);margin-top:-6px}
+
+/* Chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:15px;cursor:pointer;min-height:40px}
+.chip[aria-pressed="true"]{background:var(--black);color:#fff;border-color:var(--black)}
+:root[data-theme="dark"] .chip[aria-pressed="true"]{background:var(--gold);color:#1a1311;border-color:var(--gold)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{background:var(--gold);color:#1a1311;border-color:var(--gold)}}
+.pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.pill.gray{background:var(--surface-2);color:var(--muted)}
+.row .tx .pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;white-space:normal;overflow:visible}
+.row .tx .pills .pill{display:inline-block;font-size:12px;font-weight:700}
+.row .tx .pills .pill.good{color:var(--good)} .row .tx .pills .pill.warn{color:var(--warn)} .row .tx .pills .pill.red{color:var(--red)}
+
+/* Botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 20px;border-radius:12px;border:1px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer;font-size:16px}
+.btn.primary{background:var(--red);color:var(--red-ink);border-color:var(--red)}
+.btn.gold{background:var(--gold);color:#1a1311;border-color:var(--gold)}
+.btn.danger{color:var(--bad)}
+.btn.block{width:100%}
+.btn.sm{min-height:40px;padding:0 14px;font-size:15px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row .btn{flex:1 1 140px}
+
+/* Formulário */
+.form{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:700;font-size:15px}
+.field .hint{font-size:13px;color:var(--muted)}
+.field input,.field select,.field textarea{min-height:52px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);padding:10px 14px;font-size:18px;width:100%}
+.field textarea{min-height:90px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+.inline{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inline > *{min-width:0}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;background:var(--surface-2);padding:4px;border-radius:12px}
+.seg button{border:0;background:none;border-radius:9px;min-height:44px;font-weight:700;cursor:pointer;font-size:15px}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.15);color:var(--red)}
+
+/* Folha (modal) */
+.sheet-wrap{position:fixed;inset:0;z-index:50;background:rgba(10,6,5,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:92vh;max-height:92dvh;overflow:auto;border-radius:20px 20px 0 0;
+  padding-block:8px calc(24px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.sheet-grab{width:44px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 10px}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.sheet-h h2{font-size:21px;font-weight:800}
+@media (min-width:700px){.sheet-wrap{align-items:center}.sheet{border-radius:20px}}
+
+/* Guias */
+.article{display:flex;flex-direction:column;gap:12px;font-size:17px}
+.article h3{font-size:18px;margin-top:6px}
+.article p{margin:0}
+.article ul,.article ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px}
+.article .tip{background:var(--gold-soft);color:var(--gold-ink);border-radius:12px;padding:12px 14px;font-size:15px}
+.article .caution{background:var(--red-soft);color:var(--fg);border-radius:12px;padding:12px 14px;font-size:15px;border-left:4px solid var(--red)}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:15px;background:var(--surface)}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+
+.result{background:var(--surface);border:2px solid var(--gold);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.result .big{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.15}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--black);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:calc(100% - 32px)}
+
+@media (max-width:380px){
+  .stat .v{font-size:22px}
+  .bar-row{grid-template-columns:80px 1fr}
+}
+@media (prefers-reduced-motion: no-preference){
+  .sheet{animation:up .22s ease-out}
+  @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#b3201b"/><path d="M32 54V22" stroke="#1a1311" stroke-width="4" stroke-linecap="round"/><g fill="#e9b23c"><ellipse cx="26" cy="20" rx="5" ry="7"/><ellipse cx="38" cy="20" rx="5" ry="7"/><ellipse cx="26" cy="32" rx="5" ry="7"/><ellipse cx="38" cy="32" rx="5" ry="7"/><ellipse cx="32" cy="11" rx="4.5" ry="6.5"/></g><path d="M32 44c-6-1-11-5-13-10 6 0 11 3 13 8 2-5 7-8 13-8-2 5-7 9-13 10z" fill="#1a1311"/></svg>
+      <div style="min-width:0"><b>Caderno da Roça</b><small id="who">Seu caderno de campo</small></div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+  <div class="top-stripe"></div>
+</header>
+
+<main id="view" aria-live="polite"></main>
+
+<nav class="tabs" aria-label="Seções">
+  <div class="tabs-in">
+    <button class="tab" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Início</button>
+    <button class="tab" data-tab="caderno"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2z"/><path d="M5 19a2 2 0 0 1 2-2h12"/><path d="M9 7h6M9 11h6"/></svg>Caderno</button>
+    <button class="tab plus" data-tab="anotar" aria-label="Anotar"><span class="bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Anotar</button>
+    <button class="tab" data-tab="rebanho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c1 2 3 3 5 3h6c2 0 4-1 5-3"/><path d="M7 9c-1 1-1 3-1 5 0 3 2 6 6 6s6-3 6-6c0-2 0-4-1-5"/><circle cx="10" cy="13" r=".8" fill="currentColor"/><circle cx="14" cy="13" r=".8" fill="currentColor"/><path d="M10 17h4"/></svg>Rebanho</button>
+    <button class="tab" data-tab="guias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c0-6 0-10 0-14"/><path d="M12 12c-4 0-7-3-7-7 4 0 7 3 7 7z"/><path d="M12 9c3 0 6-2 6-6-3 0-6 2-6 6z"/><path d="M8 21h8"/></svg>Guias</button>
+  </div>
+</nav>
+
+<div id="sheetWrap" class="sheet-wrap" hidden></div>
+<div id="toast" class="toast" hidden role="status"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   Caderno da Roça — app do produtor rural (funciona offline)
+   Os dados ficam guardados no próprio celular (localStorage).
+   ========================================================= */
+
+const KEY = 'caderno-da-roca-v1';
+const ATIV = {
+  leite:{nome:'Leite', cor:'var(--fg)'},
+  corte:{nome:'Gado de corte', curto:'Corte', cor:'var(--red)'},
+  graos:{nome:'Grãos', cor:'var(--gold)'},
+  horta:{nome:'Horta', cor:'var(--good)'},
+  geral:{nome:'Geral', cor:'var(--muted)'}
+};
+const ICONS = {
+  chuva:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 15a4 4 0 0 1-.5-8 6 6 0 0 1 11.3 1.5A3.5 3.5 0 0 1 17.5 15z"/><path d="M8 18l-1 2M12 18l-1 2M16 18l-1 2"/></svg>',
+  leite:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M9 2h6v3l2 3v12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V8l2-3z"/><path d="M7 12h10"/></svg>',
+  gasto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg>',
+  venda:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>',
+  plantio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v-8"/><path d="M12 12c-3 0-5-2-5-5 3 0 5 2 5 5zM12 12c0-3 2-5 5-5 0 3-2 5-5 5z"/><path d="M4 20h16"/></svg>',
+  colheita:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 22V9"/><ellipse cx="9.5" cy="8" rx="2" ry="3"/><ellipse cx="14.5" cy="8" rx="2" ry="3"/><ellipse cx="9.5" cy="14" rx="2" ry="3"/><ellipse cx="14.5" cy="14" rx="2" ry="3"/><ellipse cx="12" cy="3.5" rx="1.8" ry="2.5"/></svg>',
+  anotacao:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>',
+  vaca:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c1 2 3 3 5 3h6c2 0 4-1 5-3"/><path d="M7 9c-1 1-1 3-1 5 0 3 2 6 6 6s6-3 6-6c0-2 0-4-1-5"/><path d="M10 17h4"/></svg>',
+  boi:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5c0 3 2 4 5 4h8c3 0 5-1 5-4"/><path d="M7 9c-1 1-1 3-1 5 0 3 2 6 6 6s6-3 6-6c0-2 0-4-1-5"/><path d="M10 17h4"/></svg>',
+  balanca:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 9a5 5 0 0 1 8 0"/><path d="M12 9l2-2"/></svg>',
+  sino:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>',
+  prev:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
+  next:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
+  close:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
+};
+const TIPOS = {
+  chuva:{nome:'Chuva', desc:'Milímetros do pluviômetro'},
+  leite:{nome:'Leite', desc:'Litros tirados no dia'},
+  gasto:{nome:'Gasto', desc:'Ração, remédio, diária…'},
+  venda:{nome:'Venda', desc:'Leite, animal, safra…'},
+  plantio:{nome:'Plantio', desc:'O que e quanto plantou'},
+  colheita:{nome:'Colheita', desc:'Quanto colheu'},
+  anotacao:{nome:'Anotação', desc:'Serviço feito, observação'}
+};
+const CULTURAS = ['Milho','Feijão-de-corda','Feijão','Sorgo','Mandioca','Palma','Capim','Coentro','Alface','Cebolinha','Couve','Tomate','Pimentão','Quiabo','Jerimum','Melancia','Outra'];
+const GESTACAO = 283, SECAGEM = 60, CICLO_CIO = 21;
+
+/* ---------- utilidades ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const pad = n => String(n).padStart(2,'0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hoje = () => iso(new Date());
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDias = (s, n) => { const d = parse(s); d.setDate(d.getDate()+n); return iso(d); };
+const diffDias = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const MES_C = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const fData = s => { const d = parse(s); return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`; };
+const fDataC = s => { const d = parse(s); return `${d.getDate()} ${MES_C[d.getMonth()]}`; };
+const fNum = (n, dec=0) => Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+const fR = n => (n < 0 ? '−' : '') + 'R$ ' + Math.abs(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2, maximumFractionDigits:2});
+const fRc = n => { const a=Math.abs(n||0); const s = a>=10000 ? fNum(a/1000,1)+' mil' : fNum(a,0); return (n<0?'−':'')+'R$ '+s; };
+const num = v => { if (v === '' || v == null) return NaN; return Number(String(v).replace(/\./g,'').replace(',','.')); };
+const numDec = v => { if (v === '' || v == null) return NaN; const s=String(v).trim(); return Number(s.includes(',') ? s.replace(/\./g,'').replace(',','.') : s); };
+const quando = s => { const d = diffDias(hoje(), s); if (d===0) return 'hoje'; if (d===1) return 'amanhã'; if (d===-1) return 'ontem'; if (d>1) return `em ${d} dias`; return `há ${-d} dias`; };
+
+/* ---------- dados ---------- */
+let S = load();
+function vazio(){ return {versao:1, nome:'', registros:[], animais:[], lembretes:[], exemplo:false, inicioVisto:false}; }
+function load(){
+  try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); return Object.assign(vazio(), d); } } catch(e){}
+  return vazio();
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch(e){ toast('Não consegui guardar no celular. Faça uma cópia de segurança.'); }
+}
+
+/* ---------- estado da tela ---------- */
+const ui = { tab:'inicio', mes: hoje().slice(0,7), filtro:'todos', reb:'todos', guia:null, guiaFiltro:'todos' };
+
+/* ---------- navegação ---------- */
+$$('.tab').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.tab === 'anotar') { abrirEscolhaRegistro(); return; }
+  irPara(b.dataset.tab);
+}));
+function irPara(tab){ ui.tab = tab; if (tab!=='guias') ui.guia=null; render(); window.scrollTo(0,0); }
+function render(){
+  const atual = ui.tab === 'mais' ? 'guias' : ui.tab;
+  $$('.tab').forEach(b => { if (b.dataset.tab === atual) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  $('#who').textContent = S.nome ? S.nome : 'Seu caderno de campo';
+  const v = $('#view');
+  if (!S.inicioVisto && !S.registros.length && !S.animais.length) { v.innerHTML = telaBoasVindas(); ligarBoasVindas(); return; }
+  const fn = {inicio:telaInicio, caderno:telaCaderno, rebanho:telaRebanho, guias:telaGuias, mais:telaMais}[ui.tab] || telaInicio;
+  v.innerHTML = (S.exemplo ? bannerExemplo() : '') + fn();
+  ligar(v);
+}
+
+/* ---------- boas-vindas ---------- */
+function telaBoasVindas(){
+  return `
+  <section class="section" style="gap:16px">
+    <p class="eyebrow">Bem-vindo</p>
+    <h1 style="font-family:var(--font-display);font-size:30px">Anote a roça.<br>Veja o que dá lucro.</h1>
+    <p>Marque a chuva, o leite, os gastos e as vendas. O app soma tudo, mostra o resultado de cada atividade e avisa de parto, secagem e cio.</p>
+    <div class="field"><label for="nomeIni">Seu nome ou nome do sítio (opcional)</label><input id="nomeIni" placeholder="Ex.: Sítio Boa Vista" autocomplete="off"></div>
+    <div class="btn-row">
+      <button class="btn primary" data-act="comecar">Começar do zero</button>
+      <button class="btn" data-act="exemplo">Ver com exemplo</button>
+    </div>
+    <p class="small muted">Os dados ficam guardados só neste celular. Funciona sem internet depois de aberto a primeira vez.</p>
+  </section>`;
+}
+function ligarBoasVindas(){
+  $('[data-act="comecar"]').onclick = () => { S.nome = $('#nomeIni').value.trim(); S.inicioVisto = true; save(); render(); };
+  $('[data-act="exemplo"]').onclick = () => { S.nome = $('#nomeIni').value.trim(); S.inicioVisto = true; carregarExemplo(); save(); render(); };
+}
+function bannerExemplo(){
+  return `<div class="banner"><b>Você está vendo dados de exemplo.</b><span>Quando quiser usar de verdade, apague os exemplos. O que você mesmo anotou continua.</span><button class="btn sm gold" data-act="apagarEx">Apagar exemplos</button></div>`;
+}
+
+/* ---------- cálculos ---------- */
+const doMes = (m) => S.registros.filter(r => r.data.slice(0,7) === m);
+const doAno = (a) => S.registros.filter(r => r.data.slice(0,4) === a);
+function resumoMes(m){
+  const rs = doMes(m);
+  const chuva = rs.filter(r=>r.tipo==='chuva').reduce((s,r)=>s+(r.mm||0),0);
+  const diasChuva = new Set(rs.filter(r=>r.tipo==='chuva' && r.mm>0).map(r=>r.data)).size;
+  const leiteRs = rs.filter(r=>r.tipo==='leite');
+  const leite = leiteRs.reduce((s,r)=>s+(r.litros||0),0);
+  const diasLeite = new Set(leiteRs.map(r=>r.data)).size;
+  const porAtiv = {};
+  Object.keys(ATIV).forEach(k => porAtiv[k] = {ent:0, sai:0});
+  rs.forEach(r => {
+    if (r.tipo==='venda') porAtiv[r.ativ||'geral'].ent += r.valor||0;
+    if (r.tipo==='gasto') porAtiv[r.ativ||'geral'].sai += r.valor||0;
+  });
+  const ent = Object.values(porAtiv).reduce((s,a)=>s+a.ent,0);
+  const sai = Object.values(porAtiv).reduce((s,a)=>s+a.sai,0);
+  return {chuva, diasChuva, leite, diasLeite, porAtiv, ent, sai, saldo: ent-sai};
+}
+function custoLitro(m){
+  const r = resumoMes(m);
+  const gastoLeite = r.porAtiv.leite.sai;
+  const vendasLeite = doMes(m).filter(x=>x.tipo==='venda' && x.ativ==='leite');
+  const litrosVend = vendasLeite.reduce((s,x)=>s+((x.unidade==='litros'&&x.qtd)||0),0);
+  const valVend = vendasLeite.filter(x=>x.unidade==='litros'&&x.qtd).reduce((s,x)=>s+(x.valor||0),0);
+  return {
+    custo: r.leite ? gastoLeite / r.leite : null,
+    preco: litrosVend ? valVend / litrosVend : null,
+    litros: r.leite
+  };
+}
+
+/* ---------- alertas do rebanho ---------- */
+function situacao(a){
+  // devolve estado reprodutivo de uma vaca
+  const out = {};
+  if (a.cobertura && (!a.ultParto || a.cobertura > a.ultParto)) {
+    out.prenha = true;
+    out.parto = addDias(a.cobertura, GESTACAO);
+    out.secar = addDias(out.parto, -SECAGEM);
+  }
+  if (!out.prenha && a.ultCio) {
+    let p = addDias(a.ultCio, CICLO_CIO);
+    while (diffDias(hoje(), p) < -3) p = addDias(p, CICLO_CIO); // projeta o próximo ciclo
+    out.proxCio = p;
+  }
+  if (a.ultParto) out.diasParida = diffDias(a.ultParto, hoje());
+  return out;
+}
+function alertas(){
+  const h = hoje(), lista = [];
+  S.animais.forEach(a => {
+    if (a.tipo !== 'leite') return;
+    const s = situacao(a);
+    if (s.prenha) {
+      const dp = diffDias(h, s.parto), ds = diffDias(h, s.secar);
+      if (dp >= -5 && dp <= 30) lista.push({data:s.parto, nivel:'red', t:`Parto previsto de ${a.nome}`, d:`${fData(s.parto)} · ${quando(s.parto)}`, id:a.id});
+      else if (ds >= -10 && ds <= 15) lista.push({data:s.secar, nivel:'warn', t:`Secar ${a.nome}`, d:`${fData(s.secar)} · ${quando(s.secar)} · 60 dias antes do parto`, id:a.id});
+    }
+    if (s.proxCio) {
+      const dc = diffDias(h, s.proxCio);
+      if (dc >= -2 && dc <= 5) lista.push({data:s.proxCio, nivel:'info', t:`Observar cio de ${a.nome}`, d:`${fData(s.proxCio)} · ${quando(s.proxCio)}`, id:a.id});
+    }
+    if (!s.prenha && s.diasParida != null && s.diasParida > 90) lista.push({data:h, nivel:'warn', t:`${a.nome} vazia há ${s.diasParida} dias após o parto`, d:'Converse com o veterinário sobre a reprodução', id:a.id});
+  });
+  S.lembretes.filter(l => !l.feito).forEach(l => {
+    const d = diffDias(h, l.data);
+    if (d <= 15) lista.push({data:l.data, nivel: d < 0 ? 'red' : 'info', t:l.texto, d:`${fData(l.data)} · ${quando(l.data)}`, lembrete:l.id});
+  });
+  return lista.sort((a,b)=>a.data<b.data?-1:1);
+}
+
+/* ---------- INÍCIO ---------- */
+function telaInicio(){
+  const m = ui.mes, [y,mm] = m.split('-').map(Number);
+  const r = resumoMes(m), cl = custoLitro(m);
+  const ehAtual = m === hoje().slice(0,7);
+  const al = alertas();
+  const ano = String(y);
+  const chuvaAno = doAno(ano).filter(x=>x.tipo==='chuva').reduce((s,x)=>s+(x.mm||0),0);
+  const diasNoMes = ehAtual ? new Date().getDate() : new Date(y, mm, 0).getDate();
+  const mediaLeite = r.diasLeite ? r.leite / r.diasLeite : 0;
+
+  const ativs = Object.keys(ATIV).filter(k => r.porAtiv[k].ent || r.porAtiv[k].sai);
+  const maxAbs = Math.max(1, ...ativs.map(k => Math.max(r.porAtiv[k].ent, r.porAtiv[k].sai)));
+
+  return `
+  <div class="monthnav">
+    <button class="iconbtn" data-act="mesAnt" aria-label="Mês anterior">${ICONS.prev}</button>
+    <div style="text-align:center"><p class="eyebrow">${ehAtual ? 'Este mês' : 'Resumo do mês'}</p><h1>${MESES[mm-1]} ${y}</h1></div>
+    <button class="iconbtn" data-act="mesProx" aria-label="Próximo mês" ${ehAtual?'disabled':''}>${ICONS.next}</button>
+  </div>
+
+  ${al.length ? `<section class="section"><div class="section-h"><h2>Avisos</h2><span class="muted small">${al.length}</span></div>
+    <div class="alerts">${al.slice(0,5).map(a => `
+      <div class="alert ${a.nivel}">
+        <div class="tx"><b>${esc(a.t)}</b><span class="when">${esc(a.d)}</span></div>
+        ${a.lembrete ? `<button class="btn sm" data-act="lembFeito" data-id="${a.lembrete}">Feito</button>` : `<button class="btn sm" data-act="verAnimal" data-id="${a.id}">Ver</button>`}
+      </div>`).join('')}
+    </div></section>` : ''}
+
+  <div class="stats">
+    <div class="stat money ${r.saldo>=0?'pos':'neg'}" style="grid-column:1/-1">
+      <span class="k">Resultado do mês (vendas − gastos)</span>
+      <span class="v">${fR(r.saldo)}</span>
+      <span class="s num">Entrou ${fR(r.ent)} · Saiu ${fR(r.sai)}</span>
+    </div>
+    <div class="stat rain"><span class="k">Chuva no mês</span><span class="v">${fNum(r.chuva)} <small>mm</small></span><span class="s">${r.diasChuva} dia${r.diasChuva===1?'':'s'} com chuva · ${fNum(chuvaAno)} mm no ano</span></div>
+    <div class="stat"><span class="k">Leite no mês</span><span class="v">${fNum(r.leite)} <small>L</small></span><span class="s">${r.diasLeite ? `média ${fNum(mediaLeite)} L por dia` : 'nenhum dia anotado'}</span></div>
+  </div>
+
+  ${cl.custo != null ? `
+  <section class="section">
+    <div class="section-h"><h2>Custo do litro de leite</h2></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div><span class="muted small">Custa produzir</span><div style="font-size:24px;font-weight:800" class="num">${fR(cl.custo)}</div></div>
+        <div style="text-align:right"><span class="muted small">Preço recebido</span><div style="font-size:24px;font-weight:800" class="num">${cl.preco!=null?fR(cl.preco):'—'}</div></div>
+      </div>
+      ${cl.preco!=null ? (cl.preco >= cl.custo
+        ? `<span class="pill good">Sobra ${fR(cl.preco-cl.custo)} por litro</span>`
+        : `<span class="pill red">Falta ${fR(cl.custo-cl.preco)} por litro: o leite está dando prejuízo</span>`)
+        : `<span class="small muted">Anote vendas de leite em litros para comparar com o preço.</span>`}
+      <span class="small muted">Gastos do leite no mês divididos pelos litros anotados.</span>
+    </div>
+  </section>` : ''}
+
+  <section class="section">
+    <div class="section-h"><h2>Resultado por atividade</h2></div>
+    <div class="card">
+      ${ativs.length ? `<div class="bars">${ativs.map(k => {
+        const a = r.porAtiv[k], s = a.ent - a.sai;
+        const w = Math.max(4, Math.abs(s)/maxAbs*100);
+        return `<div class="bar-row">
+          <span class="lbl">${ATIV[k].curto||ATIV[k].nome}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${s>=0?'var(--good-soft)':'var(--red-soft)'};border-right:4px solid ${s>=0?'var(--good)':'var(--bad)'}"></div><span class="bar-val" style="color:${s>=0?'var(--good)':'var(--bad)'}">${fR(s)}</span></div>
+          <span class="bar-sub num">vendeu ${fRc(a.ent)} · gastou ${fRc(a.sai)}</span>
+        </div>`;}).join('')}</div>`
+      : `<p class="empty">Anote gastos e vendas e escolha a atividade de cada um. Aqui aparece quanto cada uma está dando.</p>`}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-h"><h2>Chuva em ${y}</h2><span class="muted small num">${fNum(chuvaAno)} mm</span></div>
+    <div class="card">${graficoChuva(ano)}</div>
+  </section>
+
+  <section class="section">
+    <div class="section-h"><h2>Últimas anotações</h2><button class="link" data-act="irCaderno">Ver todas</button></div>
+    ${listaRegistros([...S.registros].sort(ordem).slice(0,5))}
+  </section>`;
+}
+const ordem = (a,b) => a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado||0) - (a.criado||0);
+
+function graficoChuva(ano){
+  const tot = Array(12).fill(0);
+  doAno(ano).filter(r=>r.tipo==='chuva').forEach(r => tot[Number(r.data.slice(5,7))-1] += r.mm||0);
+  const max = Math.max(...tot);
+  if (!max) return `<p class="empty">Nenhuma chuva anotada em ${ano}.</p>`;
+  const top = Math.max(50, Math.ceil(max/50)*50);
+  const W=340, H=180, L=34, B=26, T=16, cw=(W-L-6)/12;
+  const y = v => T + (H-T-B) * (1 - v/top);
+  const ticks = [0, top/2, top];
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Chuva por mês em ${ano}">
+    ${ticks.map(t=>`<line x1="${L}" x2="${W-4}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(t)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${fNum(t)}</text>`).join('')}
+    ${tot.map((v,i)=>{
+      const x = L + i*cw + cw*0.18, w = cw*0.64, yy = y(v), h = (H-B) - yy;
+      return `${v?`<rect x="${x}" y="${yy}" width="${w}" height="${Math.max(h,1)}" rx="3" fill="var(--rain)"/>`:''}
+      ${v && v===max ? `<text x="${x+w/2}" y="${yy-4}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--rain)">${fNum(v)}</text>`:''}
+      <text x="${x+w/2}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--muted)">${MES_C[i][0].toUpperCase()}</text>`;
+    }).join('')}
+  </svg><p class="small muted" style="margin:6px 0 0">Milímetros por mês. Compare a quadra chuvosa de um ano com a do outro.</p>`;
+}
+
+/* ---------- lista de registros ---------- */
+function descRegistro(r){
+  const a = ATIV[r.ativ] ? ATIV[r.ativ].nome : '';
+  switch(r.tipo){
+    case 'chuva': return {t:'Chuva', s:fData(r.data), v:`${fNum(r.mm,r.mm%1?1:0)} mm`, c:'rain'};
+    case 'leite': { const an = S.animais.find(x=>x.id===r.animal); return {t:'Leite' + (an?` · ${an.nome}`:''), s:fData(r.data), v:`${fNum(r.litros,r.litros%1?1:0)} L`, c:''}; }
+    case 'gasto': return {t:r.desc||'Gasto', s:`${fData(r.data)} · ${a}`, v:'−'+fR(r.valor).replace('R$ ','R$ '), c:'neg'};
+    case 'venda': return {t:r.desc||'Venda', s:`${fData(r.data)} · ${a}${r.qtd?` · ${fNum(r.qtd, r.qtd%1?1:0)} ${r.unidade||''}`:''}`, v:fR(r.valor), c:'pos'};
+    case 'plantio': return {t:`Plantio de ${r.cultura}`, s:`${fData(r.data)}${r.area?` · ${fNum(r.area, r.area%1?1:0)} ${r.unidade}`:''}`, v:'', c:''};
+    case 'colheita': return {t:`Colheita de ${r.cultura}`, s:fData(r.data), v:r.qtd?`${fNum(r.qtd, r.qtd%1?1:0)} ${r.unidade}`:'', c:''};
+    default: return {t:r.desc||'Anotação', s:`${fData(r.data)}${a?' · '+a:''}`, v:'', c:''};
+  }
+}
+function listaRegistros(rs){
+  if (!rs.length) return `<div class="list"><p class="empty">Nada anotado ainda. Toque no botão <b>+</b> embaixo para começar.</p></div>`;
+  return `<div class="list">${rs.map(r => { const d = descRegistro(r); return `
+    <button class="row" data-act="editReg" data-id="${r.id}">
+      <span class="ic ic-${r.tipo}">${ICONS[r.tipo]}</span>
+      <span class="tx"><b>${esc(d.t)}</b><span>${esc(d.s)}</span></span>
+      ${d.v?`<span class="amt ${d.c}">${esc(d.v)}</span>`:''}
+    </button>`;}).join('')}</div>`;
+}
+
+/* ---------- CADERNO ---------- */
+function telaCaderno(){
+  const filtros = [['todos','Tudo'],['chuva','Chuva'],['leite','Leite'],['dinheiro','Gastos e vendas'],['lavoura','Plantio e colheita'],['anotacao','Anotações']];
+  let rs = [...S.registros].sort(ordem);
+  const f = ui.filtro;
+  if (f==='dinheiro') rs = rs.filter(r=>r.tipo==='gasto'||r.tipo==='venda');
+  else if (f==='lavoura') rs = rs.filter(r=>r.tipo==='plantio'||r.tipo==='colheita');
+  else if (f!=='todos') rs = rs.filter(r=>r.tipo===f);
+  // agrupa por mês
+  const grupos = {};
+  rs.forEach(r => (grupos[r.data.slice(0,7)] ||= []).push(r));
+  const meses = Object.keys(grupos).sort().reverse();
+  return `
+  <div class="section-h"><h1 style="font-size:26px;font-family:var(--font-display)">Caderno</h1><span class="muted small">${S.registros.length} anotações</span></div>
+  <div class="chips" role="group" aria-label="Filtrar">${filtros.map(([k,n])=>`<button class="chip" data-act="filtro" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
+  ${meses.length ? meses.map(m => { const [y,mm]=m.split('-').map(Number); return `
+    <section class="section"><div class="section-h"><p class="eyebrow">${MESES[mm-1]} ${y}</p>${resumoGrupo(grupos[m], f)}</div>${listaRegistros(grupos[m].slice(0,200))}</section>`; }).join('')
+  : listaRegistros([])}
+  `;
+}
+function resumoGrupo(rs, f){
+  if (f==='chuva') return `<span class="small muted num">${fNum(rs.reduce((s,r)=>s+(r.mm||0),0))} mm</span>`;
+  if (f==='leite') return `<span class="small muted num">${fNum(rs.reduce((s,r)=>s+(r.litros||0),0))} L</span>`;
+  if (f==='dinheiro') { const s = rs.reduce((s,r)=>s+(r.tipo==='venda'?r.valor:-r.valor),0); return `<span class="small num" style="color:${s>=0?'var(--good)':'var(--bad)'};font-weight:700">${fR(s)}</span>`; }
+  return '';
+}
+
+/* ---------- formulários de registro ---------- */
+function abrirEscolhaRegistro(){
+  abrirFolha('O que você quer anotar?', `
+    <div class="tiles">${Object.entries(TIPOS).map(([k,t])=>`
+      <button class="tile" data-tipo="${k}"><span class="ic ic-${k}">${ICONS[k]}</span><b>${t.nome}</b><span>${t.desc}</span></button>`).join('')}
+      <button class="tile" data-tipo="lembrete"><span class="ic ic-anotacao">${ICONS.sino}</span><b>Lembrete</b><span>Vacina, adubo, pagamento</span></button>
+    </div>`, f => {
+      $$('.tile', f).forEach(b => b.onclick = () => b.dataset.tipo==='lembrete' ? formLembrete() : formRegistro(b.dataset.tipo));
+    });
+}
+function selAtiv(id, val, permitir){
+  const ks = permitir || Object.keys(ATIV);
+  return `<div class="field"><label for="${id}">Atividade</label><select id="${id}">${ks.map(k=>`<option value="${k}" ${val===k?'selected':''}>${ATIV[k].nome}</option>`).join('')}</select></div>`;
+}
+function formRegistro(tipo, reg){
+  const r = reg || {tipo, data:hoje(), ativ: tipo==='venda'||tipo==='gasto' ? (ultimaAtiv(tipo)||'leite') : 'geral'};
+  const vacas = S.animais.filter(a=>a.tipo==='leite');
+  const v = (x) => x==null || Number.isNaN(x) ? '' : String(x).replace('.',',');
+  let campos = `<div class="field"><label for="fData">Data</label><input id="fData" type="date" value="${r.data}" max="${addDias(hoje(),1)}" required></div>`;
+  if (tipo==='chuva') campos += `<div class="field"><label for="fMm">Chuva (mm)</label><input id="fMm" inputmode="decimal" value="${v(r.mm)}" placeholder="Ex.: 25" required><span class="hint">Leia o pluviômetro de manhã e anote o número.</span></div>`;
+  if (tipo==='leite') campos += `<div class="field"><label for="fLitros">Litros</label><input id="fLitros" inputmode="decimal" value="${v(r.litros)}" placeholder="Ex.: 48" required><span class="hint">Pode ser o total do dia ou de uma vaca só.</span></div>
+    ${vacas.length?`<div class="field"><label for="fVaca">Vaca (opcional)</label><select id="fVaca"><option value="">Total do rebanho</option>${vacas.map(a=>`<option value="${a.id}" ${r.animal===a.id?'selected':''}>${esc(a.nome)}</option>`).join('')}</select></div>`:''}`;
+  if (tipo==='gasto') campos += `${selAtiv('fAtiv', r.ativ)}
+    <div class="field"><label for="fDesc">Com o quê?</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="Ex.: ração, vacina, diária" list="sugGasto"></div>
+    <datalist id="sugGasto">${['Ração','Farelo de milho','Torta de algodão','Sal mineral','Vacina','Vermífugo','Remédio','Diária','Semente','Adubo','Esterco','Óleo diesel','Energia','Combustível','Manutenção','Arame','Mangueira de gotejo'].map(x=>`<option value="${x}">`).join('')}</datalist>
+    <div class="field"><label for="fValor">Valor (R$)</label><input id="fValor" inputmode="decimal" value="${v(r.valor)}" placeholder="0,00" required></div>`;
+  if (tipo==='venda') campos += `${selAtiv('fAtiv', r.ativ)}
+    <div class="field"><label for="fDesc">O que vendeu?</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="Ex.: leite para o laticínio" list="sugVenda"></div>
+    <datalist id="sugVenda">${['Leite','Queijo','Bezerro','Garrote','Vaca','Boi','Milho','Feijão','Verduras','Coentro','Ovos'].map(x=>`<option value="${x}">`).join('')}</datalist>
+    <div class="inline"><div class="field"><label for="fQtd">Quantidade</label><input id="fQtd" inputmode="decimal" value="${v(r.qtd)}" placeholder="Opcional"></div>
+    <div class="field"><label for="fUn">Unidade</label><select id="fUn">${['litros','cabeças','sacos','kg','arrobas','maços','caixas','unidades'].map(u=>`<option ${r.unidade===u?'selected':''}>${u}</option>`).join('')}</select></div></div>
+    <span class="hint muted small" style="margin-top:-8px">Venda de leite em <b>litros</b> serve para o app calcular o preço do litro.</span>
+    <div class="field"><label for="fValor">Valor total (R$)</label><input id="fValor" inputmode="decimal" value="${v(r.valor)}" placeholder="0,00" required></div>`;
+  if (tipo==='plantio') campos += `<div class="field"><label for="fCult">Cultura</label><select id="fCult">${CULTURAS.map(c=>`<option ${r.cultura===c?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="inline"><div class="field"><label for="fArea">Área</label><input id="fArea" inputmode="decimal" value="${v(r.area)}" placeholder="Ex.: 2"></div>
+    <div class="field"><label for="fUn">Medida</label><select id="fUn">${['tarefas','hectares','canteiros','covas','linhas'].map(u=>`<option ${r.unidade===u?'selected':''}>${u}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="fDesc">Observação</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="Ex.: semente do Hora de Plantar"></div>`;
+  if (tipo==='colheita') campos += `<div class="field"><label for="fCult">Cultura</label><select id="fCult">${CULTURAS.map(c=>`<option ${r.cultura===c?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div class="inline"><div class="field"><label for="fQtd">Quantidade</label><input id="fQtd" inputmode="decimal" value="${v(r.qtd)}" placeholder="Ex.: 12" required></div>
+    <div class="field"><label for="fUn">Unidade</label><select id="fUn">${['sacos de 60 kg','kg','maços','caixas','unidades','toneladas'].map(u=>`<option ${r.unidade===u?'selected':''}>${u}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="fDesc">Observação</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="Opcional"></div>`;
+  if (tipo==='anotacao') campos += `${selAtiv('fAtiv', r.ativ)}<div class="field"><label for="fDesc">O que foi feito ou observado?</label><textarea id="fDesc" placeholder="Ex.: vermifuguei os garrotes; apareceu lagarta no milho">${esc(r.desc||'')}</textarea></div>`;
+
+  abrirFolha((reg?'Editar ':'') + TIPOS[tipo].nome, `
+    <form class="form" id="fReg" novalidate>${campos}
+      <p class="small" id="fErro" style="color:var(--bad);margin:0" hidden></p>
+      <button class="btn primary block" type="submit">${reg?'Salvar alterações':'Anotar'}</button>
+      ${reg?`<button class="btn danger block" type="button" data-act="del">Apagar esta anotação</button>`:''}
+    </form>`, f => {
+      const form = $('#fReg', f);
+      const first = $('input:not([type=date]),textarea', form); if (first && !reg) setTimeout(()=>first.focus(), 80);
+      form.onsubmit = e => {
+        e.preventDefault();
+        const g = id => { const el = $('#'+id, form); return el ? el.value.trim() : undefined; };
+        const novo = Object.assign({}, r, {tipo, data: g('fData') || hoje()});
+        const erro = msg => { const p=$('#fErro',form); p.textContent=msg; p.hidden=false; };
+        if (tipo==='chuva'){ novo.mm = numDec(g('fMm')); if (!(novo.mm>=0)) return erro('Escreva quantos milímetros choveu.'); }
+        if (tipo==='leite'){ novo.litros = numDec(g('fLitros')); novo.animal = g('fVaca')||''; novo.ativ='leite'; if (!(novo.litros>0)) return erro('Escreva quantos litros.'); }
+        if (tipo==='gasto'||tipo==='venda'){ novo.ativ=g('fAtiv'); novo.desc=g('fDesc'); novo.valor=numDec(g('fValor')); if (!(novo.valor>0)) return erro('Escreva o valor em reais.'); }
+        if (tipo==='venda'){ const q=numDec(g('fQtd')); novo.qtd = q>0?q:null; novo.unidade=g('fUn'); }
+        if (tipo==='plantio'){ novo.cultura=g('fCult'); const a=numDec(g('fArea')); novo.area=a>0?a:null; novo.unidade=g('fUn'); novo.desc=g('fDesc'); novo.ativ = ['Coentro','Alface','Cebolinha','Couve','Tomate','Pimentão','Quiabo'].includes(novo.cultura)?'horta':'graos'; }
+        if (tipo==='colheita'){ novo.cultura=g('fCult'); novo.qtd=numDec(g('fQtd')); novo.unidade=g('fUn'); novo.desc=g('fDesc'); if (!(novo.qtd>0)) return erro('Escreva quanto colheu.'); novo.ativ = ['Coentro','Alface','Cebolinha','Couve','Tomate','Pimentão','Quiabo'].includes(novo.cultura)?'horta':'graos'; }
+        if (tipo==='anotacao'){ novo.ativ=g('fAtiv'); novo.desc=g('fDesc'); if (!novo.desc) return erro('Escreva a anotação.'); }
+        if (reg) { delete novo.ex; S.registros = S.registros.map(x => x.id===reg.id ? novo : x); }
+        else { novo.id = uid(); novo.criado = Date.now(); S.registros.push(novo); }
+        save(); fecharFolha(); render(); toast(reg ? 'Alteração salva' : `${TIPOS[tipo].nome} anotada`);
+      };
+      const del = $('[data-act="del"]', form);
+      if (del) confirmar(del, () => { S.registros = S.registros.filter(x=>x.id!==reg.id); save(); fecharFolha(); render(); toast('Anotação apagada'); });
+    });
+}
+function ultimaAtiv(tipo){ const r = [...S.registros].sort(ordem).find(x=>x.tipo===tipo); return r && r.ativ; }
+function confirmar(btn, fn){
+  let armado = false, t;
+  const txt = btn.textContent;
+  btn.onclick = () => {
+    if (armado) { clearTimeout(t); fn(); return; }
+    armado = true; btn.textContent = 'Toque de novo para confirmar'; btn.classList.add('primary'); btn.classList.remove('danger');
+    t = setTimeout(()=>{ armado=false; btn.textContent=txt; btn.classList.remove('primary'); btn.classList.add('danger'); }, 4000);
+  };
+}
+
+/* ---------- lembretes ---------- */
+function formLembrete(l){
+  const x = l || {data: addDias(hoje(),7), texto:''};
+  abrirFolha(l?'Editar lembrete':'Novo lembrete', `
+    <form class="form" id="fLem" novalidate>
+      <div class="field"><label for="lTx">Lembrar de quê?</label><input id="lTx" value="${esc(x.texto)}" placeholder="Ex.: vacinar bezerras contra brucelose" required></div>
+      <div class="field"><label for="lData">Quando</label><input id="lData" type="date" value="${x.data}" required></div>
+      <div class="chips">${[['Amanhã',1],['Em 1 semana',7],['Em 15 dias',15],['Em 1 mês',30]].map(([n,d])=>`<button type="button" class="chip" data-d="${d}">${n}</button>`).join('')}</div>
+      <p class="small" id="lErro" style="color:var(--bad);margin:0" hidden></p>
+      <button class="btn primary block" type="submit">${l?'Salvar':'Criar lembrete'}</button>
+      ${l?`<button class="btn danger block" type="button" data-act="del">Apagar lembrete</button>`:''}
+    </form>`, f => {
+      $$('[data-d]', f).forEach(b => b.onclick = () => $('#lData', f).value = addDias(hoje(), Number(b.dataset.d)));
+      $('#fLem', f).onsubmit = e => {
+        e.preventDefault();
+        const texto = $('#lTx',f).value.trim(), data = $('#lData',f).value;
+        if (!texto) { const p=$('#lErro',f); p.textContent='Escreva do que quer lembrar.'; p.hidden=false; return; }
+        if (l) S.lembretes = S.lembretes.map(y => y.id===l.id ? {...y, texto, data} : y);
+        else S.lembretes.push({id:uid(), texto, data, feito:false});
+        save(); fecharFolha(); render(); toast('Lembrete salvo');
+      };
+      const del = $('[data-act="del"]', f);
+      if (del) confirmar(del, () => { S.lembretes = S.lembretes.filter(y=>y.id!==l.id); save(); fecharFolha(); render(); });
+    });
+}
+
+/* ---------- REBANHO ---------- */
+function telaRebanho(){
+  const f = ui.reb;
+  let as = S.animais.slice().sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{numeric:true}));
+  if (f!=='todos') as = as.filter(a=>a.tipo===f);
+  const nL = S.animais.filter(a=>a.tipo==='leite').length, nC = S.animais.filter(a=>a.tipo==='corte').length;
+  const prenhas = S.animais.filter(a=>a.tipo==='leite' && situacao(a).prenha).length;
+  return `
+  <div class="section-h"><h1 style="font-size:26px;font-family:var(--font-display)">Rebanho</h1><button class="btn sm primary" data-act="novoAnimal">+ Animal</button></div>
+  <div class="stats">
+    <div class="stat"><span class="k">Gado de leite</span><span class="v">${nL}</span><span class="s">${prenhas} prenha${prenhas===1?'':'s'}</span></div>
+    <div class="stat"><span class="k">Gado de corte</span><span class="v">${nC}</span><span class="s">${pesoMedioCorte()}</span></div>
+  </div>
+  <div class="chips">${[['todos','Todos'],['leite','Leite'],['corte','Corte']].map(([k,n])=>`<button class="chip" data-act="rebF" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
+  ${as.length ? `<div class="list">${as.map(a => cardAnimal(a)).join('')}</div>`
+   : `<div class="list"><p class="empty">Cadastre suas vacas e bois para o app avisar de cio, parto e secagem, e acompanhar o ganho de peso.</p></div>`}
+  <div class="card small muted">Datas de parto: ${GESTACAO} dias após a cobertura ou inseminação. Secagem: ${SECAGEM} dias antes do parto. Cio: a cada ${CICLO_CIO} dias. São médias, confirme a prenhez com o veterinário.</div>
+  `;
+}
+function pesoMedioCorte(){
+  const ps = S.animais.filter(a=>a.tipo==='corte' && a.pesagens && a.pesagens.length).map(a=>a.pesagens.slice().sort((x,y)=>x.data<y.data?-1:1).at(-1).peso);
+  if (!ps.length) return 'sem pesagem';
+  return `peso médio ${fNum(ps.reduce((s,p)=>s+p,0)/ps.length)} kg`;
+}
+function gmd(a){
+  const p = (a.pesagens||[]).slice().sort((x,y)=>x.data<y.data?-1:1);
+  if (p.length < 2) return null;
+  const u = p.at(-1), pen = p.at(-2), pr = p[0];
+  const dU = diffDias(pen.data, u.data), dT = diffDias(pr.data, u.data);
+  return { ultimo: dU>0 ? (u.peso-pen.peso)/dU : null, total: dT>0 ? (u.peso-pr.peso)/dT : null, peso:u.peso, data:u.data, dias:dU };
+}
+function cardAnimal(a){
+  const pills = [];
+  let sub = a.raca ? esc(a.raca) : (a.tipo==='leite'?'Gado de leite':'Gado de corte');
+  if (a.tipo==='leite'){
+    const s = situacao(a);
+    if (s.prenha) {
+      pills.push(`<span class="pill good">Prenha · parto ${fDataC(s.parto)}</span>`);
+      const ds = diffDias(hoje(), s.secar);
+      if (ds > 0 && ds <= 15) pills.push(`<span class="pill warn">Secar ${quando(s.secar)}</span>`);
+      else if (ds <= 0 && diffDias(hoje(), s.parto) > 0) pills.push(`<span class="pill gray">Período seco desde ${fDataC(s.secar)}</span>`);
+    }
+    else if (s.proxCio) pills.push(`<span class="pill gray">Cio previsto ${fDataC(s.proxCio)}</span>`);
+    if (!s.prenha && s.diasParida != null) pills.push(`<span class="pill ${s.diasParida>90?'warn':'gray'}">Parida há ${s.diasParida} dias</span>`);
+    const lt = S.registros.filter(r=>r.tipo==='leite' && r.animal===a.id).sort(ordem)[0];
+    if (lt) sub += ` · último leite ${fNum(lt.litros,lt.litros%1?1:0)} L`;
+  } else {
+    const g = gmd(a);
+    const p = (a.pesagens||[]).slice().sort((x,y)=>x.data<y.data?-1:1).at(-1);
+    if (p) sub += ` · ${fNum(p.peso)} kg em ${fDataC(p.data)}`;
+    if (g && g.ultimo!=null) pills.push(`<span class="pill ${g.ultimo>=0.5?'good':g.ultimo>0?'warn':'red'}">Ganho ${fNum(g.ultimo*1000)} g/dia</span>`);
+    else pills.push(`<span class="pill gray">Pese de novo para ver o ganho</span>`);
+  }
+  return `<button class="row" data-act="verAnimal" data-id="${a.id}">
+    <span class="ic ic-${a.tipo==='leite'?'vaca':'boi'}">${ICONS[a.tipo==='leite'?'vaca':'boi']}</span>
+    <span class="tx"><b>${esc(a.nome)}</b><span>${sub}</span>${pills.length?`<span class="pills">${pills.join('')}</span>`:''}</span>
+  </button>`;
+}
+function formAnimal(a){
+  const x = a || {tipo: ui.reb==='corte'?'corte':'leite', nome:'', raca:''};
+  abrirFolha(a?'Editar animal':'Novo animal', `
+    <form class="form" id="fAn" novalidate>
+      <div class="field"><label>Tipo</label><div class="seg" id="anTipo">${[['leite','Leite'],['corte','Corte']].map(([k,n])=>`<button type="button" data-v="${k}" aria-pressed="${x.tipo===k}">${n}</button>`).join('')}</div></div>
+      <div class="field"><label for="anNome">Nome ou número do brinco</label><input id="anNome" value="${esc(x.nome)}" placeholder="Ex.: Mimosa ou 102" required></div>
+      <div class="field"><label for="anRaca">Raça ou mestiçagem (opcional)</label><input id="anRaca" value="${esc(x.raca||'')}" placeholder="Ex.: Girolando, Nelore, mestiça" list="sugRaca"></div>
+      <datalist id="sugRaca">${['Girolando','Gir','Holandesa','Jersey','Guzerá','Sindi','Nelore','Mestiça','Pé-duro (Curraleiro)'].map(r=>`<option value="${r}">`).join('')}</datalist>
+      <div class="field" id="anPesoF" ${x.tipo==='corte'&&!a?'':'hidden'}><label for="anPeso">Peso de entrada em kg (opcional)</label><input id="anPeso" inputmode="decimal" placeholder="Ex.: 210"></div>
+      <p class="small" id="anErro" style="color:var(--bad);margin:0" hidden></p>
+      <button class="btn primary block" type="submit">${a?'Salvar':'Cadastrar'}</button>
+      ${a?`<button class="btn danger block" type="button" data-act="del">Tirar do rebanho</button>`:''}
+    </form>`, f => {
+      let tipo = x.tipo;
+      $$('#anTipo button', f).forEach(b => b.onclick = () => { tipo=b.dataset.v; $$('#anTipo button', f).forEach(y=>y.setAttribute('aria-pressed', y===b)); if(!a) $('#anPesoF',f).hidden = tipo!=='corte'; });
+      $('#fAn', f).onsubmit = e => {
+        e.preventDefault();
+        const nome = $('#anNome',f).value.trim();
+        if (!nome) { const p=$('#anErro',f); p.textContent='Escreva o nome ou o número do animal.'; p.hidden=false; return; }
+        if (a) { S.animais = S.animais.map(y => y.id===a.id ? {...y, nome, raca:$('#anRaca',f).value.trim(), tipo} : y); }
+        else {
+          const novo = {id:uid(), nome, raca:$('#anRaca',f).value.trim(), tipo, pesagens:[]};
+          const p = numDec($('#anPeso',f).value); if (tipo==='corte' && p>0) novo.pesagens.push({data:hoje(), peso:p});
+          S.animais.push(novo);
+        }
+        save(); fecharFolha(); render(); toast(a?'Animal atualizado':'Animal cadastrado');
+      };
+      const del = $('[data-act="del"]', f);
+      if (del) confirmar(del, () => { S.animais = S.animais.filter(y=>y.id!==a.id); save(); fecharFolha(); render(); toast('Animal removido'); });
+    });
+}
+function verAnimal(id){
+  const a = S.animais.find(x=>x.id===id); if (!a) return;
+  let corpo = '';
+  if (a.tipo==='leite'){
+    const s = situacao(a);
+    const leites = S.registros.filter(r=>r.tipo==='leite' && r.animal===a.id).sort(ordem);
+    corpo = `
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      ${s.prenha ? `<div><span class="pill good">Prenha</span></div>
+        <table><tbody>
+          <tr><td>Cobertura / inseminação</td><td class="n">${fData(a.cobertura)}</td></tr>
+          <tr><td>Secar a partir de</td><td class="n">${fData(s.secar)}</td></tr>
+          <tr><td><b>Parto previsto</b></td><td class="n"><b>${fData(s.parto)}</b></td></tr>
+        </tbody></table>`
+      : `<div><span class="pill gray">Vazia</span></div>
+        <table><tbody>
+          ${a.ultParto?`<tr><td>Último parto</td><td class="n">${fData(a.ultParto)}</td></tr>`:''}
+          ${a.ultCio?`<tr><td>Último cio visto</td><td class="n">${fData(a.ultCio)}</td></tr>`:''}
+          ${s.proxCio?`<tr><td><b>Próximo cio previsto</b></td><td class="n"><b>${fData(s.proxCio)}</b></td></tr>`:''}
+          ${!a.ultParto&&!a.ultCio?`<tr><td colspan="2" class="muted">Anote o cio ou o parto para o app calcular as datas.</td></tr>`:''}
+        </tbody></table>`}
+    </div>
+    <div class="btn-row">
+      <button class="btn" data-ev="cio">Vi cio</button>
+      <button class="btn" data-ev="cobertura">Coberta / inseminada</button>
+      <button class="btn" data-ev="parto">Pariu</button>
+      ${s.prenha?`<button class="btn" data-ev="vazia">Não emprenhou</button>`:''}
+    </div>
+    <div id="evForm" hidden></div>
+    <section class="section"><div class="section-h"><h2>Leite desta vaca</h2></div>
+      ${leites.length ? listaRegistros(leites.slice(0,8)) : `<div class="list"><p class="empty">Ao anotar leite, escolha esta vaca para ver a produção dela aqui.</p></div>`}
+    </section>`;
+  } else {
+    const p = (a.pesagens||[]).slice().sort((x,y)=>x.data<y.data?-1:1);
+    const g = gmd(a);
+    corpo = `
+    ${g ? `<div class="stats">
+      <div class="stat"><span class="k">Ganho na última pesagem</span><span class="v">${g.ultimo!=null?fNum(g.ultimo*1000):'—'} <small>g/dia</small></span><span class="s">em ${g.dias} dias</span></div>
+      <div class="stat"><span class="k">Ganho desde a 1ª pesagem</span><span class="v">${g.total!=null?fNum(g.total*1000):'—'} <small>g/dia</small></span><span class="s">${fNum(p[0].peso)} → ${fNum(g.peso)} kg</span></div>
+    </div>` : ''}
+    ${p.length>=2 ? graficoPeso(p) : ''}
+    <form class="form card" id="fPeso" novalidate>
+      <b>Nova pesagem</b>
+      <div class="inline"><div class="field"><label for="pData">Data</label><input id="pData" type="date" value="${hoje()}"></div>
+      <div class="field"><label for="pKg">Peso (kg)</label><input id="pKg" inputmode="decimal" placeholder="Ex.: 285"></div></div>
+      <button class="btn primary" type="submit">Anotar pesagem</button>
+    </form>
+    ${p.length ? `<div class="table-wrap"><table><thead><tr><th>Data</th><th style="text-align:right">Peso</th><th style="text-align:right">Ganho/dia</th></tr></thead><tbody>
+      ${p.slice().reverse().map((x,i,arr)=>{ const ant = arr[i+1]; const d = ant?diffDias(ant.data,x.data):0; const gg = ant&&d>0?(x.peso-ant.peso)/d:null; return `<tr><td>${fData(x.data)}</td><td class="n">${fNum(x.peso)} kg</td><td class="n">${gg!=null?fNum(gg*1000)+' g':'—'}</td></tr>`; }).join('')}
+    </tbody></table></div>` : ''}
+    ${g && g.ultimo!=null ? calcVenda(a, g) : ''}`;
+  }
+  abrirFolha(a.nome, `
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <p class="muted" style="margin:-8px 0 0">${a.tipo==='leite'?'Gado de leite':'Gado de corte'}${a.raca?' · '+esc(a.raca):''}</p>
+      ${corpo}
+      <button class="btn block" data-act="editAnimal">Editar ou remover</button>
+    </div>`, f => {
+      $('[data-act="editAnimal"]', f).onclick = () => formAnimal(a);
+      $$('[data-ev]', f).forEach(b => b.onclick = () => {
+        const ev = b.dataset.ev, box = $('#evForm', f);
+        const tit = {cio:'Data em que viu o cio', cobertura:'Data da cobertura ou inseminação', parto:'Data do parto', vazia:'Confirmar que não emprenhou'}[ev];
+        box.hidden = false;
+        box.innerHTML = `<form class="form card" id="fEv"><div class="field"><label for="evData">${tit}</label><input id="evData" type="date" value="${hoje()}" max="${hoje()}"></div><button class="btn primary" type="submit">Salvar</button></form>`;
+        $('#fEv', f).onsubmit = e => {
+          e.preventDefault();
+          const d = $('#evData', f).value || hoje();
+          const up = {cio:{ultCio:d}, cobertura:{cobertura:d, ultCio:d}, parto:{ultParto:d}, vazia:{cobertura:null, ultCio:d}}[ev];
+          S.animais = S.animais.map(y => y.id===a.id ? {...y, ...up} : y);
+          if (ev==='parto') S.registros.push({id:uid(), criado:Date.now(), tipo:'anotacao', data:d, ativ:'leite', desc:`${a.nome} pariu`});
+          save(); verAnimal(a.id); render(); toast('Anotado');
+        };
+      });
+      const fp = $('#fPeso', f);
+      if (fp) fp.onsubmit = e => {
+        e.preventDefault();
+        const kg = numDec($('#pKg', f).value), d = $('#pData', f).value || hoje();
+        if (!(kg>0)) { $('#pKg', f).focus(); return; }
+        S.animais = S.animais.map(y => y.id===a.id ? {...y, pesagens:[...(y.pesagens||[]).filter(z=>z.data!==d), {data:d, peso:kg}]} : y);
+        save(); verAnimal(a.id); render(); toast('Pesagem anotada');
+      };
+      const cv = $('#fVenda', f);
+      if (cv) { const run = () => calcVendaRun(f, g2()); const g2 = () => gmd(S.animais.find(x=>x.id===id)); $$('input', cv).forEach(i=>i.oninput=run); run(); }
+    });
+}
+function graficoPeso(p){
+  const W=340,H=150,L=38,B=24,T=14;
+  const min = Math.min(...p.map(x=>x.peso)), max = Math.max(...p.map(x=>x.peso));
+  const lo = Math.floor((min-10)/10)*10, hi = Math.ceil((max+10)/10)*10;
+  const d0 = p[0].data, dn = Math.max(1, diffDias(d0, p.at(-1).data));
+  const X = d => L + (W-L-12) * diffDias(d0, d)/dn, Y = v => T + (H-T-B)*(1-(v-lo)/(hi-lo));
+  const pts = p.map(x=>`${X(x.data)},${Y(x.peso)}`).join(' ');
+  return `<div class="card"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolução do peso">
+    ${[lo,(lo+hi)/2,hi].map(t=>`<line x1="${L}" x2="${W-6}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(t)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${fNum(t)}</text>`).join('')}
+    <polygon points="${X(p[0].data)},${H-B} ${pts} ${X(p.at(-1).data)},${H-B}" fill="var(--red-soft)"/>
+    <polyline points="${pts}" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linejoin="round"/>
+    ${p.map((x,i)=>`<circle cx="${X(x.data)}" cy="${Y(x.peso)}" r="${i===p.length-1?5:3.5}" fill="${i===p.length-1?'var(--red)':'var(--surface)'}" stroke="var(--red)" stroke-width="2"/>`).join('')}
+    <text x="${L}" y="${H-6}" font-size="10" fill="var(--muted)">${fDataC(p[0].data)}</text>
+    <text x="${W-6}" y="${H-6}" font-size="10" text-anchor="end" fill="var(--muted)">${fDataC(p.at(-1).data)}</text>
+  </svg><p class="small muted" style="margin:4px 0 0">Peso em kg</p></div>`;
+}
+function calcVenda(a, g){
+  return `<section class="section"><div class="section-h"><h2>Vale a pena segurar?</h2></div>
+  <form class="form card" id="fVenda" onsubmit="return false">
+    <p class="small muted" style="margin:0">Compara quanto o animal engorda por dia em dinheiro com quanto custa mantê-lo.</p>
+    <div class="inline">
+      <div class="field"><label for="vPreco">Preço do kg vivo (R$)</label><input id="vPreco" inputmode="decimal" value="${a.precoKg||''}" placeholder="Ex.: 11,00"></div>
+      <div class="field"><label for="vCusto">Custo por dia (R$)</label><input id="vCusto" inputmode="decimal" value="${a.custoDia||''}" placeholder="Ex.: 4,50"></div>
+    </div>
+    <div id="vRes"></div>
+  </form></section>`;
+}
+function calcVendaRun(f, g){
+  const preco = numDec($('#vPreco',f).value), custo = numDec($('#vCusto',f).value), box = $('#vRes', f);
+  if (!(preco>0) || !(custo>=0) || g.ultimo==null) { box.innerHTML = `<p class="small muted" style="margin:0">Preencha os dois valores.</p>`; return; }
+  const ganhoR = g.ultimo * preco, sobra = ganhoR - custo;
+  box.innerHTML = `<div class="result"><span class="muted small">Engorda vale por dia</span><span class="big">${fR(ganhoR)}</span>
+    <span class="pill ${sobra>=0?'good':'red'}" style="align-self:flex-start">${sobra>=0?`Sobra ${fR(sobra)} por dia: ainda compensa engordar`:`Perde ${fR(-sobra)} por dia: considere vender`}</span>
+    <span class="small muted">Valor de hoje: ${fR(g.peso*preco)} (${fNum(g.peso)} kg × ${fR(preco)})</span></div>`;
+}
+
+/* ---------- GUIAS ---------- */
+const GUIAS = [
+ {id:'plantio-chuva', ativ:'graos', t:'Quando plantar milho e feijão', r:'Plante com o chão molhado, na quadra chuvosa.', h:`
+  <p>No Ceará a quadra chuvosa vai, em geral, de fevereiro a maio, com pré-estação em dezembro e janeiro. Plantar cedo demais, numa chuva isolada, é o jeito mais comum de perder semente.</p>
+  <h3>Sinais de que é hora</h3>
+  <ul><li>O chão está molhado a um palmo de profundidade, depois de chuvas seguidas.</li><li>A previsão da Funceme para os próximos dias continua com chuva.</li><li>Os vizinhos experientes estão plantando.</li></ul>
+  <h3>Como plantar</h3>
+  <ul><li>Plante em nível, atravessando a ladeira, para a água não correr e levar a terra.</li>
+  <li>Milho: linhas de 80 cm a 1 m, com 4 a 5 sementes por metro.</li>
+  <li>Feijão-de-corda: linhas de 80 cm a 1 m, com 2 a 3 sementes a cada 30 a 50 cm.</li>
+  <li>Use semente de boa origem e adaptada ao semiárido. O programa Hora de Plantar, do Governo do Ceará, distribui sementes. Procure a secretaria de agricultura do município ou o sindicato.</li></ul>
+  <div class="tip">Anote a data e a área de cada plantio no app. Com a chuva e a colheita anotadas, você compara um ano com o outro e vê o que funcionou.</div>`},
+ {id:'capina', ativ:'graos', t:'Mato e cobertura do solo', r:'Os primeiros 30 a 40 dias decidem a safra.', h:`
+  <p>O mato disputa água com o milho e o feijão. O período em que essa disputa mais prejudica é o começo, mais ou menos dos 15 aos 40 dias depois que a planta nasce.</p>
+  <ul><li>Mantenha a roça limpa nesse período. Depois, o mato que nascer prejudica menos.</li>
+  <li>Deixe o mato capinado e a palhada sobre o chão. A cobertura segura a umidade e esfria a terra.</li>
+  <li>Evite queimar o roçado: a queima tira a matéria orgânica e deixa a terra mais fraca a cada ano.</li></ul>`},
+ {id:'armazenar', ativ:'graos', t:'Guardar grãos sem caruncho', r:'Grão bem seco, recipiente bem fechado.', h:`
+  <p>Caruncho e traça precisam de ar para viver. Grão seco, guardado sem ar, se conserva por muito tempo sem veneno.</p>
+  <ol><li>Colha e seque bem ao sol. O grão seco quebra com estalo ao ser mordido.</li>
+  <li>Limpe: tire grãos quebrados, palha e terra.</li>
+  <li>Guarde em silo metálico, tambor ou garrafa PET bem fechados, cheios até a boca.</li>
+  <li>Deixe o recipiente em lugar fresco, na sombra, longe do chão e da parede.</li></ol>
+  <div class="caution">Não use veneno em grão para comer ou para semente sem orientação de um técnico. Alguns produtos para grãos são perigosos dentro de casa.</div>`},
+ {id:'silagem', ativ:'graos', t:'Silagem de milho e sorgo', r:'Comida guardada da chuva para a seca.', h:`
+  <p>A silagem é o milho ou sorgo picado e fermentado sem ar. Bem feita, dura meses e alimenta o gado no verão.</p>
+  <ol><li><b>Ponto de corte:</b> grão farináceo, quando a planta está com cerca de um terço de matéria seca. No milho, a linha do leite fica entre a metade e dois terços do grão.</li>
+  <li><b>Picar fino:</b> pedaços de 1 a 2 cm compactam melhor.</li>
+  <li><b>Compactar:</b> em camadas finas, passando trator ou pisando bem. Ar que fica dentro estraga a silagem.</li>
+  <li><b>Vedar:</b> lona por cima, com terra ou pneus nas bordas, no mesmo dia.</li>
+  <li><b>Abrir:</b> depois de pelo menos 30 dias. Retire uma fatia por dia, de cima a baixo, e feche de novo.</li></ol>
+  <p>O sorgo aguenta melhor a falta de chuva que o milho e rebrota depois do corte.</p>
+  <div class="tip">Use a calculadora de reserva de forragem para saber quanto precisa guardar.</div>`},
+ {id:'ordenha', ativ:'leite', t:'Ordenha limpa', r:'Leite de qualidade vale mais e evita mastite.', h:`
+  <ol><li>Lave as mãos e use roupa limpa.</li>
+  <li><b>Teste da caneca de fundo preto:</b> tire os primeiros jatos de cada teto na caneca. Grumos ou pus indicam mastite. Separe o leite dessa vaca.</li>
+  <li><b>Pré-dipping:</b> mergulhe os tetos em solução desinfetante e espere cerca de 30 segundos.</li>
+  <li>Seque cada teto com papel toalha descartável, um papel por teto.</li>
+  <li>Ordenhe com calma, sem puxar o teto.</li>
+  <li><b>Pós-dipping:</b> mergulhe os tetos de novo no desinfetante depois da ordenha.</li>
+  <li>Dê comida no cocho logo após a ordenha. A vaca fica em pé enquanto o canal do teto fecha.</li></ol>
+  <p>Coe e resfrie o leite o quanto antes. Leite quente estraga rápido e perde preço no laticínio.</p>
+  <div class="caution">Vaca tratada com antibiótico: respeite o prazo de carência da bula antes de vender o leite.</div>`},
+ {id:'reproducao', ativ:'leite', t:'Cio, cobertura e parto', r:'Meta: um bezerro por vaca por ano.', h:`
+  <h3>Sinais de cio</h3>
+  <ul><li>Aceita ser montada por outra vaca e fica parada. Este é o sinal mais seguro.</li><li>Muco claro saindo da vulva, vulva inchada.</li><li>Inquieta, berra, cheira e monta nas outras.</li></ul>
+  <p>O cio volta a cada 21 dias quando a vaca não emprenha. Observe o rebanho de manhã cedo e no fim da tarde.</p>
+  <h3>Hora da inseminação</h3>
+  <p>Regra prática: viu o cio de manhã, insemine à tarde. Viu à tarde, insemine na manhã seguinte.</p>
+  <h3>Datas que o app calcula</h3>
+  <table><tbody><tr><td>Gestação</td><td class="n">cerca de 283 dias</td></tr><tr><td>Secar a vaca</td><td class="n">60 dias antes do parto</td></tr><tr><td>Voltar a cobrir</td><td class="n">a partir de 45 a 60 dias após o parto</td></tr></tbody></table>
+  <div class="tip">No Rebanho, toque na vaca e use os botões <b>Vi cio</b>, <b>Coberta</b> e <b>Pariu</b>. O app avisa no Início quando chegar a hora de secar e de parir.</div>`},
+ {id:'custo-leite', ativ:'leite', t:'Quanto custa o seu litro de leite', r:'Saber o custo é o primeiro passo para ter lucro.', h:`
+  <p>Custo do litro = tudo o que gastou com o gado de leite no mês ÷ litros produzidos no mês.</p>
+  <ul><li>Entre nos gastos: ração, farelo, sal mineral, remédio, vacina, energia, diária de quem ajuda, manutenção.</li>
+  <li>Anote todo dia os litros tirados, ou pelo menos o total do dia.</li>
+  <li>Anote as vendas de leite em litros. Assim o app mostra lado a lado o custo e o preço que você recebe.</li></ul>
+  <p>Se o custo passar do preço, olhe primeiro para a comida comprada. É o gasto que mais pesa e onde silagem e palma feitas no sítio fazem diferença.</p>`},
+ {id:'seca-leite', ativ:'leite', t:'Alimentar o rebanho na seca', r:'Palma, silagem, feno e água à vontade.', h:`
+  <ul><li><b>Palma forrageira:</b> tem muita água e energia, mas pouca fibra e pouca proteína. Nunca dê só palma: misture com volumoso fibroso (silagem, feno, capim seco, bagaço) e uma fonte de proteína. Palma demais solta o intestino da vaca.</li>
+  <li><b>Silagem e feno:</b> feitos na chuva, garantem comida no verão. Veja o guia de silagem.</li>
+  <li><b>Plantas de proteína:</b> leucena e gliricídia aguentam a seca e reforçam a proteína da ração.</li>
+  <li><b>Água:</b> vaca em lactação bebe muita água, de 60 a mais de 100 litros por dia. Bebedouro limpo e na sombra aumenta a produção.</li>
+  <li><b>Sal mineral</b> à vontade, no cocho coberto.</li></ul>`},
+ {id:'pesagem', ativ:'corte', t:'Pesar para saber se está engordando', r:'Ganho de peso por dia é o número que importa.', h:`
+  <p>Ganho por dia = (peso de agora − peso anterior) ÷ dias entre as pesagens.</p>
+  <ul><li>Pese a cada 30 a 60 dias, sempre de manhã e antes do animal comer e beber.</li>
+  <li>Sem balança, a fita de pesagem (fita de perímetro torácico) dá uma estimativa. Use sempre a mesma fita.</li>
+  <li>Garrote que perde peso na seca precisa de suplemento ou de ir para a venda antes de perder mais.</li></ul>
+  <div class="tip">No Rebanho, toque no animal e anote a pesagem. O app calcula o ganho e diz se ainda compensa engordar pelo preço do kg e o custo por dia.</div>`},
+ {id:'sanidade', ativ:'corte', t:'Calendário de vacinas e cuidados', r:'Prevenir sai mais barato que tratar.', h:`
+  <ul><li><b>Brucelose:</b> vacinação obrigatória das bezerras entre 3 e 8 meses de idade, feita por veterinário cadastrado.</li>
+  <li><b>Raiva:</b> vacine onde houver casos ou morcego hematófago. Siga a orientação da Adagri.</li>
+  <li><b>Clostridioses</b> (manqueira, carbúnculo sintomático): vacine os bezerros conforme a bula, com reforço.</li>
+  <li><b>Vermes e carrapato:</b> trate de forma estratégica, com orientação técnica. Usar sempre o mesmo produto cria resistência.</li>
+  <li><b>Umbigo do bezerro:</b> cure com iodo logo ao nascer, até secar.</li>
+  <li>Mantenha o cadastro do rebanho em dia na Adagri e tire a GTA para transportar animais.</li></ul>
+  <div class="tip">Crie um lembrete para cada vacina. Ele aparece no Início quando a data chegar perto.</div>
+  <div class="caution">Datas e produtos variam conforme a região e a campanha do ano. Confirme com a Adagri ou um médico-veterinário.</div>`},
+ {id:'canteiros', ativ:'horta', t:'Canteiros e adubação', r:'Terra fofa e rica em matéria orgânica.', h:`
+  <ul><li>Canteiros de 1 a 1,2 m de largura, para alcançar o meio sem pisar. Altura de 15 a 20 cm.</li>
+  <li>Misture esterco <b>curtido</b> na terra. Esterco fresco queima as raízes e traz doença.</li>
+  <li>Faça compostagem com restos de cozinha, palha e esterco.</li>
+  <li>Faça sombreamento leve (sombrite ou palha) para folhosas nos meses mais quentes.</li>
+  <li>Troque a cultura de canteiro a cada ciclo (rotação) para não cansar a terra nem acumular praga.</li></ul>`},
+ {id:'irrigacao', ativ:'horta', t:'Irrigar gastando pouca água', r:'Gotejamento e cobertura morta.', h:`
+  <ul><li><b>Gotejamento:</b> a água cai só na raiz. Gasta bem menos que regador e mangueira e evita molhar as folhas.</li>
+  <li>Regue de manhã cedo ou no fim da tarde, quando evapora menos.</li>
+  <li>Cubra o chão do canteiro com palha seca ou capim. A terra fica úmida por mais tempo.</li>
+  <li>Enfie o dedo na terra antes de regar: se estiver úmida a 2 ou 3 cm, espere.</li>
+  <li>Água de cisterna e de barreiro é valiosa: use primeiro nas mudas e nas culturas que dão mais retorno.</li></ul>`},
+ {id:'pragas', ativ:'horta', t:'Controle natural de pragas', r:'Olhar a horta todo dia é o melhor remédio.', h:`
+  <ul><li>Passe pela horta todo dia. Cate lagartas e ovos com a mão no começo do ataque.</li>
+  <li><b>Armadilha amarela:</b> plástico amarelo com óleo ou cola pega mosca-branca e pulgão.</li>
+  <li><b>Calda de sabão:</b> sabão neutro dissolvido em água, borrifado nas folhas, controla pulgão e cochonilha. Teste antes numa folha.</li>
+  <li><b>Óleo de nim:</b> repelente natural, siga a dose do rótulo.</li>
+  <li><b>Plantas companheiras:</b> coentro, manjericão e cravo-de-defunto entre os canteiros atraem insetos que comem as pragas.</li></ul>
+  <div class="caution">Mesmo produto natural pode irritar pele e olhos. Use luva e não aplique no sol quente.</div>`},
+ {id:'calendario-horta', ativ:'horta', t:'Tempo até a colheita', r:'Planeje o replantio para ter sempre o que vender.', h:`
+  <p>Tempos aproximados, que mudam com a variedade, o calor e a água.</p>
+  <div class="table-wrap"><table><thead><tr><th>Cultura</th><th>Como plantar</th><th style="text-align:right">1ª colheita</th></tr></thead><tbody>
+  <tr><td>Coentro</td><td>Semeio direto</td><td class="n">30–45 dias</td></tr>
+  <tr><td>Alface</td><td>Muda</td><td class="n">30–40 dias após a muda</td></tr>
+  <tr><td>Cebolinha</td><td>Muda ou touceira</td><td class="n">60–80 dias</td></tr>
+  <tr><td>Couve</td><td>Muda</td><td class="n">60–80 dias</td></tr>
+  <tr><td>Quiabo</td><td>Semeio direto</td><td class="n">60–75 dias</td></tr>
+  <tr><td>Maxixe</td><td>Semeio direto</td><td class="n">50–60 dias</td></tr>
+  <tr><td>Pimentão</td><td>Muda</td><td class="n">90–110 dias</td></tr>
+  <tr><td>Tomate</td><td>Muda</td><td class="n">90–120 dias</td></tr>
+  <tr><td>Jerimum</td><td>Semeio direto</td><td class="n">90–120 dias</td></tr>
+  </tbody></table></div>
+  <div class="tip">Coentro e alface: semeie um pouco a cada 10 a 15 dias. Assim a colheita não para.</div>`},
+ {id:'convivencia', ativ:'geral', t:'Convivência com o semiárido', r:'Guardar água e comida no tempo bom.', h:`
+  <ul><li><b>Água:</b> cisterna de placa para beber; cisterna-calçadão, barreiro trincheira e barragem subterrânea para produzir.</li>
+  <li><b>Forragem:</b> silagem, feno e palma garantem o rebanho na seca. Plante palma adensada e com adubação de esterco.</li>
+  <li><b>Caatinga:</b> deixe faixas de mata. Ela segura o solo e dá rama para o gado.</li>
+  <li><b>Sementes crioulas:</b> guarde as que se dão bem no seu sítio, em casas de sementes da comunidade.</li>
+  <li><b>Diversificar:</b> leite, horta, galinha e roçado juntos diminuem o risco de perder tudo num ano ruim.</li></ul>`},
+];
+function telaGuias(){
+  if (ui.guia === 'forragem') return telaForragem();
+  if (ui.guia === 'programas') return telaProgramas();
+  if (ui.guia) { const g = GUIAS.find(x=>x.id===ui.guia); if (g) return `
+    <button class="link" data-act="voltarGuias">‹ Guias</button>
+    <article class="article">
+      <p class="eyebrow">${ATIV[g.ativ].nome}</p>
+      <h1 style="font-size:26px;font-family:var(--font-display)">${g.t}</h1>
+      ${g.h}
+      <p class="small muted" style="border-top:1px solid var(--line);padding-top:12px">Orientação geral. Para o seu caso, procure a Ematerce, o sindicato ou um técnico agrícola.</p>
+    </article>`; }
+  const f = ui.guiaFiltro;
+  const gs = GUIAS.filter(g => f==='todos' || g.ativ===f);
+  return `
+  <h1 style="font-size:26px;font-family:var(--font-display)">Guias</h1>
+  <div class="tiles">
+    <button class="tile" data-act="abrirGuia" data-id="forragem"><span class="ic ic-plantio">${ICONS.colheita}</span><b>Reserva de forragem</b><span>Calcule quanta comida guardar para a seca</span></button>
+    <button class="tile" data-act="abrirGuia" data-id="programas"><span class="ic ic-venda">${ICONS.venda}</span><b>Programas e apoio</b><span>Pronaf, Garantia-Safra, PAA, PNAE</span></button>
+  </div>
+  <div class="chips">${[['todos','Todos'],['graos','Grãos'],['leite','Leite'],['corte','Corte'],['horta','Horta'],['geral','Seca']].map(([k,n])=>`<button class="chip" data-act="guiaF" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
+  <div class="list">${gs.map(g=>`<button class="row" data-act="abrirGuia" data-id="${g.id}"><span class="tx"><b>${g.t}</b><span>${ATIV[g.ativ].nome} · ${g.r}</span></span>${ICONS.next}</button>`).join('')}</div>
+  <button class="btn block" data-act="irMais">Lembretes, cópia de segurança e mais</button>`;
+}
+function telaForragem(){
+  return `
+  <button class="link" data-act="voltarGuias">‹ Guias</button>
+  <h1 style="font-size:26px;font-family:var(--font-display)">Reserva de forragem</h1>
+  <p class="muted" style="margin:0">Quanta comida guardar para atravessar a seca. Considera que cada animal come, por dia, cerca de 2,5% do próprio peso em matéria seca.</p>
+  <form class="form card" id="fForr" onsubmit="return false">
+    <div class="inline">
+      <div class="field"><label for="frAd">Animais adultos</label><input id="frAd" inputmode="numeric" value="${S.animais.length||10}"></div>
+      <div class="field"><label for="frJov">Bezerros e garrotes</label><input id="frJov" inputmode="numeric" value="4"></div>
+    </div>
+    <div class="inline">
+      <div class="field"><label for="frPeso">Peso médio do adulto (kg)</label><input id="frPeso" inputmode="numeric" value="400"></div>
+      <div class="field"><label for="frMeses">Meses de seca pela frente</label><input id="frMeses" inputmode="numeric" value="${mesesAteChuva()}"></div>
+    </div>
+    <div class="field"><label for="frPasto">Quanto o pasto e a rama ainda dão?</label>
+      <select id="frPasto"><option value="0">Nada, tudo no cocho</option><option value="0.25" selected>Um pouco (¼ da comida)</option><option value="0.5">Metade da comida</option></select></div>
+  </form>
+  <div id="frRes"></div>
+  <div class="card small muted">Bezerros e garrotes contam como meio animal adulto. Silagem com cerca de 30% de matéria seca, palma com cerca de 10% e feno com cerca de 85%. Silo trincheira bem compactado guarda cerca de 550 kg de silagem por metro cúbico.</div>`;
+}
+function mesesAteChuva(){ const m = new Date().getMonth()+1; // até fevereiro
+  if (m>=6) return (12 - m) + 2; if (m===1) return 1; return 1; }
+function calcForragem(){
+  const ad = num($('#frAd').value)||0, jov = num($('#frJov').value)||0, peso = num($('#frPeso').value)||0, meses = numDec($('#frMeses').value)||0, pasto = Number($('#frPasto').value);
+  const ua = ad + jov*0.5, msDia = ua * peso * 0.025 * (1-pasto), dias = meses*30, msTotal = msDia*dias;
+  const box = $('#frRes');
+  if (!msTotal) { box.innerHTML = `<div class="card"><p class="empty">Preencha os campos acima.</p></div>`; return; }
+  const sil = msTotal/0.30/1000, palma = msTotal/0.10/1000, feno = msTotal/0.85/1000, m3 = sil*1000/550;
+  box.innerHTML = `<div class="result">
+    <span class="muted small">Precisa de matéria seca para ${fNum(dias)} dias</span>
+    <span class="big">${fNum(msTotal/1000,1)} toneladas</span>
+    <span class="small muted">${fNum(msDia)} kg de matéria seca por dia para o rebanho</span>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Se viesse só de</th><th style="text-align:right">Quantidade</th></tr></thead><tbody>
+    <tr><td>Silagem</td><td class="n">${fNum(sil,1)} t · silo de ${fNum(m3)} m³</td></tr>
+    <tr><td>Feno</td><td class="n">${fNum(feno,1)} t</td></tr>
+    <tr><td>Palma (não dar sozinha)</td><td class="n">${fNum(palma,1)} t</td></tr>
+  </tbody></table></div>
+  <p class="small muted" style="margin:0">Na prática, combine: por exemplo, metade da matéria seca em silagem e o resto entre palma e feno, com sal mineral e água à vontade.</p>`;
+}
+function telaProgramas(){
+  const P = [
+    ['CAF','Cadastro Nacional da Agricultura Familiar','É a porta de entrada para quase todos os programas abaixo. Substituiu a antiga DAP. Faça no sindicato rural ou na Ematerce.'],
+    ['Pronaf','Crédito rural com juros baixos','Dinheiro para custeio e investimento: cisterna, gado, cerca, irrigação, máquina. No Nordeste, o Agroamigo do Banco do Nordeste atende o Pronaf B e outras linhas.'],
+    ['Garantia-Safra','Proteção contra perda de safra','O agricultor adere todo ano pelo município. Se a cidade perder pelo menos metade da safra por seca ou excesso de chuva, recebe um benefício.'],
+    ['PAA','Programa de Aquisição de Alimentos','O governo compra a produção da agricultura familiar e doa para escolas, hospitais e famílias que precisam. Inclui leite em alguns estados.'],
+    ['PNAE','Merenda escolar','Por lei, parte da verba da merenda das escolas públicas tem que comprar da agricultura familiar. Procure a secretaria de educação do município para vender verduras, frutas e outros produtos.'],
+    ['Hora de Plantar','Sementes do Governo do Ceará','Distribui sementes de milho, feijão, sorgo e outras para plantio na quadra chuvosa. Informe-se na secretaria de agricultura do município.'],
+    ['Ematerce','Assistência técnica do Ceará','Técnicos que orientam no plantio, na criação, no crédito e na documentação. Procure o escritório que atende o seu município.'],
+    ['Adagri','Defesa agropecuária do Ceará','Cadastro do rebanho, campanhas de vacinação e emissão da GTA para transportar animais.'],
+    ['Funceme','Previsão do tempo do Ceará','Previsão da quadra chuvosa e chuva diária dos postos de cada município.'],
+  ];
+  return `
+  <button class="link" data-act="voltarGuias">‹ Guias</button>
+  <h1 style="font-size:26px;font-family:var(--font-display)">Programas e apoio</h1>
+  <p class="muted" style="margin:0">Direitos e serviços para quem produz. Regras e prazos mudam de um ano para o outro: confirme no sindicato, na Ematerce ou na prefeitura.</p>
+  <div class="list">${P.map(([s,n,d])=>`<div class="row" style="cursor:default;align-items:flex-start"><span class="tx" style="white-space:normal"><b style="white-space:normal">${s} <span class="muted" style="display:inline;font-weight:600;font-size:14px">· ${n}</span></b><span style="white-space:normal;font-size:15px;color:var(--fg);margin-top:4px">${d}</span></span></div>`).join('')}</div>`;
+}
+
+/* ---------- MAIS ---------- */
+function telaMais(){
+  const lem = S.lembretes.slice().sort((a,b)=>a.data<b.data?-1:1);
+  const pend = lem.filter(l=>!l.feito), feitos = lem.filter(l=>l.feito).slice(-5).reverse();
+  const tam = (()=>{ try { return (localStorage.getItem(KEY)||'').length; } catch(e){ return 0; } })();
+  return `
+  <button class="link" data-act="voltarGuias">‹ Guias</button>
+  <h1 style="font-size:26px;font-family:var(--font-display)">Mais</h1>
+
+  <section class="section">
+    <div class="section-h"><h2>Lembretes</h2><button class="btn sm primary" data-act="novoLemb">+ Lembrete</button></div>
+    ${pend.length ? `<div class="list">${pend.map(l=>`<div class="row" style="cursor:default"><span class="ic ic-anotacao">${ICONS.sino}</span><span class="tx"><b>${esc(l.texto)}</b><span>${fData(l.data)} · ${quando(l.data)}</span></span><button class="btn sm" data-act="lembFeito" data-id="${l.id}">Feito</button><button class="iconbtn" aria-label="Editar" data-act="lembEdit" data-id="${l.id}">${ICONS.anotacao}</button></div>`).join('')}</div>`
+      : `<div class="list"><p class="empty">Nenhum lembrete. Crie para vacina, vermífugo, adubação ou pagamento.</p></div>`}
+    ${feitos.length?`<p class="small muted" style="margin:0">Feitos recentemente: ${feitos.map(l=>esc(l.texto)).join(' · ')}</p>`:''}
+  </section>
+
+  <section class="section">
+    <div class="section-h"><h2>Cópia de segurança</h2></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <p style="margin:0">Seus dados ficam guardados só neste celular. Se trocar de aparelho ou limpar o navegador, eles se perdem. Salve uma cópia de vez em quando e mande para o seu WhatsApp ou e-mail.</p>
+      <div class="btn-row">
+        <button class="btn gold" data-act="exportar">Salvar cópia</button>
+        <button class="btn" data-act="importar">Restaurar cópia</button>
+      </div>
+      <input type="file" id="arqImport" accept=".json,application/json" hidden>
+      <p class="small muted" style="margin:0">${S.registros.length} anotações · ${S.animais.length} animais · ${fNum(tam/1024,1)} KB${S.ultimoBackup?` · última cópia em ${fData(S.ultimoBackup)}`:' · nenhuma cópia salva ainda'}</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-h"><h2>Instalar no celular</h2></div>
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      ${instalado() ? `<p style="margin:0">O app já está instalado neste aparelho.</p>` : `
+      <button class="btn primary" data-act="instalar" ${deferredPrompt?'':'hidden'}>Instalar o Caderno da Roça</button>
+      <p style="margin:0" class="small"><b>Android (Chrome):</b> toque nos três pontinhos ⋮ e depois em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p>
+      <p style="margin:0" class="small"><b>iPhone (Safari):</b> toque em Compartilhar e depois em <b>Adicionar à Tela de Início</b>.</p>`}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-h"><h2>Ajustes</h2></div>
+    <div class="card form">
+      <div class="field"><label for="cfgNome">Nome do produtor ou do sítio</label><input id="cfgNome" value="${esc(S.nome)}" placeholder="Ex.: Sítio Boa Vista"></div>
+      <button class="btn" data-act="salvarNome">Salvar nome</button>
+      ${S.exemplo?`<button class="btn" data-act="apagarEx">Apagar dados de exemplo</button>`:`<button class="btn" data-act="verExemplo">Carregar dados de exemplo</button>`}
+      <button class="btn danger" data-act="apagarTudo">Apagar todos os dados</button>
+    </div>
+  </section>
+  <p class="small muted">Caderno da Roça · funciona sem internet · versão 1.0<br>As orientações são gerais e não substituem a assistência técnica.</p>`;
+}
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; if (ui.tab==='mais') render(); });
+const instalado = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+function exportar(){
+  S.ultimoBackup = hoje(); save();
+  const blob = new Blob([JSON.stringify(S, null, 1)], {type:'application/json'});
+  const nome = `caderno-da-roca-${hoje()}.json`;
+  const file = new File([blob], nome, {type:'application/json'});
+  if (navigator.canShare && navigator.canShare({files:[file]})) {
+    navigator.share({files:[file], title:'Cópia do Caderno da Roça'}).then(()=>toast('Cópia enviada')).catch(()=>baixar(blob, nome));
+  } else baixar(blob, nome);
+  render();
+}
+function baixar(blob, nome){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  toast('Cópia salva em Downloads');
+}
+function importar(file){
+  const fr = new FileReader();
+  fr.onload = () => {
+    try {
+      const d = JSON.parse(fr.result);
+      if (!d || !Array.isArray(d.registros) || !Array.isArray(d.animais)) throw 0;
+      S = Object.assign(vazio(), d, {inicioVisto:true}); save(); render(); toast(`Cópia restaurada: ${S.registros.length} anotações`);
+    } catch(e) { toast('Este arquivo não é uma cópia do Caderno da Roça.'); }
+  };
+  fr.readAsText(file);
+}
+
+/* ---------- ligação dos botões ---------- */
+function ligar(v){
+  v.onclick = e => {
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const act = b.dataset.act, id = b.dataset.id;
+    const [y,m] = ui.mes.split('-').map(Number);
+    switch(act){
+      case 'mesAnt': ui.mes = iso(new Date(y, m-2, 1)).slice(0,7); render(); break;
+      case 'mesProx': ui.mes = iso(new Date(y, m, 1)).slice(0,7); render(); break;
+      case 'irCaderno': irPara('caderno'); break;
+      case 'irMais': irPara('mais'); break;
+      case 'filtro': ui.filtro = b.dataset.f; render(); break;
+      case 'editReg': { const r = S.registros.find(x=>x.id===id); if (r) formRegistro(r.tipo, r); break; }
+      case 'novoAnimal': formAnimal(); break;
+      case 'verAnimal': verAnimal(id); break;
+      case 'rebF': ui.reb = b.dataset.f; render(); break;
+      case 'guiaF': ui.guiaFiltro = b.dataset.f; render(); break;
+      case 'abrirGuia': ui.guia = id; ui.tab='guias'; render(); window.scrollTo(0,0); if (id==='forragem'){ $$('#fForr input,#fForr select').forEach(i=>i.oninput=calcForragem); calcForragem(); } break;
+      case 'voltarGuias': ui.guia = null; ui.tab='guias'; render(); window.scrollTo(0,0); break;
+      case 'lembFeito': S.lembretes = S.lembretes.map(l=>l.id===id?{...l, feito:true}:l); save(); render(); toast('Lembrete concluído'); break;
+      case 'lembEdit': formLembrete(S.lembretes.find(l=>l.id===id)); break;
+      case 'novoLemb': formLembrete(); break;
+      case 'exportar': exportar(); break;
+      case 'importar': { const i = $('#arqImport'); i.onchange = () => i.files[0] && importar(i.files[0]); i.click(); break; }
+      case 'instalar': if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.finally(()=>{ deferredPrompt=null; render(); }); } break;
+      case 'salvarNome': S.nome = $('#cfgNome').value.trim(); save(); render(); toast('Nome salvo'); break;
+      case 'apagarEx': apagarExemplos(); break;
+      case 'verExemplo': carregarExemplo(); save(); ui.tab='inicio'; render(); break;
+      case 'apagarTudo': if (b.dataset.armado) { S = vazio(); save(); ui.tab='inicio'; render(); toast('Todos os dados foram apagados'); } else { b.dataset.armado='1'; b.textContent='Toque de novo para apagar tudo. Não tem volta.'; b.classList.add('primary'); setTimeout(()=>{ if(b.isConnected){ delete b.dataset.armado; b.textContent='Apagar todos os dados'; b.classList.remove('primary'); } }, 5000); } break;
+    }
+  };
+  if (ui.guia==='forragem' && $('#fForr')) { $$('#fForr input,#fForr select').forEach(i=>i.oninput=calcForragem); calcForragem(); }
+}
+function apagarExemplos(){
+  S.registros = S.registros.filter(r=>!r.ex); S.animais = S.animais.filter(a=>!a.ex); S.lembretes = S.lembretes.filter(l=>!l.ex);
+  S.exemplo = false; save(); ui.mes = hoje().slice(0,7); render(); toast('Exemplos apagados. Agora é com você!');
+}
+
+/* ---------- folha ---------- */
+let ultimoFoco = null;
+function abrirFolha(titulo, html, ligarFn){
+  const w = $('#sheetWrap');
+  if (w.hidden) ultimoFoco = document.activeElement;
+  w.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(titulo)}"><div class="sheet-grab"></div><div class="sheet-h"><h2>${esc(titulo)}</h2><button class="iconbtn" data-close aria-label="Fechar">${ICONS.close}</button></div><div class="sheet-b"></div></div>`;
+  $('.sheet-b', w).innerHTML = html;
+  w.hidden = false; document.body.style.overflow = 'hidden';
+  $('[data-close]', w).onclick = fecharFolha;
+  w.onclick = e => {
+    if (e.target === w) { fecharFolha(); return; }
+    const r = e.target.closest('[data-act="editReg"]');
+    if (r) { const reg = S.registros.find(x=>x.id===r.dataset.id); if (reg) formRegistro(reg.tipo, reg); }
+  };
+  ligarFn && ligarFn($('.sheet', w));
+}
+function fecharFolha(){
+  const w = $('#sheetWrap'); w.hidden = true; w.innerHTML = ''; document.body.style.overflow = '';
+  if (ultimoFoco && ultimoFoco.focus) try { ultimoFoco.focus(); } catch(e){}
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape' && !$('#sheetWrap').hidden) fecharFolha(); });
+
+let tt;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(()=>t.hidden=true, 2600); }
+
+/* ---------- dados de exemplo ---------- */
+function carregarExemplo(){
+  const h = hoje(), ex = true, R = [];
+  const rnd = (seed => () => (seed = (seed*9301+49297)%233280)/233280)(7);
+  const add = o => R.push(Object.assign({id:uid()+R.length, criado:R.length, ex}, o));
+  // chuva do ano corrente, quadra chuvosa
+  const ano = h.slice(0,4);
+  const chuvas = {'01':[12,30,8],'02':[22,45,18,35,10],'03':[40,28,60,15,33,20],'04':[25,50,30,18,42],'05':[15,22,8],'06':[5]};
+  Object.entries(chuvas).forEach(([m,arr]) => arr.forEach((mm,i) => { const d = `${ano}-${m}-${pad(Math.min(28, 3+i*5))}`; if (d<=h) add({tipo:'chuva', data:d, mm}); }));
+  // animais
+  const A = [
+    {id:'exv1', nome:'Mimosa', raca:'Girolando', tipo:'leite', cobertura:addDias(h,-225), ultCio:addDias(h,-225), ultParto:addDias(h,-420), ex},
+    {id:'exv2', nome:'Estrela', raca:'Girolando', tipo:'leite', ultParto:addDias(h,-70), ultCio:addDias(h,-19), ex},
+    {id:'exv3', nome:'Malhada', raca:'Mestiça', tipo:'leite', cobertura:addDias(h,-262), ultCio:addDias(h,-262), ultParto:addDias(h,-400), ex},
+    {id:'exv4', nome:'Fortuna', raca:'Gir', tipo:'leite', ultParto:addDias(h,-110), ex},
+    {id:'exb1', nome:'Garrote 101', raca:'Nelore', tipo:'corte', pesagens:[{data:addDias(h,-120),peso:212},{data:addDias(h,-60),peso:248},{data:addDias(h,-2),peso:281}], ex},
+    {id:'exb2', nome:'Garrote 102', raca:'Mestiço', tipo:'corte', pesagens:[{data:addDias(h,-120),peso:230},{data:addDias(h,-60),peso:255},{data:addDias(h,-2),peso:262}], ex},
+    {id:'exb3', nome:'Garrote 103', raca:'Nelore', tipo:'corte', pesagens:[{data:addDias(h,-60),peso:198},{data:addDias(h,-2),peso:229}], ex},
+  ];
+  // leite diário nos últimos 75 dias
+  for (let i=75; i>=0; i--) { const d = addDias(h,-i); add({tipo:'leite', data:d, litros: Math.round(34 + rnd()*8), ativ:'leite'}); }
+  // gastos e vendas dos últimos 3 meses
+  for (let k=0; k<3; k++) {
+    const base = addDias(h, -k*30);
+    add({tipo:'gasto', data:addDias(base,-3), ativ:'leite', desc:'Ração concentrada', valor:620});
+    add({tipo:'gasto', data:addDias(base,-10), ativ:'leite', desc:'Torta de algodão', valor:280});
+    add({tipo:'gasto', data:addDias(base,-12), ativ:'leite', desc:'Energia da ordenha', valor:95});
+    add({tipo:'gasto', data:addDias(base,-15), ativ:'corte', desc:'Sal mineral', valor:140});
+    add({tipo:'gasto', data:addDias(base,-6), ativ:'horta', desc:'Esterco curtido', valor:60});
+    add({tipo:'venda', data:addDias(base,-1), ativ:'leite', desc:'Leite para o laticínio', qtd:540, unidade:'litros', valor:540*2.45});
+    add({tipo:'venda', data:addDias(base,-16), ativ:'leite', desc:'Leite para o laticínio', qtd:520, unidade:'litros', valor:520*2.45});
+    add({tipo:'venda', data:addDias(base,-8), ativ:'horta', desc:'Coentro e cebolinha na feira', qtd:120, unidade:'maços', valor:240});
+  }
+  add({tipo:'venda', data:addDias(h,-40), ativ:'corte', desc:'Bezerro desmamado', qtd:1, unidade:'cabeças', valor:1800});
+  add({tipo:'plantio', data:`${ano}-02-20`, ativ:'graos', cultura:'Milho', area:3, unidade:'tarefas'});
+  add({tipo:'plantio', data:`${ano}-02-22`, ativ:'graos', cultura:'Feijão-de-corda', area:2, unidade:'tarefas'});
+  add({tipo:'colheita', data:`${ano}-06-10`, ativ:'graos', cultura:'Milho', qtd:14, unidade:'sacos de 60 kg'});
+  add({tipo:'colheita', data:`${ano}-05-15`, ativ:'graos', cultura:'Feijão-de-corda', qtd:6, unidade:'sacos de 60 kg'});
+  add({tipo:'venda', data:`${ano}-06-20`, ativ:'graos', desc:'Feijão-de-corda', qtd:3, unidade:'sacos', valor:3*480});
+  add({tipo:'anotacao', data:addDias(h,-5), ativ:'corte', desc:'Vermifuguei os garrotes'});
+  S.registros = S.registros.filter(r=>!r.ex).concat(R.filter(r=>r.data<=h));
+  S.animais = S.animais.filter(a=>!a.ex).concat(A);
+  S.lembretes = S.lembretes.filter(l=>!l.ex).concat([
+    {id:'exl1', texto:'Comprar sal mineral', data:addDias(h,3), feito:false, ex},
+    {id:'exl2', texto:'Vacinar bezerras contra brucelose', data:addDias(h,12), feito:false, ex},
+  ]);
+  S.exemplo = true;
+}
+
+/* ---------- início ---------- */
+render();
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
