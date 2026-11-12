@@ -1,6 +1,6 @@
 // Caderno da Roça — guarda o app no celular para abrir sem internet.
 // Ao mudar qualquer arquivo do app, aumente o número da versão abaixo.
-const VERSAO = 'caderno-da-roca-v1';
+const VERSAO = 'caderno-da-roca-v2';
 const ARQUIVOS = [
   './',
   './index.html',
