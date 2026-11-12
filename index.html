@@ -312,7 +312,7 @@ tfoot td{font-weight:800;background:var(--surface-2)}
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '2.0';
+const VERSAO_APP = '2.1';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -340,6 +340,17 @@ const CRIA = {
   aves:{lote:true, un:'aves'},
   pesca:{lote:true, un:'peixes'}
 };
+const RACAS = {
+  leite:['Girolando','Gir leiteiro','Holandesa','Jersey','Pardo-suíço','Guzerá','Sindi','Mestiça'],
+  corte:['Nelore','Guzerá','Sindi','Tabapuã','Brahman','Pé-duro (Curraleiro)','Mestiço'],
+  caprinos:['Anglo-nubiana','Saanen','Parda alpina','Boer','Moxotó','Canindé','Marota','Repartida','Sem raça definida'],
+  ovinos:['Santa Inês','Morada Nova','Somalis brasileira','Dorper','Rabo-largo','Cariri','Sem raça definida'],
+  suinos:['Piau','Moura','Landrace','Large White','Duroc','Caipira','Sem raça definida'],
+  aves:['Caipira','Pescoço pelado','Índio gigante','Embrapa 051','Garnisé','Galinha-d\'angola (guiné)','Pato','Peru','Codorna'],
+  equinos:['Cavalo nordestino','Quarto de milha','Mangalarga marchador','Campolina','Jumento nordestino','Burro ou mula','Pônei','Sem raça definida'],
+  pesca:['Tilápia','Tambaqui','Tambacu','Curimatã','Carpa','Pescada-do-piauí','Camarão']
+};
+const LOTE_EX = {leite:'Ex.: Novilhas', corte:'Ex.: Garrotes da solta', caprinos:'Ex.: Cabras do chiqueiro', ovinos:'Ex.: Ovelhas do chiqueiro', suinos:'Ex.: Leitões da porca Pintada', aves:'Ex.: Galinhas do quintal', equinos:'Ex.: Jumentos do serviço', pesca:'Ex.: Tanque 1'};
 const ativ = k => ATIV_BASE[k] || (S.ativExtra||[]).find(a=>a.id===k) || {nome:'Sem atividade'};
 const ativNome = k => ativ(k).curto || ativ(k).nome;
 const ativsAtivas = () => [...Object.keys(ATIV_BASE).filter(k => k==='geral' || !S.ativOcultas.includes(k)), ...S.ativExtra.map(a=>a.id)];
@@ -1063,8 +1074,8 @@ function formAnimal(a){
       <div class="field"><label for="anNome" id="anNomeL">Nome ou número do brinco</label><input id="anNome" value="${esc(x.nome)}" placeholder="Ex.: Mimosa ou 102" required></div>
       <div class="field" id="anSexoF"><label>Sexo</label><div class="seg" id="anSexo"><button type="button" data-v="F" aria-pressed="${x.sexo==='F'}">Fêmea</button><button type="button" data-v="M" aria-pressed="${x.sexo==='M'}">Macho</button></div></div>
       <div class="field" id="anQtdF"><label for="anQtd">Quantos animais tem no lote?</label><input id="anQtd" inputmode="numeric" value="${x.qtd||''}" placeholder="Ex.: 40"></div>
-      <div class="field"><label for="anRaca">Raça ou tipo (opcional)</label><input id="anRaca" value="${esc(x.raca||'')}" placeholder="Ex.: Girolando, Santa Inês, caipira, tilápia" list="sugRaca"></div>
-      <datalist id="sugRaca">${['Girolando','Gir','Holandesa','Jersey','Guzerá','Sindi','Nelore','Mestiça','Pé-duro (Curraleiro)','Saanen','Anglo-nubiana','Parda alpina','Moxotó','Canindé','Santa Inês','Morada Nova','Dorper','Somalis','Caipira','Pescoço pelado','Piau','Landrace','Tilápia','Tambaqui','Quarto de milha','Mangalarga','Jumento nordestino'].map(r=>`<option value="${r}">`).join('')}</datalist>
+      <div class="field"><label for="anRaca" id="anRacaL">Raça ou tipo (opcional)</label><input id="anRaca" value="${esc(x.raca||'')}" placeholder="Toque para ver as opções" list="sugRaca"></div>
+      <datalist id="sugRaca"></datalist>
       ${!a?`<div class="field" id="anPesoF"><label for="anPeso" id="anPesoL">Peso de entrada em kg (opcional)</label><input id="anPeso" inputmode="decimal" placeholder="Ex.: 210"></div>`:''}
       <p class="erro" id="anErro" hidden></p>
       <button class="btn primary block" type="submit">${a?'Salvar':'Cadastrar'}</button>
@@ -1080,10 +1091,16 @@ function formAnimal(a){
         $('#anSexoF', f).hidden = modo==='lote';
         $('#anQtdF', f).hidden = modo!=='lote';
         $('#anNomeL', f).textContent = modo==='lote' ? 'Nome do lote' : 'Nome ou número do brinco';
-        $('#anNome', f).placeholder = modo==='lote' ? (k==='aves'?'Ex.: Galinhas do quintal':k==='pesca'?'Ex.: Tanque 1':'Ex.: Cabras do chiqueiro') : 'Ex.: Mimosa ou 102';
+        $('#anNome', f).placeholder = modo==='lote' ? (LOTE_EX[k]||'Ex.: Lote 1') : (k==='equinos'?'Ex.: Alazão ou Ventania':'Ex.: Mimosa ou 102');
+        const rs = RACAS[k] || [];
+        $('#sugRaca', f).innerHTML = rs.map(r=>`<option value="${esc(r)}">`).join('');
+        $('#anRacaL', f).textContent = k==='pesca' ? 'Espécie do peixe (opcional)' : k==='aves' ? 'Raça ou tipo de ave (opcional)' : 'Raça (opcional)';
+        $('#anRaca', f).placeholder = rs.length ? `Ex.: ${rs.slice(0,3).join(', ')}` : '';
+        const atual = $('#anRaca', f).value.trim();
+        if (atual && rs.length && !rs.some(r=>r.toLowerCase()===atual.toLowerCase()) && f.dataset.racaAuto==='1') $('#anRaca', f).value='';
         const pl = $('#anPesoL', f); if (pl) pl.textContent = modo==='lote' ? 'Peso médio em kg (opcional)' : 'Peso de entrada em kg (opcional)';
       };
-      $('#anAtiv', f).onchange = ajusta;
+      $('#anAtiv', f).onchange = () => { f.dataset.racaAuto='1'; ajusta(); };
       $$('#anModo button', f).forEach(b => b.onclick = () => { modo = b.dataset.v; ajusta(); });
       $$('#anSexo button', f).forEach(b => b.onclick = () => { sexo = b.dataset.v; $$('#anSexo button', f).forEach(y=>y.setAttribute('aria-pressed', y===b)); });
       ajusta();
