@@ -14,13 +14,13 @@
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="../icons/icon-192.png">
 <style>
-/* Layout: faixa escura de cabeçalho, abas por assunto, conteúdo em grade de até 1200px que vira coluna única no celular */
+/* Layout: faixa escura de cabeçalho; menu lateral por grupos no computador, abas roláveis no celular; conteúdo em grade */
 :root{
   --bg:#f5f3f0; --surface:#ffffff; --surface-2:#efebe6; --line:#e0d9d1;
   --fg:#1d1715; --muted:#6c615b;
   --red:#b3201b; --red-soft:#f8e3e1; --gold:#c98d10; --gold-soft:#fbefd2; --gold-ink:#5b3e00;
   --black:#1a1311; --good:#2f7d32; --good-soft:#e2f1e2; --warn:#b26a00; --warn-soft:#fdf0d9; --bad:#b3261e;
-  --rain:#2f6fb0; --rain-soft:#e1ecf8; --rain-2:#9fbfe0;
+  --rain:#2f6fb0; --rain-soft:#e1ecf8; --rain-2:#9fbfe0; --land:#efe6d6; --land-line:#cdbb9f;
   --font:"Segoe UI", Roboto, "Noto Sans", system-ui, -apple-system, sans-serif;
   --display:"Segoe UI Black","Arial Black",Roboto,system-ui,sans-serif;
   color-scheme:light;
@@ -28,59 +28,72 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#120f0e; --surface:#1d1816; --surface-2:#272120; --line:#352d2a; --fg:#f3ece8; --muted:#a8998f;
   --red:#e0473f; --red-soft:#3a1716; --gold:#e9b23c; --gold-soft:#3a2c0e; --gold-ink:#f6d896; --black:#0b0908;
-  --good:#6cc070; --good-soft:#1c3220; --warn:#f0a940; --warn-soft:#3a2a10; --bad:#ff7a70; --rain:#7fb4ec; --rain-soft:#15283c; --rain-2:#3b5f86; color-scheme:dark}}
+  --good:#6cc070; --good-soft:#1c3220; --warn:#f0a940; --warn-soft:#3a2a10; --bad:#ff7a70; --rain:#7fb4ec; --rain-soft:#15283c; --rain-2:#3b5f86; --land:#2a231f; --land-line:#4a3f38; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#120f0e; --surface:#1d1816; --surface-2:#272120; --line:#352d2a; --fg:#f3ece8; --muted:#a8998f;
   --red:#e0473f; --red-soft:#3a1716; --gold:#e9b23c; --gold-soft:#3a2c0e; --gold-ink:#f6d896; --black:#0b0908;
-  --good:#6cc070; --good-soft:#1c3220; --warn:#f0a940; --warn-soft:#3a2a10; --bad:#ff7a70; --rain:#7fb4ec; --rain-soft:#15283c; --rain-2:#3b5f86; color-scheme:dark}
+  --good:#6cc070; --good-soft:#1c3220; --warn:#f0a940; --warn-soft:#3a2a10; --bad:#ff7a70; --rain:#7fb4ec; --rain-soft:#15283c; --rain-2:#3b5f86; --land:#2a231f; --land-line:#4a3f38; color-scheme:dark}
 *{box-sizing:border-box} [hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.45}
-button,select,input{font:inherit;color:inherit}
+button,select,input,textarea{font:inherit;color:inherit}
 h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance}
 .num{font-variant-numeric:tabular-nums}
 
 .top{background:var(--black);color:#fff;padding-top:env(safe-area-inset-top,0px)}
-.top-in{max-width:1200px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.top-in{max-width:1320px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .brand svg{flex:none}
-@media (max-width:600px){.brand{flex-basis:100%}.brand b{font-size:16px}.brand small{font-size:12px}.top-in{gap:10px}.demo{font-size:11px}}
 .brand b{font-family:var(--display);font-size:18px;display:block}
 .brand small{color:#d9c9a3;font-size:13px;display:block}
 .demo{background:#e9b23c;color:#1a1311;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:999px;white-space:nowrap}
 .per{display:flex;align-items:center;gap:8px;color:#d9c9a3;font-size:13px}
 .per select{background:#2a201d;color:#fff;border:1px solid #4a3c37;border-radius:10px;padding:8px 10px;min-height:40px}
+.top a.site{color:#d9c9a3;font-size:13px;text-decoration:none;border:1px solid #4a3c37;border-radius:10px;padding:9px 12px}
+@media (max-width:600px){.brand{flex-basis:100%}.brand b{font-size:16px}.brand small{font-size:12px}.top-in{gap:10px}.demo{font-size:11px}}
 .stripe{height:4px;background:linear-gradient(90deg,var(--red) 0 70%,#e9b23c 70% 100%)}
-.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
-.tabs-in{max-width:1200px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:0 max(12px,env(safe-area-inset-left,0px));scrollbar-width:none}
-.tabs-in::-webkit-scrollbar{display:none}
-.tab{background:none;border:0;border-bottom:3px solid transparent;padding:14px 12px 11px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap}
-.tab[aria-current="page"]{color:var(--red);border-bottom-color:var(--red)}
-.tab:focus-visible,.btn:focus-visible,.row-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 
-main{max-width:1200px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+.shell{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr)}
+.side{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:18px 10px 30px max(12px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
+.side .grp{display:flex;flex-direction:column;gap:2px}
+.side .gt{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 10px 4px}
+.tab{background:none;border:0;text-align:left;padding:9px 10px;border-radius:9px;font-weight:600;color:var(--fg);cursor:pointer;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tab:hover{background:var(--surface-2)}
+.tab[aria-current="page"]{background:var(--red-soft);color:var(--red);font-weight:800}
+.tab .cnt{margin-left:auto;font-size:11px;font-weight:800;background:var(--red);color:#fff;border-radius:999px;padding:1px 7px}
+@media (max-width:999px){
+  .shell{grid-template-columns:1fr}
+  .side{position:sticky;top:0;z-index:10;max-height:none;flex-direction:row;overflow-x:auto;gap:4px;padding:6px max(12px,env(safe-area-inset-left,0px));background:var(--surface);border-bottom:1px solid var(--line);scrollbar-width:none}
+  .side::-webkit-scrollbar{display:none}
+  .side .grp{flex-direction:row;gap:4px}
+  .side .gt{display:none}
+  .tab{padding:10px 12px}
+}
+.tab:focus-visible,.btn:focus-visible,.row-btn:focus-visible,.kpi.link:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+main{padding:20px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px;min-width:0}
 .head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 .head h1{font-family:var(--display);font-size:26px}
 .head p{margin:2px 0 0;color:var(--muted)}
 .grid{display:grid;gap:14px;align-items:start}
-.prodlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.prodlist div{background:var(--surface-2);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;min-width:0}
-.prodlist span{font-size:13px;color:var(--muted)}
-.prodlist b{font-size:22px;font-variant-numeric:tabular-nums}
-.prodlist small{font-size:13px}
 .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g3c{grid-template-columns:repeat(3,minmax(0,1fr))}
 .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .g3{grid-template-columns:2fr 1fr}
-@media (max-width:900px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g2,.g3{grid-template-columns:1fr}}
+@media (max-width:1100px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3c{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.g2,.g3,.g3c{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0;display:flex;flex-direction:column;gap:10px}
 .card h2{font-size:16px;font-weight:800}
-.card .sub{color:var(--muted);font-size:13px;margin-top:-6px}
+.card .sub{color:var(--muted);font-size:13px;margin:-6px 0 0}
 .kpi .k{font-size:13px;color:var(--muted);font-weight:600}
 .kpi .v{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
 .kpi .v small{font-size:15px;color:var(--muted);font-weight:600}
 .kpi .d{font-size:13px;font-weight:700}
+.kpi.link{cursor:pointer;text-align:left;font:inherit;color:inherit}
+.kpi.link:hover{border-color:var(--red)}
 .up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--muted)}
 .kpi.rain .v{color:var(--rain)}
+.sect{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:4px 0 -6px}
 
 .alerts{display:flex;flex-direction:column;gap:8px}
 .alert{display:flex;gap:10px;padding:10px 12px;border-radius:10px;background:var(--surface-2);border-left:4px solid var(--warn)}
@@ -89,42 +102,72 @@ main{max-width:1200px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-ri
 .alert span{font-size:13px;color:var(--muted)}
 
 .hbars{display:flex;flex-direction:column;gap:9px}
-.hbar{display:grid;grid-template-columns:130px 1fr 90px;gap:10px;align-items:center;font-size:14px}
+.hbar{display:grid;grid-template-columns:130px 1fr 96px;gap:10px;align-items:center;font-size:14px}
 .hbar .t{height:14px;background:var(--surface-2);border-radius:7px;overflow:hidden}
 .hbar .f{height:100%;border-radius:7px;background:var(--red)}
 .hbar .val{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .hbar .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media (max-width:480px){.hbar{grid-template-columns:108px 1fr 70px;font-size:13px}}
+@media (max-width:480px){.hbar{grid-template-columns:108px 1fr 74px;font-size:13px}}
+.meter{height:22px;background:var(--surface-2);border-radius:11px;position:relative;overflow:hidden}
+.meter .f{position:absolute;inset:0 auto 0 0;border-radius:11px;background:var(--good)}
+.meter .goal{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--fg)}
+.prodlist{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prodlist div{background:var(--surface-2);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;min-width:0}
+.prodlist span{font-size:13px;color:var(--muted)}
+.prodlist b{font-size:22px;font-variant-numeric:tabular-nums}
+.prodlist small{font-size:13px}
 
 .chart{width:100%;height:auto;display:block}
+.mapa{max-width:860px;margin:0 auto}
+.mapa text{paint-order:stroke;stroke:var(--land);stroke-width:.7px;stroke-linejoin:round}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend label{display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--fg)}
 
 .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
 table{border-collapse:collapse;width:100%;background:var(--surface);font-size:14px}
 th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--surface-2);position:sticky;top:0}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:var(--surface-2)}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 tr:last-child td{border-bottom:0}
 tbody tr.click{cursor:pointer} tbody tr.click:hover{background:var(--surface-2)}
 tfoot td{font-weight:800;background:var(--surface-2)}
 .pill{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
-.pill.good{background:var(--good-soft);color:var(--good)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.red{background:var(--red-soft);color:var(--bad)} .pill.gray{background:var(--surface-2);color:var(--muted)}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.red{background:var(--red-soft);color:var(--bad)} .pill.gray{background:var(--surface-2);color:var(--muted)} .pill.blue{background:var(--rain-soft);color:var(--rain)}
 
-.btn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:700;cursor:pointer}
+.btn.sm{min-height:34px;padding:0 10px;font-size:13px}
 .btn.primary{background:var(--red);border-color:var(--red);color:#fff}
 .btn.gold{background:var(--gold);border-color:var(--gold);color:#1a1311}
 .btn-row{display:flex;gap:10px;flex-wrap:wrap}
-.note{font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.note{font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:10px 12px;margin:0}
 .priv{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted)}
 .priv svg{flex:none;width:18px;height:18px;margin-top:1px;color:var(--good)}
+.form{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+.form label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;min-width:0}
+.form input,.form select,.form textarea{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--surface);min-height:42px;width:100%}
+.form textarea{min-height:90px;resize:vertical}
+.form .full{grid-column:1/-1}
+@media (max-width:760px){.form{grid-template-columns:1fr 1fr}}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--black);color:#fff;border-color:var(--black)}
+.phone{width:260px;max-width:100%;border:10px solid var(--black);border-radius:28px;background:var(--bg);padding:14px 12px;display:flex;flex-direction:column;gap:8px;margin:0 auto}
+.phone .bar{height:6px;width:60px;background:var(--line);border-radius:3px;margin:0 auto 4px}
+.phone .msg{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:12px;padding:10px;font-size:14px}
+.phone .msg b{display:block;font-size:12px;color:var(--red);text-transform:uppercase;letter-spacing:.05em}
+.report{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;max-width:900px}
+.report h2{font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--red)}
+.report p,.report ul{margin:0}
+.report ul{padding-left:20px;display:flex;flex-direction:column;gap:4px}
 
 .drawer-bg{position:fixed;inset:0;background:rgba(10,6,5,.5);z-index:40;display:flex;justify-content:flex-end}
 .drawer{background:var(--bg);width:min(560px,100%);height:100%;overflow:auto;padding:18px max(16px,env(safe-area-inset-right,0px)) 30px 16px;display:flex;flex-direction:column;gap:14px}
 .drawer-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:20px;line-height:1}
-footer{max-width:1200px;margin:0 auto;padding:0 16px 30px;color:var(--muted);font-size:12px}
-@media print{.tabs,.top .per,.btn-row,.no-print{display:none!important} body{background:#fff} .card{break-inside:avoid}}
+.x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:20px;line-height:1;flex:none}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--black);color:#fff;padding:12px 16px;border-radius:12px;font-weight:600;z-index:60;max-width:calc(100% - 32px)}
+footer{max-width:1320px;margin:0 auto;padding:0 16px 30px;color:var(--muted);font-size:12px}
+@media print{.side,.top .per,.top a.site,.btn-row,.no-print{display:none!important} .shell{display:block} body{background:#fff} .card,.report{break-inside:avoid;border-color:#ccc}}
 </style>
 </head>
 <body>
@@ -136,13 +179,17 @@ footer{max-width:1200px;margin:0 auto;padding:0 16px 30px;color:var(--muted);fon
     </div>
     <span class="demo">Demonstração · dados fictícios</span>
     <label class="per">Mês <select id="mes"></select></label>
+    <a class="site" href="../apresentacao/">Sobre o sistema</a>
   </div>
   <div class="stripe"></div>
 </header>
-<nav class="tabs" aria-label="Seções do painel"><div class="tabs-in" id="tabs"></div></nav>
-<main id="view"></main>
+<div class="shell">
+  <nav class="side" id="nav" aria-label="Módulos do painel"></nav>
+  <main id="view"></main>
+</div>
 <footer>Caderno da Roça · Painel da Secretaria de Agricultura · versão de demonstração com dados fictícios.<br>© 2026 Pedro Gonçalves de Oliveira Silva. Todos os direitos reservados.</footer>
 <div id="drawer" class="drawer-bg" hidden></div>
+<div id="toast" class="toast" hidden role="status"></div>
 
 <script>
 'use strict';
@@ -150,59 +197,106 @@ footer{max-width:1200px;margin:0 auto;padding:0 16px 30px;color:var(--muted);fon
 
 /* ---------- utilidades ---------- */
 const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fN = (n, d=0) => Number(n||0).toLocaleString('pt-BR',{minimumFractionDigits:d, maximumFractionDigits:d});
 const fR = n => 'R$ ' + fN(n,2);
+const fRk = n => n>=1000 ? 'R$ ' + fN(n/1000, n>=100000?0:1) + ' mil' : fR(n);
 const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const MC = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const pct = (a,b) => b ? (a-b)/b*100 : 0;
 let seed = 20261;
 const rnd = () => (seed = (seed*9301 + 49297) % 233280) / 233280;
 const between = (a,b) => a + (b-a)*rnd();
+const pick = arr => arr[Math.floor(rnd()*arr.length)];
+const estreito = () => window.innerWidth < 700;
+let tt; const toast = m => { const t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(tt); tt=setTimeout(()=>t.hidden=true,2600); };
 
 /* ---------- dados fictícios ---------- */
 const hoje = new Date();
 const MESES_LISTA = [];
 for (let i=11; i>=0; i--) { const d = new Date(hoje.getFullYear(), hoje.getMonth()-i, 1); MESES_LISTA.push({y:d.getFullYear(), m:d.getMonth()}); }
-const CHUVA_MEDIA = [90,130,200,170,80,30,10,3,1,2,5,30]; // mm por mês, referência ilustrativa
+const CHUVA_MEDIA = [90,130,200,170,80,30,10,3,1,2,5,30]; // referência ilustrativa
 const COMS = [
-  {id:'rf', nome:'Riacho Fundo', fam:26, cad:34, leite:9, aves:14, horta:6, queijo:3, cabras:8, fator:.82, tec:'Ana'},
-  {id:'ls', nome:'Lagoa Seca', fam:21, cad:30, leite:6, aves:12, horta:4, queijo:2, cabras:10, fator:.61, tec:'Ana'},
-  {id:'vg', nome:'Várzea Grande', fam:24, cad:29, leite:11, aves:10, horta:9, queijo:5, cabras:4, fator:.95, tec:'João'},
-  {id:'pd', nome:'Poço Doce', fam:15, cad:22, leite:5, aves:9, horta:3, queijo:1, cabras:7, fator:.74, tec:'João'},
-  {id:'sb', nome:'Serrote Branco', fam:18, cad:27, leite:4, aves:11, horta:2, queijo:1, cabras:12, fator:.58, tec:'Ana'},
-  {id:'sr', nome:'Santa Rosa', fam:19, cad:24, leite:8, aves:8, horta:7, queijo:4, cabras:3, fator:.9, tec:'João'},
-  {id:'bn', nome:'Barra Nova', fam:12, cad:18, leite:4, aves:7, horta:5, queijo:2, cabras:2, fator:.88, tec:'Ana'},
-  {id:'cj', nome:'Sítio Cajazeiras', fam:11, cad:15, leite:3, aves:6, horta:4, queijo:1, cabras:5, fator:.7, tec:'João'},
+  {id:'rf', nome:'Riacho Fundo', fam:26, cad:34, leite:9, aves:14, horta:6, queijo:3, cabras:8, fator:.82, tec:'Ana', x:28, y:22},
+  {id:'ls', nome:'Lagoa Seca', fam:21, cad:30, leite:6, aves:12, horta:4, queijo:2, cabras:10, fator:.61, tec:'Ana', x:16, y:46},
+  {id:'vg', nome:'Várzea Grande', fam:24, cad:29, leite:11, aves:10, horta:9, queijo:5, cabras:4, fator:.95, tec:'João', x:62, y:30},
+  {id:'pd', nome:'Poço Doce', fam:15, cad:22, leite:5, aves:9, horta:3, queijo:1, cabras:7, fator:.74, tec:'João', x:78, y:52},
+  {id:'sb', nome:'Serrote Branco', fam:18, cad:27, leite:4, aves:11, horta:2, queijo:1, cabras:12, fator:.58, tec:'Ana', x:30, y:66},
+  {id:'sr', nome:'Santa Rosa', fam:19, cad:24, leite:8, aves:8, horta:7, queijo:4, cabras:3, fator:.9, tec:'João', x:56, y:58},
+  {id:'bn', nome:'Barra Nova', fam:12, cad:18, leite:4, aves:7, horta:5, queijo:2, cabras:2, fator:.88, tec:'Ana', x:84, y:20},
+  {id:'cj', nome:'Sítio Cajazeiras', fam:11, cad:15, leite:3, aves:6, horta:4, queijo:1, cabras:5, fator:.7, tec:'João', x:46, y:80},
 ];
-// séries mensais por comunidade
+const SEDE = {x:48, y:44};
 COMS.forEach(c => {
-  c.s = MESES_LISTA.map(({m}, i) => {
+  c.s = MESES_LISTA.map(({m}) => {
     const chuvoso = m>=1 && m<=4 ? 1.18 : m===0||m===5 ? 1.05 : .86;
     const chuva = Math.round(CHUVA_MEDIA[m] * c.fator * between(.7,1.25));
-    const chuvaAnt = Math.round(CHUVA_MEDIA[m] * between(.8,1.15));
     const leite = Math.round(c.leite * 27 * 30 * chuvoso * between(.9,1.08));
-    const ovos = Math.round(c.aves * 22 * between(.85,1.1)); // dúzias
-    const queijo = Math.round(c.queijo * 38 * chuvoso * between(.85,1.1)); // kg
-    const horta = Math.round(c.horta * 95 * (m>=1&&m<=6?1.25:.8) * between(.85,1.1)); // maços
+    const ovos = Math.round(c.aves * 22 * between(.85,1.1));
+    const queijo = Math.round(c.queijo * 38 * chuvoso * between(.85,1.1));
+    const horta = Math.round(c.horta * 95 * (m>=1&&m<=6?1.25:.8) * between(.85,1.1));
     const ativos = Math.min(c.fam, Math.round(c.fam * between(.72,.96)));
     const receita = leite*2.4 + ovos*12 + queijo*36 + horta*2 + c.cabras*between(60,140);
     const gasto = receita * between(.55,.82);
-    return {chuva, chuvaAnt, leite, ovos, queijo, horta, ativos, receita, gasto, perdas: c.fator<.75 && m>=1 && m<=5 ? Math.round(c.fam*between(.3,.6)) : 0};
+    return {chuva, leite, ovos, queijo, horta, ativos, receita, gasto, perdas: c.fator<.75 && m>=1 && m<=5 ? Math.round(c.fam*between(.3,.6)) : 0};
   });
+  c.cisternas = Math.round(c.cad*between(.55,.9)); c.calcadao = Math.round(c.cad*between(.08,.25)); c.barreiros = Math.round(between(1,5));
+  c.cafAtivo = Math.round(c.cad*between(.55,.75)); c.cafVence = Math.round(c.cad*between(.06,.14)); c.semCaf = c.cad - c.cafAtivo - c.cafVence;
+  c.gs = Math.round(c.cad*between(.45,.8));
 });
-const NOMES = ['Maria das Graças','José Erivan','Francisca','Antônio Carlos','Raimunda','Francisco Edson','Luzia','Cícero','Margarida','Manoel','Rita de Cássia','Damião','Socorro','Expedito','Lúcia','Geraldo'];
-const FAMS = NOMES.map((n,i) => {
-  const c = COMS[i % COMS.length];
-  const dias = Math.round(between(3,75));
-  const sit = dias>45 ? 'Visitar' : dias>25 ? 'Acompanhar' : 'Em dia';
-  const foco = ['Custo do leite','Reserva de forragem','Sanidade das cabras','Horta e irrigação','Queijo com inspeção','Galinhas e ovos','Venda para o PAA','Crédito Pronaf'][i%8];
-  return {nome:`Família de ${n}`, com:c.nome, tec:c.tec, dias, sit, foco};
+const PN = ['Maria das Graças','José Erivan','Francisca','Antônio Carlos','Raimunda','Francisco Edson','Luzia','Cícero','Margarida','Manoel','Rita de Cássia','Damião','Socorro','Expedito','Lúcia','Geraldo','Fátima','Raimundo','Joana','Valdemir','Ivone','Sebastião','Neide','Francinaldo','Zuleide','Erivaldo','Conceição','Pedro Paulo','Iracema','Luís Carlos','Terezinha','Gilberto','Aparecida','Edinardo','Benedita','Josias'];
+const nomeFam = i => `Família de ${PN[i % PN.length]}`;
+const comDe = i => COMS[(i*3 + Math.floor(i/4)) % COMS.length];
+
+// técnicos
+const FAMS = PN.slice(0,16).map((n,i) => {
+  const c = comDe(i); const dias = Math.round(between(3,75));
+  return {nome:`Família de ${n}`, com:c.nome, tec:c.tec, dias, sit: dias>45?'Visitar':dias>25?'Acompanhar':'Em dia',
+    foco:['Custo do leite','Reserva de forragem','Sanidade das cabras','Horta e irrigação','Queijo com inspeção','Galinhas e ovos','Venda para o PAA','Crédito Pronaf'][i%8]};
 });
+// máquinas
+const SERVICOS = [['Corte de terra',4,8],['Gradagem',2,4],['Limpeza de barreiro',6,12],['Encanteiramento',2,3],['Transporte de silagem',3,5]];
+const MAQ = ['Trator 01','Trator 02','Retroescavadeira'];
+let PEDIDOS = Array.from({length:34}, (_,i) => {
+  const [s,a,b] = pick(SERVICOS); const c = comDe(i+5);
+  const dias = Math.round(between(1,62)); const st = i<11 ? 'Concluído' : i<15 ? 'Agendado' : 'Na fila';
+  return {id:i+1, fam:nomeFam(i+3), com:c.nome, serv:s, horas:Math.round(between(a,b)), dias, st, maq: s==='Limpeza de barreiro'?'Retroescavadeira':pick(['Trator 01','Trator 02']), quando: st==='Agendado' ? Math.round(between(1,9)) : null};
+});
+// merenda e PAA
+const REPASSE_PNAE = 480000, META_PNAE = .45;
+const PRODUTOS_PNAE = [['Polpa de fruta','kg',14],['Ovos caipira','dúzias',12],['Queijo coalho','kg',38],['Hortaliças','maços',2.5],['Bolo de milho','kg',18],['Feijão-de-corda','kg',9],['Leite','litros',3.2],['Mel','kg',35]];
+const FORN = Array.from({length:16}, (_,i) => {
+  const [p,u,preco] = PRODUTOS_PNAE[i % PRODUTOS_PNAE.length]; const c = comDe(i+11);
+  const contratado = Math.round(between(5000, 20000)/100)*100; const entregue = Math.round(contratado*between(.45,.95)/100)*100;
+  return {nome:nomeFam(i+17), com:c.nome, prod:p, un:u, preco, contratado, entregue, pago: Math.round(entregue*between(.7,1)/100)*100, caf: i!==5 && i!==12};
+});
+const PAA = {exec: 92400, fam: 38, entidades: 9, modal:'Compra com Doação Simultânea'};
+// sementes e insumos
+const INSUMOS = [{it:'Milho', un:'kg', porFam:10},{it:'Feijão-de-corda', un:'kg', porFam:8},{it:'Sorgo', un:'kg', porFam:6},{it:'Raquetes de palma', un:'raquetes', porFam:300},{it:'Ração emergencial', un:'sacos', porFam:4}];
+COMS.forEach(c => { c.ins = INSUMOS.map(x => { const f = Math.round(c.cad*between(.35,.85)); return {f, q:f*x.porFam}; }); c.colheitaAnotada = between(.45,.75); });
+const BLOQ = 3;
+// água
+COMS.forEach(c => { c.pipaAbertos = c.fator<.75 ? Math.round(between(3,9)) : Math.round(between(0,3)); c.pipaLitros = Math.round(c.cad * between(8,22))*1000; });
+const ROTA = COMS.filter(c=>c.pipaAbertos>0).sort((a,b)=>b.pipaAbertos-a.pipaAbertos).slice(0,5).map((c,i)=>({ordem:i+1, com:c.nome, cist:Math.min(c.pipaAbertos,4), litros:Math.min(c.pipaAbertos,4)*16000}));
+// avisos
+let AVISOS = [
+  {quando:'há 2 dias', para:'Todas as comunidades', titulo:'Vacinação contra a raiva', texto:'A equipe da Adagri vacina os rebanhos de 18 a 22 deste mês. Procure o agente da sua comunidade.', lidos:112},
+  {quando:'há 9 dias', para:'Lagoa Seca, Serrote Branco', titulo:'Chegada de palma', texto:'As raquetes de palma serão entregues na sede da associação na sexta, às 8h. Leve o CAF.', lidos:31},
+  {quando:'há 16 dias', para:'Todas as comunidades', titulo:'Chamada da merenda escolar', texto:'Está aberta a chamada pública para venda de alimentos às escolas. Procure a Secretaria até o dia 30.', lidos:98},
+];
 
 /* ---------- estado ---------- */
-const ui = {tab: (location.hash||'#visao').slice(1), mi: MESES_LISTA.length-1};
-const TABS = [['visao','Visão geral'],['comunidades','Comunidades'],['chuva','Chuva e seca'],['compras','Compras públicas'],['tecnico','Acompanhamento técnico'],['relatorios','Relatórios']];
+const GRUPOS = [
+  ['Panorama', [['visao','Visão geral'],['comunidades','Comunidades'],['mapa','Mapa do município']]],
+  ['Produção e clima', [['chuva','Chuva e seca'],['diagnostico','Diagnóstico produtivo']]],
+  ['Serviços', [['maquinas','Máquinas e trator'],['sementes','Sementes e insumos'],['agua','Água e carro-pipa'],['tecnico','Assistência técnica']]],
+  ['Programas', [['merenda','Merenda e PAA'],['caf','CAF e Garantia-Safra']]],
+  ['Comunicação', [['avisos','Avisos aos produtores'],['relatorios','Relatórios']]],
+];
+const TABS = GRUPOS.flatMap(g=>g[1]);
+const ui = {tab: (location.hash||'#visao').slice(1), mi: MESES_LISTA.length-1, camadas:{com:true, cist:true, barr:true, estr:true, maq:true}, avisoPara:['todas']};
+if (ui.tab==='compras') ui.tab='merenda';
 if (!TABS.some(t=>t[0]===ui.tab)) ui.tab = 'visao';
 
 const mesNome = i => `${MESES[MESES_LISTA[i].m]} de ${MESES_LISTA[i].y}`;
@@ -211,40 +305,39 @@ const media = (k, i=ui.mi) => soma(k,i)/COMS.length;
 const totalFam = COMS.reduce((s,c)=>s+c.fam,0), totalCad = COMS.reduce((s,c)=>s+c.cad,0);
 const chuvaAno = (c, ate=ui.mi) => { const y = MESES_LISTA[ate].y; return c.s.reduce((s,x,i)=> i<=ate && MESES_LISTA[i].y===y ? s+x.chuva : s, 0); };
 const mediaAno = (ate=ui.mi) => { const y = MESES_LISTA[ate].y; return MESES_LISTA.reduce((s,x,i)=> i<=ate && x.y===y ? s+CHUVA_MEDIA[x.m] : s, 0); };
+const fila = () => PEDIDOS.filter(p=>p.st==='Na fila');
+const pnaeExec = () => FORN.reduce((s,f)=>s+f.entregue,0);
+const sumC = k => COMS.reduce((s,c)=>s+c[k],0);
 
-/* ---------- gráficos SVG ---------- */
-const estreito = () => window.innerWidth < 700;
+/* ---------- gráficos ---------- */
+function niceStep(v){ const p = Math.pow(10, Math.floor(Math.log10(Math.max(v,1)))); const n = v/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
 function barras(series, labels, opts={}){
   const W=estreito()?380:640, H=estreito()?230:220, L=44, B=28, T=14, R=8;
-  const max = Math.max(1, ...series.flatMap(s=>s.v));
-  const step = niceStep(max/4), top = Math.ceil(max/step)*step;
-  const y = v => T + (H-T-B)*(1-v/top);
-  const n = labels.length, gw = (W-L-R)/n, bw = gw*0.72/series.length;
+  const max = Math.max(1, ...series.flatMap(s=>s.v)); const step = niceStep(max/4), top = Math.ceil(max/step)*step;
+  const y = v => T + (H-T-B)*(1-v/top); const n = labels.length, gw = (W-L-R)/n, bw = gw*0.72/series.length;
   let g = '';
   for (let t=0; t<=top; t+=step) g += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L-6}" y="${y(t)+4}" font-size="11" text-anchor="end" fill="var(--muted)">${fN(t)}</text>`;
   labels.forEach((lb,i)=>{
-    series.forEach((s,j)=>{ const v=s.v[i]; const x = L + i*gw + gw*0.14 + j*bw; if (v>0) g += `<rect x="${x}" y="${y(v)}" width="${bw-2}" height="${Math.max(1,(H-B)-y(v))}" rx="3" fill="${s.cor}" ${s.tracejado?'fill-opacity=".35"':''}><title>${esc(s.nome)} · ${lb}: ${fN(v)}</title></rect>`; });
+    series.forEach((s,j)=>{ const v=s.v[i]; const x = L + i*gw + gw*0.14 + j*bw; if (v>0) g += `<rect x="${x}" y="${y(v)}" width="${Math.max(1,bw-2)}" height="${Math.max(1,(H-B)-y(v))}" rx="3" fill="${s.cor}"><title>${esc(s.nome)} · ${lb}: ${fN(v)}</title></rect>`; });
     g += `<text x="${L + i*gw + gw/2}" y="${H-9}" font-size="11" text-anchor="middle" fill="${i===opts.destaque?'var(--fg)':'var(--muted)'}" font-weight="${i===opts.destaque?700:400}">${lb}</text>`;
   });
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria||'')}">${g}</svg>`;
 }
 function linha(series, labels, opts={}){
   const W=estreito()?380:640, H=estreito()?230:220, L=52, B=28, T=14, R=10;
-  const all = series.flatMap(s=>s.v); const max = Math.max(1,...all);
-  const step = niceStep(max/4), top = Math.ceil(max/step)*step;
+  const max = Math.max(1,...series.flatMap(s=>s.v)); const step = niceStep(max/4), top = Math.ceil(max/step)*step;
   const x = i => L + (W-L-R) * (labels.length===1?0.5:i/(labels.length-1)), y = v => T + (H-T-B)*(1-v/top);
   let g = '';
   for (let t=0; t<=top; t+=step) g += `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L-6}" y="${y(t)+4}" font-size="11" text-anchor="end" fill="var(--muted)">${fN(t)}</text>`;
-  labels.forEach((lb,i)=>{ if (labels.length<=12 || i%2===0) g += `<text x="${x(i)}" y="${H-9}" font-size="11" text-anchor="middle" fill="${i===opts.destaque?'var(--fg)':'var(--muted)'}" font-weight="${i===opts.destaque?700:400}">${lb}</text>`; });
+  labels.forEach((lb,i)=>{ g += `<text x="${x(i)}" y="${H-9}" font-size="11" text-anchor="middle" fill="${i===opts.destaque?'var(--fg)':'var(--muted)'}" font-weight="${i===opts.destaque?700:400}">${lb}</text>`; });
   series.forEach(s=>{
     const pts = s.v.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
     if (s.area) g += `<polygon points="${x(0)},${H-B} ${pts} ${x(s.v.length-1)},${H-B}" fill="${s.cor}" fill-opacity=".12"/>`;
-    g += `<polyline points="${pts}" fill="none" stroke="${s.cor}" stroke-width="2.5" stroke-linejoin="round" ${s.tracejado?'stroke-dasharray="5 5"':''}/>`;
+    g += `<polyline points="${pts}" fill="none" stroke="${s.cor}" stroke-width="2.5" stroke-linejoin="round"/>`;
     if (opts.destaque!=null) g += `<circle cx="${x(opts.destaque)}" cy="${y(s.v[opts.destaque])}" r="4.5" fill="${s.cor}"/>`;
   });
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria||'')}">${g}</svg>`;
 }
-function niceStep(v){ const p = Math.pow(10, Math.floor(Math.log10(Math.max(v,1)))); const n = v/p; return (n<=1?1:n<=2?2:n<=5?5:10)*p; }
 function spark(v, cor='var(--red)'){
   const W=90,H=24,max=Math.max(...v,1),min=Math.min(...v);
   const pts=v.map((x,i)=>`${i*(W/(v.length-1))},${H-2-(H-4)*((x-min)/((max-min)||1))}`).join(' ');
@@ -253,32 +346,41 @@ function spark(v, cor='var(--red)'){
 const hbars = (rows, fmt, cor='var(--red)') => { const max = Math.max(1,...rows.map(r=>r.v)); return `<div class="hbars">${rows.map(r=>`<div class="hbar"><span class="lb" title="${esc(r.n)}">${esc(r.n)}</span><div class="t"><div class="f" style="width:${Math.max(2,r.v/max*100)}%;background:${r.cor||cor}"></div></div><span class="val">${fmt(r.v)}</span></div>`).join('')}</div>`; };
 const delta = (a,b,inv) => { const p = pct(a,b); if (!b || Math.abs(p)<1) return `<span class="d flat">igual ao mês anterior</span>`; const bom = inv ? p<0 : p>0; return `<span class="d ${bom?'up':'down'}">${p>0?'▲':'▼'} ${fN(Math.abs(p))}% em relação a ${MC[MESES_LISTA[ui.mi-1].m]}</span>`; };
 const PRIV = `<div class="priv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Os números chegam somados por comunidade, sem nome e sem a renda de cada família. Comunidades com menos de 5 famílias participantes aparecem agrupadas. Cada família escolhe participar e pode sair quando quiser.</span></div>`;
+const head = (t, sub, extra='') => `<div class="head"><div><h1>${t}</h1><p>${sub}</p></div>${extra}</div>`;
+const kpi = (k, v, d, cls='', go='') => go ? `<button class="card kpi link ${cls}" data-tab="${go}"><span class="k">${k}</span><span class="v">${v}</span>${d}</button>` : `<div class="card kpi ${cls}"><span class="k">${k}</span><span class="v">${v}</span>${d}</div>`;
+const sub = t => `<span class="d flat">${t}</span>`;
 
-/* ---------- telas ---------- */
+/* ---------- VISÃO GERAL ---------- */
 function telaVisao(){
-  const i = ui.mi, ant = Math.max(0,i-1);
-  const ativos = soma('ativos'), leite = soma('leite'), chuvaM = media('chuva');
+  const i = ui.mi, ant = Math.max(0,i-1), leite = soma('leite');
   const labels = MESES_LISTA.map(x=>MC[x.m]);
-  const al = alertas();
-  const prod = [
-    {n:'Leite (litros)', v:leite, cor:'var(--fg)'}, {n:'Ovos (dúzias)', v:soma('ovos'), cor:'var(--gold)'},
-    {n:'Hortaliças (maços)', v:soma('horta'), cor:'var(--good)'}, {n:'Queijo (kg)', v:soma('queijo'), cor:'var(--red)'}];
+  const execP = pnaeExec()/REPASSE_PNAE;
+  const espera = Math.round(fila().reduce((s,p)=>s+p.dias,0)/Math.max(1,fila().length));
+  const prod = [['Leite','litros',leite],['Ovos','dúzias',soma('ovos')],['Hortaliças','maços',soma('horta')],['Queijo','kg',soma('queijo')]];
   return `
-  <div class="head"><div><h1>Visão geral</h1><p>${mesNome(i)} · ${COMS.length} comunidades</p></div></div>
+  ${head('Visão geral', `${mesNome(i)} · ${COMS.length} comunidades`)}
+  <p class="sect">Produção</p>
   <div class="grid g4">
-    <div class="card kpi"><span class="k">Famílias participantes</span><span class="v">${fN(totalFam)}</span><span class="d flat">de ${fN(totalCad)} cadastradas no município</span></div>
-    <div class="card kpi"><span class="k">Anotaram no mês</span><span class="v">${fN(ativos)}</span><span class="d flat">${fN(ativos/totalFam*100)}% das participantes</span></div>
-    <div class="card kpi"><span class="k">Leite produzido</span><span class="v">${fN(leite)} <small>L</small></span>${delta(leite, soma('leite',ant))}</div>
-    <div class="card kpi rain"><span class="k">Chuva média</span><span class="v">${fN(chuvaM)} <small>mm</small></span><span class="d flat">média histórica do mês: ${fN(CHUVA_MEDIA[MESES_LISTA[i].m])} mm</span></div>
+    ${kpi('Famílias participantes', fN(totalFam), sub(`de ${fN(totalCad)} cadastradas`), '', 'comunidades')}
+    ${kpi('Anotaram no mês', fN(soma('ativos')), sub(`${fN(soma('ativos')/totalFam*100)}% das participantes`))}
+    ${kpi('Leite produzido', `${fN(leite)} <small>L</small>`, delta(leite, soma('leite',ant)), '', 'comunidades')}
+    ${kpi('Chuva média', `${fN(media('chuva'))} <small>mm</small>`, sub(`média histórica do mês: ${fN(CHUVA_MEDIA[MESES_LISTA[i].m])} mm`), 'rain', 'chuva')}
+  </div>
+  <p class="sect">Serviços e programas</p>
+  <div class="grid g4">
+    ${kpi('Fila do trator', `${fila().length} <small>pedidos</small>`, sub(`espera média de ${espera} dias`), '', 'maquinas')}
+    ${kpi('Merenda escolar (PNAE)', `${fN(execP*100)}%`, `<span class="d ${execP>=META_PNAE?'up':'down'}">mínimo legal: 45% · faltam ${fRk(Math.max(0,REPASSE_PNAE*META_PNAE-pnaeExec()))}</span>`, '', 'merenda')}
+    ${kpi('CAF vencendo', `${sumC('cafVence')} <small>famílias</small>`, sub(`${sumC('semCaf')} famílias ainda sem CAF`), '', 'caf')}
+    ${kpi('Carro-pipa', `${sumC('pipaAbertos')} <small>pedidos</small>`, sub('cisternas aguardando abastecimento'), 'rain', 'agua')}
   </div>
   <div class="grid g3">
     <div class="card"><h2>Leite produzido por mês</h2><p class="sub">Soma das famílias participantes, em litros</p>
       ${linha([{nome:'Leite', v:COMS[0].s.map((_,k)=>soma('leite',k)), cor:'var(--red)', area:true}], labels, {destaque:i, aria:'Leite por mês'})}</div>
-    <div class="card"><h2>Avisos</h2><div class="alerts">${al.map(a=>`<div class="alert ${a.n}"><div><b>${esc(a.t)}</b><span>${esc(a.d)}</span></div></div>`).join('')}</div></div>
+    <div class="card"><h2>Avisos do painel</h2><div class="alerts">${alertas().map(a=>`<div class="alert ${a.n}"><div><b>${esc(a.t)}</b><span>${esc(a.d)}</span></div></div>`).join('')}</div></div>
   </div>
   <div class="grid g2">
     <div class="card"><h2>Produção do mês</h2><p class="sub">Principais produtos anotados pelas famílias</p>
-      <div class="prodlist">${prod.map(p=>`<div><span>${p.n.replace(/ \(.*\)/,'')}</span><b>${fN(p.v)}</b><small>${p.n.match(/\((.*)\)/)[1]}</small></div>`).join('')}</div></div>
+      <div class="prodlist">${prod.map(([n,u,v])=>`<div><span>${n}</span><b>${fN(v)}</b><small>${u}</small></div>`).join('')}</div></div>
     <div class="card"><h2>Famílias por comunidade</h2><p class="sub">Famílias participantes em cada comunidade</p>
       ${hbars(COMS.map(c=>({n:c.nome, v:c.fam})).sort((a,b)=>b.v-a.v), v=>`${fN(v)} fam.`, 'var(--gold)')}</div>
   </div>
@@ -286,18 +388,21 @@ function telaVisao(){
 }
 function alertas(){
   const i = ui.mi, ant = Math.max(0,i-1), L = [];
-  COMS.forEach(c => { const a = c.s[i].leite, b = c.s[ant].leite; if (b && pct(a,b) < -12) L.push({n:'red', t:`Leite caiu ${fN(-pct(a,b))}% em ${c.nome}`, d:`${fN(a)} L em ${MC[MESES_LISTA[i].m]} contra ${fN(b)} L no mês anterior. Vale verificar alimentação e água dos animais.`}); });
-  const media = mediaAno();
-  COMS.filter(c => chuvaAno(c) < media*0.7).forEach(c => L.push({n:'warn', t:`${c.nome}: chuva ${fN(100-chuvaAno(c)/media*100)}% abaixo da média no ano`, d:`${fN(chuvaAno(c))} mm até ${MC[MESES_LISTA[i].m]}. Atenção à reserva de forragem e à água.`}));
-  const semAnotar = totalFam - soma('ativos'); if (semAnotar>0) L.push({n:'info', t:`${fN(semAnotar)} famílias não anotaram neste mês`, d:'Os técnicos podem reforçar o uso do aplicativo nas visitas.'});
-  const ovos = soma('ovos'); L.push({n:'good', t:`Oferta de ${fN(ovos)} dúzias de ovos no mês`, d:'Produto com volume para chamada pública da agricultura familiar.'});
+  COMS.forEach(c => { const a = c.s[i].leite, b = c.s[ant].leite; if (b && pct(a,b) < -12) L.push({n:'red', t:`Leite caiu ${fN(-pct(a,b))}% em ${c.nome}`, d:`${fN(a)} L contra ${fN(b)} L no mês anterior. Verificar alimentação e água dos animais.`}); });
+  const ma = mediaAno();
+  COMS.filter(c => chuvaAno(c) < ma*0.7).slice(0,2).forEach(c => L.push({n:'warn', t:`${c.nome}: chuva ${fN(100-chuvaAno(c)/ma*100)}% abaixo da média no ano`, d:'Atenção à reserva de forragem e à água.'}));
+  const velhos = fila().filter(p=>p.dias>45).length; if (velhos) L.push({n:'red', t:`${velhos} pedidos de trator esperam há mais de 45 dias`, d:'Veja a fila em Máquinas e trator.'});
+  const falta = REPASSE_PNAE*META_PNAE - pnaeExec(); if (falta>0) L.push({n:'warn', t:`Merenda: faltam ${fRk(falta)} para o mínimo de 45%`, d:'Há oferta de ovos, queijo e hortaliças nas comunidades para completar.'});
+  L.push({n:'info', t:`${sumC('cafVence')} famílias com CAF vencendo`, d:'Sem CAF válido, a família fica fora do Pronaf, do PAA e da merenda.'});
   return L.slice(0,5);
 }
+
+/* ---------- COMUNIDADES ---------- */
 function telaComunidades(){
   const i = ui.mi;
   const rows = COMS.map(c => { const s = c.s[i]; return {c, s, sob: s.receita - s.gasto}; });
   return `
-  <div class="head"><div><h1>Comunidades</h1><p>${mesNome(i)} · toque numa comunidade para ver os detalhes</p></div></div>
+  ${head('Comunidades', `${mesNome(i)} · toque numa comunidade para ver os detalhes`)}
   <div class="table-wrap"><table>
     <thead><tr><th>Comunidade</th><th class="n">Famílias</th><th class="n">Anotaram</th><th class="n">Leite (L)</th><th class="n">Ovos (dz)</th><th class="n">Queijo (kg)</th><th class="n">Chuva (mm)</th><th class="n">Sobra média por família</th><th>Leite em 12 meses</th></tr></thead>
     <tbody>${rows.map(({c,s,sob})=>`<tr class="click" data-com="${c.id}" tabindex="0"><td><b>${esc(c.nome)}</b></td><td class="n">${c.fam}</td><td class="n">${s.ativos}</td><td class="n">${fN(s.leite)}</td><td class="n">${fN(s.ovos)}</td><td class="n">${fN(s.queijo)}</td><td class="n">${fN(s.chuva)}</td><td class="n">${fR(sob/s.ativos)}</td><td>${spark(c.s.map(x=>x.leite))}</td></tr>`).join('')}</tbody>
@@ -306,89 +411,290 @@ function telaComunidades(){
   <p class="note">"Sobra média por família" é a média do que as famílias anotaram como recebido menos o gasto no mês. O painel nunca mostra o valor de uma família específica.</p>
   ${PRIV}`;
 }
+function abrirDrawer(html){
+  const d = $('#drawer'); d.innerHTML = `<div class="drawer" role="dialog" aria-modal="true">${html}</div>`; d.hidden = false; document.body.style.overflow='hidden';
+  d.onclick = e => { if (e.target===d || e.target.closest('[data-fechar]')) fecharDrawer(); };
+}
+function fecharDrawer(){ const d=$('#drawer'); d.hidden = true; d.innerHTML=''; document.body.style.overflow=''; }
 function detalheCom(id){
   const c = COMS.find(x=>x.id===id); if (!c) return;
   const i = ui.mi, labels = MESES_LISTA.map(x=>MC[x.m]), s = c.s[i];
-  const d = $('#drawer');
-  d.innerHTML = `<div class="drawer" role="dialog" aria-modal="true" aria-label="${esc(c.nome)}">
-    <div class="drawer-h"><div><p class="sub" style="margin:0;color:var(--muted)">Comunidade</p><h2 style="font-size:24px;font-family:var(--display)">${esc(c.nome)}</h2></div><button class="x" aria-label="Fechar" data-fechar>×</button></div>
+  abrirDrawer(`
+    <div class="drawer-h"><div><p class="sub" style="margin:0">Comunidade</p><h2 style="font-size:24px;font-family:var(--display)">${esc(c.nome)}</h2></div><button class="x" aria-label="Fechar" data-fechar>×</button></div>
     <div class="grid g2">
-      <div class="card kpi"><span class="k">Famílias participantes</span><span class="v">${c.fam}</span><span class="d flat">${s.ativos} anotaram em ${MC[MESES_LISTA[i].m]}</span></div>
-      <div class="card kpi rain"><span class="k">Chuva no ano</span><span class="v">${fN(chuvaAno(c))} <small>mm</small></span><span class="d ${chuvaAno(c)<mediaAno()*0.8?'down':'flat'}">média histórica: ${fN(mediaAno())} mm</span></div>
+      ${kpi('Famílias participantes', c.fam, sub(`${s.ativos} anotaram em ${MC[MESES_LISTA[i].m]}`))}
+      ${kpi('Chuva no ano', `${fN(chuvaAno(c))} <small>mm</small>`, `<span class="d ${chuvaAno(c)<mediaAno()*0.8?'down':'flat'}">média histórica: ${fN(mediaAno())} mm</span>`, 'rain')}
     </div>
     <div class="card"><h2>Leite por mês (litros)</h2>${linha([{nome:'Leite',v:c.s.map(x=>x.leite),cor:'var(--red)',area:true}], labels, {destaque:i})}</div>
     <div class="card"><h2>Chuva por mês (mm)</h2>${barras([{nome:'Chuva',v:c.s.map(x=>x.chuva),cor:'var(--rain)'}], labels, {destaque:i})}</div>
-    <div class="card"><h2>O que a comunidade produz</h2>
-      <p class="sub">Número de famílias com cada produção</p>
+    <div class="card"><h2>O que a comunidade produz</h2><p class="sub">Número de famílias com cada produção</p>
       ${hbars([{n:'Leite',v:c.leite},{n:'Galinhas',v:c.aves},{n:'Cabras',v:c.cabras},{n:'Horta',v:c.horta},{n:'Queijo',v:c.queijo}], v=>`${fN(v)} fam.`, 'var(--gold)')}</div>
-    <div class="card"><h2>Técnico responsável</h2><p style="margin:0">${c.tec==='Ana'?'Técnica':'Técnico'} ${esc(c.tec)} · ${FAMS.filter(f=>f.com===c.nome).length} famílias em acompanhamento individual</p></div>
-  </div>`;
-  d.hidden = false; document.body.style.overflow='hidden';
-  d.onclick = e => { if (e.target===d || e.target.closest('[data-fechar]')) { d.hidden = true; d.innerHTML=''; document.body.style.overflow=''; } };
+    <div class="card"><h2>Serviços e programas</h2>
+      <div class="table-wrap"><table><tbody>
+        <tr><td>Pedidos de trator na fila</td><td class="n">${fila().filter(p=>p.com===c.nome).length}</td></tr>
+        <tr><td>Cisternas (consumo / produção)</td><td class="n">${c.cisternas} / ${c.calcadao}</td></tr>
+        <tr><td>Pedidos de carro-pipa abertos</td><td class="n">${c.pipaAbertos}</td></tr>
+        <tr><td>CAF ativo / vencendo / sem CAF</td><td class="n">${c.cafAtivo} / ${c.cafVence} / ${c.semCaf}</td></tr>
+        <tr><td>Aderidas ao Garantia-Safra</td><td class="n">${c.gs}</td></tr>
+        <tr><td>Técnico responsável</td><td class="n">${c.tec}</td></tr>
+      </tbody></table></div></div>`);
 }
+
+/* ---------- MAPA ---------- */
+function telaMapa(){
+  const cam = ui.camadas;
+  const W=100, H=90;
+  const contorno = 'M8,18 C14,6 30,4 44,8 C58,4 74,6 88,10 C96,22 94,36 92,48 C96,62 90,76 80,84 C64,88 48,90 34,86 C20,84 8,76 6,62 C2,48 4,30 8,18 Z';
+  let g = `<path d="${contorno}" fill="var(--land)" stroke="var(--land-line)" stroke-width=".6"/>`;
+  g += `<path d="M4,40 C20,38 30,48 44,50 C58,52 70,44 96,46" fill="none" stroke="var(--rain-2)" stroke-width="1.4" stroke-linecap="round"/>`;
+  g += `<ellipse cx="70" cy="45" rx="7" ry="3.6" fill="var(--rain-2)" opacity=".9"/><text x="70" y="40" font-size="2.6" text-anchor="middle" fill="var(--rain)">Açude</text>`;
+  if (cam.estr) COMS.forEach(c => { g += `<line x1="${SEDE.x}" y1="${SEDE.y}" x2="${c.x}" y2="${c.y}" stroke="var(--muted)" stroke-width=".45" stroke-dasharray="1.2 .8"/>`; });
+  const rr = (k) => { seed = 900 + k*13; return rnd; };
+  if (cam.cist) COMS.forEach((c,k) => { const r = rr(k); for (let j=0;j<Math.min(14,Math.round(c.cisternas/2));j++){ const a=r()*6.28, d=2.5+r()*4; g += `<circle cx="${c.x+Math.cos(a)*d}" cy="${c.y+Math.sin(a)*d}" r=".55" fill="var(--rain)"/>`; } });
+  if (cam.barr) COMS.forEach((c,k) => { const r = rr(k+50); for (let j=0;j<c.barreiros;j++){ const a=r()*6.28, d=3+r()*3; const x=c.x+Math.cos(a)*d, y=c.y+Math.sin(a)*d; g += `<path d="M${x},${y-1.1} L${x+1},${y+.7} L${x-1},${y+.7} Z" fill="var(--warn)"/>`; } });
+  if (cam.maq) COMS.forEach((c,k) => { const n = fila().filter(p=>p.com===c.nome).length; if (n) g += `<rect x="${c.x+3.2}" y="${c.y-6.4}" width="${3+String(n).length*1.4}" height="3.4" rx=".8" fill="var(--red)"/><text x="${c.x+3.2+(3+String(n).length*1.4)/2}" y="${c.y-4}" font-size="2.3" text-anchor="middle" fill="#fff" font-weight="700">${n}</text>`; });
+  g += `<rect x="${SEDE.x-2}" y="${SEDE.y-2}" width="4" height="4" fill="var(--fg)"/><text x="${SEDE.x}" y="${SEDE.y+5.4}" font-size="2.8" text-anchor="middle" font-weight="700" fill="var(--fg)">Sede</text>`;
+  if (cam.com) COMS.forEach(c => { const r = 1.4 + c.fam/10; g += `<g class="pin" data-com="${c.id}" style="cursor:pointer"><circle cx="${c.x}" cy="${c.y}" r="${r}" fill="var(--gold)" stroke="var(--black)" stroke-width=".4"/><text x="${c.x}" y="${c.y+r+3}" font-size="2.4" text-anchor="middle" font-weight="700" fill="var(--fg)">${esc(c.nome)}</text></g>`; });
+  const chk = (k, n, cor) => `<label><input type="checkbox" data-camada="${k}" ${cam[k]?'checked':''}> <i style="background:${cor}"></i>${n}</label>`;
+  return `
+  ${head('Mapa do município', 'Comunidades, água e demandas num só lugar')}
+  <div class="card">
+    <div class="legend">${chk('com','Comunidades (tamanho = famílias)','var(--gold)')}${chk('cist','Cisternas','var(--rain)')}${chk('barr','Barreiros','var(--warn)')}${chk('estr','Estradas vicinais','var(--muted)')}${chk('maq','Pedidos de trator na fila','var(--red)')}</div>
+    <svg class="chart mapa" viewBox="0 0 ${W} ${H}" role="img" aria-label="Mapa esquemático do município">${g}</svg>
+    <p class="sub" style="margin:0">Toque numa comunidade para ver os detalhes.</p>
+  </div>
+  <div class="grid g4">
+    ${kpi('Cisternas de consumo', fN(sumC('cisternas')), sub('cadastradas pelas famílias'), 'rain')}
+    ${kpi('Cisternas de produção', fN(sumC('calcadao')), sub('calçadão e enxurrada'), 'rain')}
+    ${kpi('Barreiros', fN(sumC('barreiros')), sub('pontos de água para os animais'))}
+    ${kpi('Comunidades', COMS.length, sub(`${fN(totalCad)} famílias cadastradas`))}
+  </div>
+  <p class="note">Mapa esquemático para a demonstração. Na versão real, cada ponto vem do GPS do celular do produtor ou do técnico e aparece sobre o mapa do município.</p>`;
+}
+
+/* ---------- CHUVA ---------- */
 function telaChuva(){
   const i = ui.mi, labels = MESES_LISTA.map(x=>MC[x.m]);
-  const mediaMes = MESES_LISTA.map((x,k)=>Math.round(media('chuva',k)));
-  const hist = MESES_LISTA.map(x=>CHUVA_MEDIA[x.m]);
   const ma = mediaAno();
   const rows = COMS.map(c=>({c, ano:chuvaAno(c), perdas:c.s.reduce((a,x)=>a+x.perdas,0)})).sort((a,b)=>a.ano-b.ano);
   return `
-  <div class="head"><div><h1>Chuva e seca</h1><p>Anotações dos pluviômetros das famílias · ${mesNome(i)}</p></div></div>
+  ${head('Chuva e seca', `Anotações dos pluviômetros das famílias · ${mesNome(i)}`)}
   <div class="card"><h2>Chuva média do município por mês (mm)</h2>
     <div class="legend"><span><i style="background:var(--rain)"></i>Registrado pelas famílias</span><span><i style="background:var(--rain-2)"></i>Média histórica de referência</span></div>
-    ${barras([{nome:'Registrado', v:mediaMes, cor:'var(--rain)'},{nome:'Média histórica', v:hist, cor:'var(--rain-2)'}], labels, {destaque:i, aria:'Chuva por mês'})}</div>
+    ${barras([{nome:'Registrado', v:MESES_LISTA.map((x,k)=>Math.round(media('chuva',k))), cor:'var(--rain)'},{nome:'Média histórica', v:MESES_LISTA.map(x=>CHUVA_MEDIA[x.m]), cor:'var(--rain-2)'}], labels, {destaque:i, aria:'Chuva por mês'})}</div>
   <div class="grid g2">
     <div class="card"><h2>Chuva no ano por comunidade</h2><p class="sub">Comparada com a média histórica até ${MC[MESES_LISTA[i].m]} (${fN(ma)} mm)</p>
       ${hbars(rows.map(r=>({n:r.c.nome, v:r.ano, cor: r.ano<ma*0.7?'var(--bad)':r.ano<ma*0.9?'var(--warn)':'var(--rain)'})), v=>`${fN(v)} mm`)}</div>
-    <div class="card"><h2>Famílias que registraram perda de safra</h2><p class="sub">Informação útil para o Garantia-Safra e para planejar água e forragem</p>
-      <div class="table-wrap"><table><thead><tr><th>Comunidade</th><th class="n">% da média</th><th class="n">Registros de perda</th><th>Situação</th></tr></thead>
+    <div class="card"><h2>Perdas de safra registradas</h2><p class="sub">Apoio ao Garantia-Safra e ao planejamento de água e forragem</p>
+      <div class="table-wrap"><table><thead><tr><th>Comunidade</th><th class="n">% da média</th><th class="n">Perdas</th><th>Situação</th></tr></thead>
       <tbody>${rows.map(r=>{ const p = r.ano/ma*100; return `<tr><td>${esc(r.c.nome)}</td><td class="n">${fN(p)}%</td><td class="n">${r.perdas}</td><td>${p<70?'<span class="pill red">Seca severa</span>':p<90?'<span class="pill warn">Abaixo da média</span>':'<span class="pill good">Normal</span>'}</td></tr>`; }).join('')}</tbody></table></div></div>
   </div>
-  <p class="note">A média histórica usada nesta demonstração é ilustrativa. Na versão real, o painel compara com os dados da Funceme para o município.</p>`;
+  <p class="note">A média histórica desta demonstração é ilustrativa. Na versão real, o painel compara com os dados da Funceme para o município.</p>`;
 }
-function telaCompras(){
-  const i = ui.mi;
-  const prods = [
-    {p:'Leite', u:'litros', k:'leite', f:.35}, {p:'Ovos caipira', u:'dúzias', k:'ovos', f:.6},
-    {p:'Queijo coalho', u:'kg', k:'queijo', f:.5}, {p:'Hortaliças', u:'maços', k:'horta', f:.55}];
-  const linhas = prods.map(pr => ({...pr, total: Math.round(soma(pr.k)*pr.f), por: COMS.map(c=>({c:c.nome, v:Math.round(c.s[i][pr.k]*pr.f)})).filter(x=>x.v>0).sort((a,b)=>b.v-a.v)}));
+
+/* ---------- DIAGNÓSTICO ---------- */
+function telaDiagnostico(){
+  const i = ui.mi, y = MESES_LISTA[i].y;
+  const anoIdx = MESES_LISTA.map((x,k)=>k).filter(k=>MESES_LISTA[k].y===y && k<=i);
+  const tot = k => anoIdx.reduce((s,j)=>s+soma(k,j),0);
+  const secas = COMS.filter(c=>chuvaAno(c)<mediaAno()*0.7).map(c=>c.nome);
+  const horasFila = fila().reduce((s,p)=>s+p.horas,0);
   return `
-  <div class="head"><div><h1>Compras públicas</h1><p>O que as comunidades têm disponível para vender · ${mesNome(i)}</p></div></div>
-  <p class="note">Estimativa da parte da produção que as famílias informaram ter disponível para venda. Ajuda a montar as chamadas públicas do PAA e da alimentação escolar (PNAE) com o que realmente existe no município.</p>
-  <div class="grid g4">${linhas.map(l=>`<div class="card kpi"><span class="k">${l.p}</span><span class="v">${fN(l.total)} <small>${l.u}</small></span><span class="d flat">disponível no mês</span></div>`).join('')}</div>
-  <div class="grid g2">${linhas.map(l=>`<div class="card"><h2>${l.p} por comunidade</h2><p class="sub">${l.u} por mês</p>${hbars(l.por.map(x=>({n:x.c, v:x.v})), v=>fN(v), l.k==='ovos'?'var(--gold)':l.k==='horta'?'var(--good)':'var(--red)')}</div>`).join('')}</div>
-  <div class="btn-row no-print"><button class="btn primary" data-act="csvCompras">Baixar lista para a chamada pública (planilha)</button></div>`;
+  ${head('Diagnóstico produtivo', `Resumo do município para projetos, emendas e o Plano Municipal de Desenvolvimento Rural · ${y}`, `<div class="btn-row no-print"><button class="btn gold" data-act="imprimir">Imprimir ou salvar em PDF</button></div>`)}
+  <article class="report">
+    <section><h2>Quem produz</h2><p>${fN(totalCad)} famílias agricultoras cadastradas em ${COMS.length} comunidades, das quais ${fN(totalFam)} usam o Caderno da Roça. ${fN(sumC('leite'))} famílias produzem leite, ${fN(sumC('aves'))} criam galinhas, ${fN(sumC('cabras'))} criam cabras ou ovelhas e ${fN(sumC('horta'))} mantêm horta.</p></section>
+    <section><h2>Quanto produz (de janeiro a ${MC[MESES_LISTA[i].m]})</h2>
+      <ul><li><b>${fN(tot('leite'))} litros</b> de leite</li><li><b>${fN(tot('ovos'))} dúzias</b> de ovos</li><li><b>${fN(tot('queijo'))} kg</b> de queijo</li><li><b>${fN(tot('horta'))} maços</b> de hortaliças</li></ul></section>
+    <section><h2>Clima</h2><p>Chuva média de ${fN(COMS.reduce((s,c)=>s+chuvaAno(c),0)/COMS.length)} mm no ano, contra ${fN(mediaAno())} mm da média histórica. ${secas.length?`Comunidades com seca severa (mais de 30% abaixo da média): ${secas.join(', ')}.`:'Nenhuma comunidade com seca severa.'}</p></section>
+    <section><h2>Infraestrutura hídrica</h2><p>${fN(sumC('cisternas'))} cisternas de consumo, ${fN(sumC('calcadao'))} cisternas de produção e ${fN(sumC('barreiros'))} barreiros registrados. ${sumC('pipaAbertos')} pedidos de carro-pipa em aberto.</p></section>
+    <section><h2>Demandas</h2><ul>
+      <li>${fila().length} pedidos de máquinas na fila, somando ${fN(horasFila)} horas de serviço.</li>
+      <li>${sumC('semCaf')} famílias sem CAF e ${sumC('cafVence')} com CAF vencendo.</li>
+      <li>Faltam ${fRk(Math.max(0,REPASSE_PNAE*META_PNAE-pnaeExec()))} em compras da agricultura familiar para cumprir o mínimo de 45% da merenda escolar.</li></ul></section>
+    <section><h2>Oportunidades para captar recursos</h2><ul>
+      ${secas.length?`<li>Cisternas de produção e barreiros em ${secas.join(' e ')}, as comunidades mais afetadas pela seca.</li>`:''}
+      <li>Equipamentos para queijo com inspeção sanitária, ampliando a venda para a merenda.</li>
+      <li>Ampliação da frota de máquinas, diante de ${fN(horasFila)} horas de serviço em espera.</li>
+      <li>Mutirão de CAF nas comunidades com mais famílias sem cadastro.</li></ul></section>
+    <p class="note">Gerado automaticamente a partir dos dados do painel. Dados fictícios de demonstração.</p>
+  </article>`;
 }
+
+/* ---------- MÁQUINAS ---------- */
+function telaMaquinas(){
+  const f = fila().sort((a,b)=>b.dias-a.dias), ag = PEDIDOS.filter(p=>p.st==='Agendado'), feitos = PEDIDOS.filter(p=>p.st==='Concluído');
+  const horasMes = feitos.reduce((s,p)=>s+p.horas,0);
+  const porCom = COMS.map(c=>({n:c.nome, v:PEDIDOS.filter(p=>p.com===c.nome && p.st!=='Concluído').reduce((s,p)=>s+p.horas,0)})).sort((a,b)=>b.v-a.v);
+  const linhaP = (p,k) => `<tr><td class="n">${k}</td><td>${esc(p.fam)}</td><td>${esc(p.com)}</td><td>${esc(p.serv)}</td><td class="n">${p.horas} h</td><td class="n">há ${p.dias} dias</td><td>${p.st==='Agendado'?`<span class="pill blue">Agendado · ${esc(p.maq)} em ${p.quando} dia${p.quando>1?'s':''}</span>`:p.dias>45?'<span class="pill red">Na fila · atrasado</span>':'<span class="pill warn">Na fila</span>'}</td><td class="no-print">${p.st==='Na fila'?`<button class="btn sm" data-agendar="${p.id}">Agendar</button>`:`<button class="btn sm" data-concluir="${p.id}">Concluído</button>`}</td></tr>`;
+  return `
+  ${head('Máquinas e trator', 'Fila de pedidos por ordem de chegada, com transparência para todas as comunidades')}
+  <div class="grid g4">
+    ${kpi('Na fila', f.length, sub(`${fN(f.reduce((s,p)=>s+p.horas,0))} horas de serviço`))}
+    ${kpi('Agendados', ag.length, sub('próximos dias'))}
+    ${kpi('Horas feitas no mês', `${horasMes} <small>h</small>`, sub(`${feitos.length} serviços concluídos`))}
+    ${kpi('Espera média', `${Math.round(f.reduce((s,p)=>s+p.dias,0)/Math.max(1,f.length))} <small>dias</small>`, sub(`${f.filter(p=>p.dias>45).length} pedidos com mais de 45 dias`))}
+  </div>
+  <div class="card no-print"><h2>Registrar pedido</h2><p class="sub">Na versão real, o pedido também pode ser feito pelo produtor no aplicativo</p>
+    <form class="form" id="fPed">
+      <label>Família<input id="pFam" placeholder="Ex.: Família de Maria" required></label>
+      <label>Comunidade<select id="pCom">${COMS.map(c=>`<option>${esc(c.nome)}</option>`).join('')}</select></label>
+      <label>Serviço<select id="pServ">${SERVICOS.map(s=>`<option>${s[0]}</option>`).join('')}</select></label>
+      <label>Horas estimadas<input id="pHoras" type="number" min="1" max="40" value="4"></label>
+      <div class="full"><button class="btn primary" type="submit">Colocar na fila</button></div>
+    </form></div>
+  <div class="card"><h2>Fila de atendimento</h2><p class="sub">Ordem de chegada. Os mais antigos aparecem primeiro.</p>
+    <div class="table-wrap"><table><thead><tr><th class="n">#</th><th>Família</th><th>Comunidade</th><th>Serviço</th><th class="n">Horas</th><th class="n">Pedido</th><th>Situação</th><th class="no-print"></th></tr></thead>
+    <tbody>${[...ag, ...f].map((p,k)=>linhaP(p,k+1)).join('')}</tbody></table></div></div>
+  <div class="grid g2">
+    <div class="card"><h2>Horas pendentes por comunidade</h2>${hbars(porCom, v=>`${v} h`)}</div>
+    <div class="card"><h2>Serviços concluídos no mês</h2><div class="table-wrap"><table><thead><tr><th>Família</th><th>Serviço</th><th>Máquina</th><th class="n">Horas</th></tr></thead><tbody>${feitos.slice(0,8).map(p=>`<tr><td>${esc(p.fam)}</td><td>${esc(p.serv)}</td><td>${esc(p.maq)}</td><td class="n">${p.horas} h</td></tr>`).join('')}</tbody></table></div></div>
+  </div>
+  <p class="note">Nomes fictícios. Na versão real, a família vê a própria posição na fila pelo aplicativo, e a lista pública mostra só a comunidade e a ordem.</p>`;
+}
+
+/* ---------- SEMENTES ---------- */
+function telaSementes(){
+  const tot = INSUMOS.map((x,k)=>({...x, f:COMS.reduce((s,c)=>s+c.ins[k].f,0), q:COMS.reduce((s,c)=>s+c.ins[k].q,0)}));
+  const anot = COMS.reduce((s,c)=>s+c.colheitaAnotada*c.ins[0].f,0)/Math.max(1,tot[0].f);
+  return `
+  ${head('Sementes e insumos', 'Hora de Plantar, palma e ração emergencial · quem recebeu, quanto e quando')}
+  <div class="grid g4">
+    ${kpi('Famílias atendidas', fN(Math.max(...tot.map(t=>t.f))), sub('em pelo menos um programa'))}
+    ${kpi('Sementes entregues', `${fN(tot[0].q+tot[1].q+tot[2].q)} <small>kg</small>`, sub('milho, feijão e sorgo'))}
+    ${kpi('Entregas bloqueadas', BLOQ, sub('mesma família, mesmo item: duplicidade evitada'))}
+    ${kpi('Colheita anotada', `${fN(anot*100)}%`, sub('das famílias que receberam milho'))}
+  </div>
+  <div class="card"><h2>Distribuição por comunidade</h2>
+    <div class="table-wrap"><table><thead><tr><th>Comunidade</th>${INSUMOS.map(x=>`<th class="n">${x.it} (${x.un})</th>`).join('')}</tr></thead>
+    <tbody>${COMS.map(c=>`<tr><td><b>${esc(c.nome)}</b></td>${c.ins.map(v=>`<td class="n">${fN(v.q)} <span class="flat">· ${v.f} fam.</span></td>`).join('')}</tr>`).join('')}</tbody>
+    <tfoot><tr><td>Total</td>${tot.map(t=>`<td class="n">${fN(t.q)}</td>`).join('')}</tr></tfoot></table></div></div>
+  <div class="grid g2">
+    <div class="card"><h2>Resultado da distribuição</h2><p class="sub">Cruzamento com as colheitas anotadas no aplicativo</p>
+      <p style="margin:0">Das famílias que receberam semente de milho e anotaram colheita, a produção média foi de <b>${fN(between(9,14),1)} sacos de 60 kg</b> por família. Isso ajuda a mostrar ao Estado o efeito do programa.</p></div>
+    <div class="card"><h2>Prestação de contas</h2><p class="sub">Lista de beneficiários pronta para o Estado e para o Tribunal de Contas</p>
+      <div class="btn-row"><button class="btn" data-act="csvSementes">Baixar lista (planilha)</button></div></div>
+  </div>`;
+}
+
+/* ---------- ÁGUA ---------- */
+function telaAgua(){
+  return `
+  ${head('Água e carro-pipa', 'Pedidos de abastecimento, cisternas e rota do dia')}
+  <div class="grid g4">
+    ${kpi('Pedidos abertos', sumC('pipaAbertos'), sub('cisternas aguardando'), 'rain')}
+    ${kpi('Água entregue no mês', `${fN(sumC('pipaLitros')/1000)} <small>mil litros</small>`, sub('somando todas as comunidades'), 'rain')}
+    ${kpi('Cisternas de consumo', fN(sumC('cisternas')), sub('cadastradas'))}
+    ${kpi('Viagens previstas hoje', ROTA.reduce((s,r)=>s+r.cist,0), sub('caminhão de 16 mil litros'))}
+  </div>
+  <div class="grid g2">
+    <div class="card"><h2>Pedidos abertos por comunidade</h2>${hbars(COMS.map(c=>({n:c.nome, v:c.pipaAbertos, cor:c.pipaAbertos>5?'var(--bad)':'var(--rain)'})).sort((a,b)=>b.v-a.v), v=>`${v}`)}</div>
+    <div class="card"><h2>Rota do dia</h2><p class="sub">Ordem sugerida pelo número de pedidos</p>
+      <div class="table-wrap"><table><thead><tr><th class="n">#</th><th>Comunidade</th><th class="n">Cisternas</th><th class="n">Litros</th></tr></thead><tbody>${ROTA.map(r=>`<tr><td class="n">${r.ordem}</td><td>${esc(r.com)}</td><td class="n">${r.cist}</td><td class="n">${fN(r.litros)}</td></tr>`).join('')}</tbody></table></div></div>
+  </div>
+  <div class="card"><h2>Água entregue por comunidade no mês (mil litros)</h2>${hbars(COMS.map(c=>({n:c.nome, v:c.pipaLitros/1000})).sort((a,b)=>b.v-a.v), v=>fN(v), 'var(--rain)')}</div>`;
+}
+
+/* ---------- TÉCNICOS ---------- */
 function telaTecnico(){
   const ord = [...FAMS].sort((a,b)=>b.dias-a.dias);
-  const visitar = ord.filter(f=>f.sit==='Visitar').length;
   return `
-  <div class="head"><div><h1>Acompanhamento técnico</h1><p>Famílias que <b>aceitaram</b> se identificar para receber visitas</p></div></div>
+  ${head('Assistência técnica', 'Visitas registradas no aplicativo do técnico, mesmo sem internet')}
   <div class="grid g4">
-    <div class="card kpi"><span class="k">Em acompanhamento</span><span class="v">${FAMS.length}</span><span class="d flat">famílias identificadas</span></div>
-    <div class="card kpi"><span class="k">Precisam de visita</span><span class="v" style="color:var(--bad)">${visitar}</span><span class="d flat">mais de 45 dias sem visita</span></div>
-    <div class="card kpi"><span class="k">Técnicos</span><span class="v">2</span><span class="d flat">Ana e João</span></div>
-    <div class="card kpi"><span class="k">Anonimato</span><span class="v">${fN(totalFam-FAMS.length)}</span><span class="d flat">famílias participam sem se identificar</span></div>
+    ${kpi('Em acompanhamento', FAMS.length, sub('famílias que autorizaram'))}
+    ${kpi('Precisam de visita', `<span style="color:var(--bad)">${ord.filter(f=>f.sit==='Visitar').length}</span>`, sub('mais de 45 dias sem visita'))}
+    ${kpi('Visitas no mês', 48, sub('com foto e localização'))}
+    ${kpi('Técnicos', 2, sub('Ana e João'))}
   </div>
   <div class="table-wrap"><table>
-    <thead><tr><th>Família</th><th>Comunidade</th><th>Técnico</th><th class="n">Última visita</th><th>Foco do acompanhamento</th><th>Situação</th></tr></thead>
-    <tbody>${ord.map(f=>`<tr><td>${esc(f.nome)}</td><td>${esc(f.com)}</td><td>${esc(f.tec)}</td><td class="n">há ${f.dias} dias</td><td>${esc(f.foco)}</td><td>${f.sit==='Visitar'?'<span class="pill red">Visitar</span>':f.sit==='Acompanhar'?'<span class="pill warn">Acompanhar</span>':'<span class="pill good">Em dia</span>'}</td></tr>`).join('')}</tbody>
+    <thead><tr><th>Família</th><th>Comunidade</th><th>Técnico</th><th class="n">Última visita</th><th>Foco</th><th>Registro</th><th>Situação</th></tr></thead>
+    <tbody>${ord.map(f=>`<tr><td>${esc(f.nome)}</td><td>${esc(f.com)}</td><td>${esc(f.tec)}</td><td class="n">há ${f.dias} dias</td><td>${esc(f.foco)}</td><td><span class="pill gray">foto · GPS</span></td><td>${f.sit==='Visitar'?'<span class="pill red">Visitar</span>':f.sit==='Acompanhar'?'<span class="pill warn">Acompanhar</span>':'<span class="pill good">Em dia</span>'}</td></tr>`).join('')}</tbody>
   </table></div>
-  <p class="note">Nomes fictícios. Na versão real, só aparecem aqui as famílias que autorizaram no aplicativo. Os técnicos veem as anotações delas apenas com essa autorização.</p>`;
+  <p class="note">Nomes fictícios. Só aparecem aqui as famílias que autorizaram no aplicativo. O registro de visitas com foto e localização comprova a execução de convênios de assistência técnica.</p>`;
 }
+
+/* ---------- MERENDA E PAA ---------- */
+function telaMerenda(){
+  const i = ui.mi, exec = pnaeExec(), meta = REPASSE_PNAE*META_PNAE, p = exec/REPASSE_PNAE;
+  const prods = [{p:'Leite', u:'litros', k:'leite', f:.35}, {p:'Ovos caipira', u:'dúzias', k:'ovos', f:.6}, {p:'Queijo coalho', u:'kg', k:'queijo', f:.5}, {p:'Hortaliças', u:'maços', k:'horta', f:.55}];
+  return `
+  ${head('Merenda escolar e PAA', 'Compras da agricultura familiar e cumprimento do mínimo legal')}
+  <div class="card"><h2>Merenda escolar (PNAE): mínimo de 45% da agricultura familiar</h2>
+    <p class="sub">Lei nº 15.226/2025. Repasse anual do FNDE (fictício): ${fR(REPASSE_PNAE)} · mínimo: ${fR(meta)}</p>
+    <div class="meter" role="img" aria-label="${fN(p*100)}% cumprido"><div class="f" style="width:${Math.min(100,p*100)}%;background:${p>=META_PNAE?'var(--good)':'var(--warn)'}"></div><div class="goal" style="left:45%"></div></div>
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span><b>${fN(p*100,1)}%</b> já comprado da agricultura familiar (${fR(exec)})</span><span>${p>=META_PNAE?'<span class="pill good">Mínimo cumprido</span>':`<span class="pill warn">Faltam ${fR(meta-exec)}</span>`}</span></div></div>
+  <div class="grid g4">
+    ${kpi('Fornecedores', FORN.length, sub(`${FORN.filter(f=>!f.caf).length} com CAF a regularizar`))}
+    ${kpi('Contratado', fRk(FORN.reduce((s,f)=>s+f.contratado,0)), sub('chamada pública do ano'))}
+    ${kpi('Pago', fRk(FORN.reduce((s,f)=>s+f.pago,0)), sub(`${fRk(exec-FORN.reduce((s,f)=>s+f.pago,0))} a pagar`))}
+    ${kpi('PAA executado', fRk(PAA.exec), sub(`${PAA.fam} famílias · ${PAA.entidades} entidades atendidas`))}
+  </div>
+  <div class="card"><h2>Fornecedores da merenda</h2>
+    <div class="table-wrap"><table><thead><tr><th>Fornecedor</th><th>Comunidade</th><th>Produto</th><th class="n">Contratado</th><th class="n">Entregue</th><th class="n">Pago</th><th>CAF</th></tr></thead>
+    <tbody>${FORN.map(f=>`<tr><td>${esc(f.nome)}</td><td>${esc(f.com)}</td><td>${esc(f.prod)}</td><td class="n">${fR(f.contratado)}</td><td class="n">${fR(f.entregue)}</td><td class="n">${fR(f.pago)}</td><td>${f.caf?'<span class="pill good">Válido</span>':'<span class="pill red">Vencido</span>'}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card"><h2>Oferta disponível nas comunidades</h2><p class="sub">Parte da produção que as famílias informam ter para vender · ${mesNome(i)}</p>
+    <div class="prodlist">${prods.map(x=>`<div><span>${x.p}</span><b>${fN(Math.round(soma(x.k)*x.f))}</b><small>${x.u} por mês</small></div>`).join('')}</div>
+    <div class="btn-row no-print"><button class="btn primary" data-act="csvCompras">Baixar oferta por comunidade (planilha)</button></div></div>
+  <p class="note">Nomes e valores fictícios. Na versão real, o painel mostra quanto falta para o mínimo legal e onde há produção para completar.</p>`;
+}
+
+/* ---------- CAF E GARANTIA-SAFRA ---------- */
+function telaCaf(){
+  const ma = mediaAno();
+  return `
+  ${head('CAF e Garantia-Safra', 'Quem está com o cadastro em dia e quem está protegido contra a perda da safra')}
+  <div class="grid g4">
+    ${kpi('CAF ativo', fN(sumC('cafAtivo')), sub(`${fN(sumC('cafAtivo')/totalCad*100)}% das famílias`))}
+    ${kpi('CAF vencendo', `<span style="color:var(--warn)">${sumC('cafVence')}</span>`, sub('nos próximos 90 dias'))}
+    ${kpi('Sem CAF', `<span style="color:var(--bad)">${sumC('semCaf')}</span>`, sub('fora do Pronaf, PAA e merenda'))}
+    ${kpi('Garantia-Safra', fN(sumC('gs')), sub('famílias aderidas'))}
+  </div>
+  <div class="card"><h2>Situação por comunidade</h2>
+    <div class="table-wrap"><table><thead><tr><th>Comunidade</th><th class="n">Cadastradas</th><th class="n">CAF ativo</th><th class="n">Vencendo</th><th class="n">Sem CAF</th><th class="n">Garantia-Safra</th><th class="n">Chuva (% da média)</th><th>Sugestão</th></tr></thead>
+    <tbody>${COMS.map(c=>{ const pc = chuvaAno(c)/ma*100; const sug = c.semCaf+c.cafVence>=8 ? '<span class="pill red">Mutirão de CAF</span>' : pc<70 ? '<span class="pill warn">Reunir laudo de perdas</span>' : '<span class="pill good">Em dia</span>'; return `<tr><td><b>${esc(c.nome)}</b></td><td class="n">${c.cad}</td><td class="n">${c.cafAtivo}</td><td class="n">${c.cafVence}</td><td class="n">${c.semCaf}</td><td class="n">${c.gs}</td><td class="n">${fN(pc)}%</td><td>${sug}</td></tr>`; }).join('')}</tbody></table></div></div>
+  <div class="grid g2">
+    <div class="card"><h2>Por que importa</h2><p style="margin:0">Sem CAF válido, a família não acessa o Pronaf, não vende para o PAA nem para a merenda e não entra em vários programas estaduais. O painel avisa antes do cadastro vencer.</p></div>
+    <div class="card"><h2>Garantia-Safra</h2><p style="margin:0">As perdas e a chuva anotadas pelas famílias ajudam a secretaria a acompanhar o ano agrícola e a reunir informações para comprovar a seca no município.</p></div>
+  </div>`;
+}
+
+/* ---------- AVISOS ---------- */
+function telaAvisos(){
+  const sel = ui.avisoPara;
+  return `
+  ${head('Avisos aos produtores', 'Mensagens que aparecem no aplicativo de cada família')}
+  <div class="grid g3">
+    <div class="card no-print"><h2>Novo aviso</h2>
+      <form class="form" id="fAviso" style="grid-template-columns:1fr">
+        <label>Título<input id="aTit" maxlength="60" value="Entrega de sementes"></label>
+        <label>Mensagem<textarea id="aTxt" maxlength="280">As sementes do Hora de Plantar chegam na sexta-feira. Retire na sede da associação, das 8h às 12h. Leve o CAF.</textarea></label>
+        <div><span style="font-size:13px;font-weight:700">Para quem</span>
+          <div class="chips" style="margin-top:6px"><button type="button" class="chip" data-para="todas" aria-pressed="${sel.includes('todas')}">Todas as comunidades</button>${COMS.map(c=>`<button type="button" class="chip" data-para="${c.id}" aria-pressed="${sel.includes(c.id)}">${esc(c.nome)}</button>`).join('')}</div></div>
+        <div><button class="btn primary" type="submit">Enviar aviso</button></div>
+      </form></div>
+    <div class="card"><h2>Como a família vê</h2>
+      <div class="phone" aria-label="Prévia no celular"><div class="bar"></div><div class="msg"><b>Aviso da Secretaria</b><strong id="pvTit">Entrega de sementes</strong><div id="pvTxt" style="margin-top:4px">As sementes do Hora de Plantar chegam na sexta-feira. Retire na sede da associação, das 8h às 12h. Leve o CAF.</div></div><div class="msg" style="border-left-color:var(--gold);opacity:.7"><b style="color:var(--gold-ink)">Caderno da Roça</b>Lembrete: anote a chuva de hoje.</div></div>
+      <p class="sub" style="margin:0">O aplicativo também pode ler o aviso em voz alta.</p></div>
+  </div>
+  <div class="card"><h2>Avisos enviados</h2>
+    <div class="table-wrap"><table><thead><tr><th>Quando</th><th>Para</th><th>Aviso</th><th class="n">Famílias que leram</th></tr></thead>
+    <tbody>${AVISOS.map(a=>`<tr><td>${esc(a.quando)}</td><td>${esc(a.para)}</td><td style="white-space:normal;min-width:260px"><b>${esc(a.titulo)}</b><br><span class="flat">${esc(a.texto)}</span></td><td class="n">${a.lidos}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+/* ---------- RELATÓRIOS ---------- */
 function telaRelatorios(){
   const i = ui.mi;
+  const itens = [['Produção e chuva por comunidade','csvCom'],['Oferta para merenda e PAA','csvCompras'],['Fila de máquinas','csvMaq'],['Beneficiários de sementes e insumos','csvSementes'],['Situação do CAF e Garantia-Safra','csvCaf']];
   return `
-  <div class="head"><div><h1>Relatórios</h1><p>${mesNome(i)}</p></div></div>
+  ${head('Relatórios', mesNome(i))}
   <div class="grid g2">
-    <div class="card"><h2>Relatório mensal do município</h2><p class="sub">Para o secretário, o conselho rural (CMDRS) e a prestação de contas</p>
-      <ul style="margin:0;padding-left:20px"><li>Famílias participantes e uso do aplicativo</li><li>Produção do mês por produto e comunidade</li><li>Chuva por comunidade e comparação com a média</li><li>Oferta para compras públicas</li><li>Famílias em acompanhamento técnico</li></ul>
-      <div class="btn-row"><button class="btn gold" data-act="imprimir">Imprimir ou salvar em PDF</button></div></div>
-    <div class="card"><h2>Planilhas</h2><p class="sub">Dados por comunidade para abrir no Excel</p>
-      <div class="btn-row"><button class="btn" data-act="csvCom">Produção e chuva por comunidade</button><button class="btn" data-act="csvCompras">Oferta para compras públicas</button></div></div>
+    <div class="card"><h2>Relatório mensal do município</h2><p class="sub">Para o prefeito, o conselho rural (CMDRS) e a prestação de contas</p>
+      <ul style="margin:0;padding-left:20px"><li>Produção e chuva por comunidade</li><li>Fila de máquinas e serviços feitos</li><li>Merenda, PAA e cumprimento do mínimo legal</li><li>Sementes, insumos e água entregues</li><li>Assistência técnica e CAF</li></ul>
+      <div class="btn-row"><button class="btn gold" data-tab="diagnostico">Ver diagnóstico produtivo</button><button class="btn" data-act="imprimir">Imprimir esta tela</button></div></div>
+    <div class="card"><h2>Planilhas</h2><p class="sub">Para abrir no Excel</p>
+      <div class="btn-row" style="flex-direction:column;align-items:stretch">${itens.map(([n,a])=>`<button class="btn" data-act="${a}">${n}</button>`).join('')}</div></div>
   </div>
   <div class="card"><h2>Resumo de ${mesNome(i)}</h2>
-    <p style="margin:0">${fN(totalFam)} famílias participam em ${COMS.length} comunidades, e ${fN(soma('ativos'))} anotaram no mês. Foram registrados ${fN(soma('leite'))} litros de leite, ${fN(soma('ovos'))} dúzias de ovos, ${fN(soma('queijo'))} kg de queijo e ${fN(soma('horta'))} maços de hortaliças. A chuva média foi de ${fN(media('chuva'))} mm, e ${COMS.filter(c=>chuvaAno(c)<mediaAno()*0.7).length} comunidades estão com chuva no ano mais de 30% abaixo da média.</p></div>
+    <p style="margin:0">${fN(totalFam)} famílias participam em ${COMS.length} comunidades, e ${fN(soma('ativos'))} anotaram no mês. Foram registrados ${fN(soma('leite'))} litros de leite, ${fN(soma('ovos'))} dúzias de ovos, ${fN(soma('queijo'))} kg de queijo e ${fN(soma('horta'))} maços de hortaliças. Há ${fila().length} pedidos de máquinas na fila e ${sumC('pipaAbertos')} pedidos de carro-pipa abertos. A merenda escolar está com ${fN(pnaeExec()/REPASSE_PNAE*100)}% de compras da agricultura familiar, para um mínimo de 45%.</p></div>
   ${PRIV}`;
 }
 
@@ -397,41 +703,64 @@ function baixar(nome, linhas){
   const csv = '﻿' + linhas.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download = nome;
   document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 800);
+  toast('Planilha baixada');
 }
-function csvCom(){
-  const i = ui.mi;
-  baixar(`painel-comunidades-${MESES_LISTA[i].y}-${MESES_LISTA[i].m+1}.csv`, [['Comunidade','Famílias','Anotaram','Leite (L)','Ovos (dz)','Queijo (kg)','Hortaliças (maços)','Chuva no mês (mm)','Chuva no ano (mm)'],
-    ...COMS.map(c=>{const s=c.s[i]; return [c.nome,c.fam,s.ativos,s.leite,s.ovos,s.queijo,s.horta,s.chuva,chuvaAno(c)];})]);
-}
-function csvCompras(){
-  const i = ui.mi, f = {leite:.35, ovos:.6, queijo:.5, horta:.55};
-  baixar(`oferta-compras-publicas-${MESES_LISTA[i].y}-${MESES_LISTA[i].m+1}.csv`, [['Comunidade','Leite (L)','Ovos (dz)','Queijo (kg)','Hortaliças (maços)'],
-    ...COMS.map(c=>{const s=c.s[i]; return [c.nome, Math.round(s.leite*f.leite), Math.round(s.ovos*f.ovos), Math.round(s.queijo*f.queijo), Math.round(s.horta*f.horta)];})]);
-}
+const sufixo = () => `${MESES_LISTA[ui.mi].y}-${String(MESES_LISTA[ui.mi].m+1).padStart(2,'0')}`;
+const EXPORT = {
+  csvCom: () => baixar(`comunidades-${sufixo()}.csv`, [['Comunidade','Famílias','Anotaram','Leite (L)','Ovos (dz)','Queijo (kg)','Hortaliças (maços)','Chuva no mês (mm)','Chuva no ano (mm)'], ...COMS.map(c=>{const s=c.s[ui.mi]; return [c.nome,c.fam,s.ativos,s.leite,s.ovos,s.queijo,s.horta,s.chuva,chuvaAno(c)];})]),
+  csvCompras: () => baixar(`oferta-merenda-paa-${sufixo()}.csv`, [['Comunidade','Leite (L)','Ovos (dz)','Queijo (kg)','Hortaliças (maços)'], ...COMS.map(c=>{const s=c.s[ui.mi]; return [c.nome, Math.round(s.leite*.35), Math.round(s.ovos*.6), Math.round(s.queijo*.5), Math.round(s.horta*.55)];})]),
+  csvMaq: () => baixar(`fila-maquinas-${sufixo()}.csv`, [['Família','Comunidade','Serviço','Horas','Dias de espera','Situação','Máquina'], ...PEDIDOS.map(p=>[p.fam,p.com,p.serv,p.horas,p.dias,p.st,p.maq])]),
+  csvSementes: () => baixar(`sementes-insumos-${sufixo()}.csv`, [['Comunidade', ...INSUMOS.map(x=>`${x.it} (${x.un})`), ...INSUMOS.map(x=>`${x.it} (famílias)`)], ...COMS.map(c=>[c.nome, ...c.ins.map(v=>v.q), ...c.ins.map(v=>v.f)])]),
+  csvCaf: () => baixar(`caf-garantia-safra-${sufixo()}.csv`, [['Comunidade','Cadastradas','CAF ativo','CAF vencendo','Sem CAF','Garantia-Safra'], ...COMS.map(c=>[c.nome,c.cad,c.cafAtivo,c.cafVence,c.semCaf,c.gs])]),
+};
 
 /* ---------- montagem ---------- */
+const TELAS = {visao:telaVisao, comunidades:telaComunidades, mapa:telaMapa, chuva:telaChuva, diagnostico:telaDiagnostico, maquinas:telaMaquinas, sementes:telaSementes, agua:telaAgua, tecnico:telaTecnico, merenda:telaMerenda, caf:telaCaf, avisos:telaAvisos, relatorios:telaRelatorios};
+const CONT = {maquinas: () => fila().length, agua: () => sumC('pipaAbertos'), caf: () => sumC('cafVence')};
 const sel = $('#mes');
 sel.innerHTML = MESES_LISTA.map((x,i)=>`<option value="${i}">${MESES[x.m]} ${x.y}</option>`).join('');
 sel.value = ui.mi; sel.onchange = () => { ui.mi = Number(sel.value); render(); };
 function render(){
-  $('#tabs').innerHTML = TABS.map(([k,n])=>`<button class="tab" data-tab="${k}" ${k===ui.tab?'aria-current="page"':''}>${n}</button>`).join('');
-  const v = $('#view');
-  v.innerHTML = ({visao:telaVisao, comunidades:telaComunidades, chuva:telaChuva, compras:telaCompras, tecnico:telaTecnico, relatorios:telaRelatorios})[ui.tab]();
+  $('#nav').innerHTML = GRUPOS.map(([g, ts]) => `<div class="grp"><span class="gt">${g}</span>${ts.map(([k,n])=>`<button class="tab" data-tab="${k}" ${k===ui.tab?'aria-current="page"':''}>${n}${CONT[k]?`<span class="cnt">${CONT[k]()}</span>`:''}</button>`).join('')}</div>`).join('');
+  $('#view').innerHTML = TELAS[ui.tab]();
+  const cur = $('.tab[aria-current]'); if (cur && estreito()) cur.scrollIntoView({block:'nearest', inline:'center'});
+  ligarTela();
+}
+function ligarTela(){
+  const fp = $('#fPed');
+  if (fp) fp.onsubmit = e => { e.preventDefault(); const fam = $('#pFam').value.trim(); if (!fam) { $('#pFam').focus(); return; }
+    PEDIDOS.push({id:PEDIDOS.length+1, fam, com:$('#pCom').value, serv:$('#pServ').value, horas:Number($('#pHoras').value)||4, dias:0, st:'Na fila', maq:'Trator 01', quando:null});
+    render(); toast(`Pedido de ${fam} colocado na fila`); };
+  const fa = $('#fAviso');
+  if (fa) {
+    const pv = () => { $('#pvTit').textContent = $('#aTit').value || 'Título do aviso'; $('#pvTxt').textContent = $('#aTxt').value || 'Mensagem'; };
+    $('#aTit').oninput = pv; $('#aTxt').oninput = pv;
+    fa.onsubmit = e => { e.preventDefault();
+      const para = ui.avisoPara.includes('todas') ? 'Todas as comunidades' : COMS.filter(c=>ui.avisoPara.includes(c.id)).map(c=>c.nome).join(', ');
+      if (!para) { toast('Escolha para quem enviar'); return; }
+      AVISOS.unshift({quando:'agora', para, titulo:$('#aTit').value || 'Aviso', texto:$('#aTxt').value, lidos:0});
+      render(); toast('Aviso enviado (demonstração)'); };
+  }
 }
 document.addEventListener('click', e => {
   const t = e.target.closest('[data-tab]'); if (t) { ui.tab = t.dataset.tab; history.replaceState(null,'','#'+ui.tab); render(); window.scrollTo(0,0); return; }
   const r = e.target.closest('[data-com]'); if (r) { detalheCom(r.dataset.com); return; }
+  const ag = e.target.closest('[data-agendar]'); if (ag) { const p = PEDIDOS.find(x=>x.id==ag.dataset.agendar); p.st='Agendado'; p.quando=3; render(); toast(`Agendado: ${p.fam}`); return; }
+  const co = e.target.closest('[data-concluir]'); if (co) { const p = PEDIDOS.find(x=>x.id==co.dataset.concluir); p.st='Concluído'; render(); toast(`Serviço concluído: ${p.fam}`); return; }
+  const pa = e.target.closest('[data-para]'); if (pa) { const k = pa.dataset.para;
+    if (k==='todas') ui.avisoPara = ['todas']; else { ui.avisoPara = ui.avisoPara.filter(x=>x!=='todas'); ui.avisoPara = ui.avisoPara.includes(k) ? ui.avisoPara.filter(x=>x!==k) : [...ui.avisoPara, k]; if (!ui.avisoPara.length) ui.avisoPara=['todas']; }
+    $$('[data-para]').forEach(b=>b.setAttribute('aria-pressed', ui.avisoPara.includes(b.dataset.para))); return; }
   const a = e.target.closest('[data-act]'); if (!a) return;
-  if (a.dataset.act==='csvCom') csvCom();
-  if (a.dataset.act==='csvCompras') csvCompras();
+  if (EXPORT[a.dataset.act]) EXPORT[a.dataset.act]();
   if (a.dataset.act==='imprimir') window.print();
 });
+document.addEventListener('change', e => { const c = e.target.closest('[data-camada]'); if (c) { ui.camadas[c.dataset.camada] = c.checked; render(); } });
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape' && !$('#drawer').hidden) { $('#drawer').hidden = true; $('#drawer').innerHTML=''; document.body.style.overflow=''; }
+  if (e.key==='Escape' && !$('#drawer').hidden) fecharDrawer();
   if (e.key==='Enter' && e.target.matches('tr[data-com]')) detalheCom(e.target.dataset.com);
 });
 let larg = estreito(); window.addEventListener('resize', () => { if (estreito()!==larg) { larg = estreito(); render(); } });
-window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.some(t=>t[0]===h)) { ui.tab = h; render(); } });
+window.addEventListener('hashchange', () => { let h = location.hash.slice(1); if (h==='compras') h='merenda'; if (TABS.some(t=>t[0]===h)) { ui.tab = h; render(); } });
 render();
 </script>
 </body>
