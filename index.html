@@ -341,7 +341,7 @@ tfoot td{font-weight:800;background:var(--surface-2)}
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.0';
+const VERSAO_APP = '3.1';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -754,7 +754,10 @@ function telaProducao(){
   const extra = [];
   if (k==='leite') {
     const r = resumo(m), cl = custoLitro(m);
-    extra.push(`<div class="stat"><span class="k">Leite tirado no mês</span><span class="v">${fNum(r.leite)} <small>litros</small></span><span class="s">${r.diasLeite?`média de ${fNum(r.leite/r.diasLeite)} litros por dia`:'nenhum dia anotado'}</span></div>`);
+    const dias = r.rs.filter(x=>x.tipo==='leite' && (x.ativ||'leite')==='leite' && !x.animal);
+    const comM = dias.filter(x=>x.manha!=null), comT = dias.filter(x=>x.tarde!=null);
+    const mt = comM.length && comT.length ? `<span class="s">manhã: média de ${fNum(comM.reduce((a,x)=>a+x.manha,0)/comM.length)} litros · tarde: ${fNum(comT.reduce((a,x)=>a+x.tarde,0)/comT.length)} litros</span>` : '';
+    extra.push(`<div class="stat"><span class="k">Leite tirado no mês</span><span class="v">${fNum(r.leite)} <small>litros</small></span><span class="s">${r.diasLeite?`média de ${fNum(r.leite/r.diasLeite)} litros por dia`:'nenhum dia anotado'}</span>${mt}</div>`);
     if (cl.custo != null) extra.push(`<div class="card" style="display:flex;flex-direction:column;gap:8px">
       <b>Quanto custa o seu litro</b>
       <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
@@ -917,7 +920,7 @@ function descRegistro(r){
   const qt = r.qtd ? ` · ${fQ(r.qtd)} ${r.unidade||''}` : '';
   switch(r.tipo){
     case 'chuva': return {t:'Chuva', s:fData(r.data), v:`${fQ(r.mm)} mm`, c:'rain'};
-    case 'leite': { const an = S.animais.find(x=>x.id===r.animal); return {t:(r.ativ==='caprinos'?'Leite de cabra':'Leite') + (an?` · ${an.nome}`:''), s:fData(r.data), v:`${fQ(r.litros)} L`, c:''}; }
+    case 'leite': { const an = S.animais.find(x=>x.id===r.animal); const mt = [r.manha!=null?`manhã ${fQ(r.manha)} L`:'', r.tarde!=null?`tarde ${fQ(r.tarde)} L`:''].filter(Boolean).join(' · '); return {t:(r.ativ==='caprinos'?'Leite de cabra':'Leite') + (an?` · ${an.nome}`:''), s:fData(r.data) + (mt?` · ${mt}`:''), v:`${fQ(r.litros)} L`, c:''}; }
     case 'producao': return {t:r.produto, s:`${fData(r.data)} · ${a}${r.litrosUsados?` · ${fQ(r.litrosUsados)} L de leite`:''}`, v:`${fQ(r.qtd)} ${r.unidade}`, c:''};
     case 'gasto': return {t:r.desc||'Gasto', s:`${fData(r.data)} · ${a}${qt}`, v:'−'+fR(r.valor), c:'neg'};
     case 'venda': return {t:r.desc||'Venda', s:`${fData(r.data)} · ${a}${qt}`, v:fR(r.valor), c:'pos'};
@@ -1020,8 +1023,14 @@ function formRegistro(tipo, reg, pre){
 
   if (tipo==='leite') campos += `
     ${temCabra && !fixo?`<div class="field"><label>Leite de</label><div class="seg" id="fLeiteDe"><button type="button" data-v="leite" aria-pressed="${(r.ativ||'leite')==='leite'}">Vaca</button><button type="button" data-v="caprinos" aria-pressed="${r.ativ==='caprinos'}">Cabra</button></div></div>`:''}
-    <div class="field"><label for="fLitros">Litros</label><input id="fLitros" inputmode="decimal" value="${v(r.litros)}" placeholder="Ex.: 48" required><span class="hint">Pode ser o total do dia ou de um animal só.</span></div>
-    <div class="field" id="fAnimalF"><label for="fAnimal">Animal (opcional)</label><select id="fAnimal"></select></div>`;
+    <div class="field" id="fAnimalF"><label for="fAnimal">De qual animal?</label><select id="fAnimal"></select></div>
+    <div class="inline">
+      <div class="field"><label for="fManha">Manhã (litros)</label><input id="fManha" inputmode="decimal" value="${v(r.manha)}" placeholder="Ex.: 22"></div>
+      <div class="field"><label for="fTarde">Tarde (litros)</label><input id="fTarde" inputmode="decimal" value="${v(r.tarde)}" placeholder="Ex.: 18"></div>
+    </div>
+    <div class="field" id="fTotDiaF" ${r.litros && r.manha==null && r.tarde==null ? '' : 'hidden'}><label for="fTotDia">Total do dia (litros)</label><input id="fTotDia" inputmode="decimal" value="${r.litros && r.manha==null && r.tarde==null ? v(r.litros) : ''}"><span class="hint">Anotado sem separar manhã e tarde.</span></div>
+    <p class="tip" id="fLeiteAviso" hidden></p>
+    <div class="total-live" id="fLeiteTot"><span>Total do dia</span><b>0 litros</b></div>`;
 
   if (tipo==='producao') campos += `
     <div class="field"><label for="fProd">Produto</label><select id="fProd">${Object.keys(PRODUTOS).map(p=>`<option ${r.produto===p?'selected':''}>${p}</option>`).join('')}${r.produto&&!PRODUTOS[r.produto]?`<option selected>${esc(r.produto)}</option>`:''}</select></div>
@@ -1068,10 +1077,42 @@ function formRegistro(tipo, reg, pre){
       const encherAnimais = () => {
         const sel = $('#fAnimal', form); if (!sel) return;
         const as = S.animais.filter(a=>a.ativ===leiteDe && a.modo==='animal' && a.sexo==='F');
-        sel.innerHTML = `<option value="">Total do dia</option>` + as.map(a=>`<option value="${a.id}" ${r.animal===a.id?'selected':''}>${esc(a.nome)}</option>`).join('');
+        sel.innerHTML = `<option value="">${leiteDe==='caprinos'?'Todas as cabras (total)':'Todas as vacas (total)'}</option>` + as.map(a=>`<option value="${a.id}" ${r.animal===a.id?'selected':''}>${esc(a.nome)}</option>`).join('');
         $('#fAnimalF', form).hidden = !as.length;
       };
-      if (tipo==='leite') { encherAnimais(); $$('#fLeiteDe button', form).forEach(b => b.onclick = () => { leiteDe = b.dataset.v; $$('#fLeiteDe button', form).forEach(y=>y.setAttribute('aria-pressed', y===b)); encherAnimais(); }); }
+      // manhã e tarde: de tarde, completa a anotação que já existe no dia
+      let alvo = null;
+      const totLeite = () => {
+        const m = num(g('fManha')), t = num(g('fTarde')), d = num(g('fTotDia'));
+        const tot = (m>0?m:0) + (t>0?t:0) || (d>0?d:0);
+        $('#fLeiteTot', form).innerHTML = `<span>Total do dia</span><b>${fQ(tot)} litros</b>`;
+      };
+      const procurarDia = () => {
+        if (reg) return;
+        const dia = g('fData'), an = g('fAnimal') || '';
+        const ex = S.registros.find(x => x.tipo==='leite' && x.data===dia && (x.ativ||'leite')===leiteDe && (x.animal||'')===an);
+        const av = $('#fLeiteAviso', form), mI = $('#fManha', form), tI = $('#fTarde', form), dF = $('#fTotDiaF', form), dI = $('#fTotDia', form);
+        [mI, tI, dI].forEach(i => { if (i.dataset.auto) { i.value = ''; delete i.dataset.auto; } });
+        alvo = ex || null;
+        if (ex) {
+          if (ex.manha!=null && !mI.value) { mI.value = String(ex.manha).replace('.',','); mI.dataset.auto = '1'; }
+          if (ex.tarde!=null && !tI.value) { tI.value = String(ex.tarde).replace('.',','); tI.dataset.auto = '1'; }
+          const legado = ex.manha==null && ex.tarde==null;
+          dF.hidden = !legado; if (legado && !dI.value) { dI.value = String(ex.litros).replace('.',','); dI.dataset.auto = '1'; }
+          av.hidden = false;
+          av.textContent = `Já tem leite anotado ${dia===hoje()?'hoje':'neste dia'}. Complete o que falta e toque em Salvar.`;
+        } else { av.hidden = true; dF.hidden = true; }
+        totLeite();
+      };
+      if (tipo==='leite') {
+        encherAnimais();
+        $$('#fLeiteDe button', form).forEach(b => b.onclick = () => { leiteDe = b.dataset.v; $$('#fLeiteDe button', form).forEach(y=>y.setAttribute('aria-pressed', y===b)); encherAnimais(); procurarDia(); });
+        ['fManha','fTarde','fTotDia'].forEach(id => $('#'+id, form).addEventListener('input', e => { delete e.target.dataset.auto; totLeite(); }));
+        $('#fData', form).addEventListener('change', procurarDia);
+        $('#fAnimal', form).addEventListener('change', procurarDia);
+        procurarDia();
+        if (alvo) $('#fReg button[type=submit]', f).textContent = 'Salvar';
+      }
 
       // produção: sugere atividade e unidade pelo produto; rendimento do queijo
       if (tipo==='producao') {
@@ -1116,13 +1157,24 @@ function formRegistro(tipo, reg, pre){
         mostrar();
       }
 
-      const first = $('input:not([type=date]),textarea', form); if (first && !reg) setTimeout(()=>first.focus(), 80);
+      const first = tipo==='leite' ? $(new Date().getHours()>=12 ? '#fTarde' : '#fManha', form) : $('input:not([type=date]),textarea', form); if (first && !reg) setTimeout(()=>first.focus(), 80);
       form.onsubmit = e => {
         e.preventDefault();
         const novo = Object.assign({}, r, {tipo, data: g('fData') || hoje()});
         const erro = msg => { const p=$('#fErro',form); p.textContent=msg; p.hidden=false; };
         if (tipo==='chuva'){ novo.mm = num(g('fMm')); if (!(novo.mm>=0)) return erro('Escreva quantos milímetros choveu.'); }
-        if (tipo==='leite'){ novo.litros = num(g('fLitros')); novo.animal = g('fAnimal')||''; novo.ativ = leiteDe; if (!(novo.litros>0)) return erro('Escreva quantos litros.'); }
+        if (tipo==='leite'){
+          const m = num(g('fManha')), t = num(g('fTarde')), d = num(g('fTotDia'));
+          novo.animal = g('fAnimal')||''; novo.ativ = leiteDe;
+          if (m>0 || t>0) { novo.manha = m>0 ? m : null; novo.tarde = t>0 ? t : null; novo.litros = (m>0?m:0) + (t>0?t:0); }
+          else if (d>0) { novo.manha = null; novo.tarde = null; novo.litros = d; }
+          else return erro('Escreva quantos litros tirou de manhã ou de tarde.');
+          if (!reg && alvo) {
+            S.registros = S.registros.map(x => x.id===alvo.id ? Object.assign({}, x, novo, {id:x.id, criado:x.criado}) : x);
+            S.registros.forEach(x => { if (x.id===alvo.id) delete x.ex; });
+            save(); fecharFolha(); render(); toast(`Leite do dia: ${fQ(novo.litros)} litros`); return;
+          }
+        }
         if (tipo==='producao'){
           novo.produto = g('fProd')==='Outro' ? (g('fProdOutro')||'Outro') : g('fProd');
           novo.qtd = num(g('fQtd')); novo.unidade = g('fUn'); novo.ativ = g('fAtiv'); novo.desc = g('fDesc');
@@ -2128,7 +2180,7 @@ function carregarExemplo(){
     {id:'exs1', nome:'Pintada', raca:'Piau', ativ:'suinos', modo:'animal', sexo:'F', cobertura:addDias(h,-100), ultCio:addDias(h,-100)},
     {id:'exa1', nome:'Galinhas do quintal', raca:'Caipira', ativ:'aves', modo:'lote', qtd:42, movs:[{data:addDias(h,-60),tipo:'inicio',qtd:35},{data:addDias(h,-20),tipo:'nasceu',qtd:9},{data:addDias(h,-8),tipo:'morreu',qtd:2}]},
   ].map(a => ({pesagens:[], movs:[], ...a, ex}));
-  for (let i=75; i>=0; i--) add({tipo:'leite', data:addDias(h,-i), litros: Math.round(34 + rnd()*8), ativ:'leite'});
+  for (let i=75; i>=0; i--) { const m = Math.round(18 + rnd()*5), t = Math.round(15 + rnd()*4); add({tipo:'leite', data:addDias(h,-i), manha:m, tarde: i===0 ? null : t, litros: i===0 ? m : m+t, ativ:'leite'}); }
   for (let k=0; k<3; k++) {
     const base = addDias(h, -k*30);
     add({tipo:'gasto', data:addDias(base,-3), ativ:'leite', desc:'Ração concentrada', qtd:8, unidade:'sacos', preco:77.5, valor:620});
