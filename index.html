@@ -341,7 +341,7 @@ tfoot td{font-weight:800;background:var(--surface-2)}
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.1';
+const VERSAO_APP = '3.2';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -2222,7 +2222,15 @@ function carregarExemplo(){
 /* ---------- início ---------- */
 render();
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', {updateViaCache:'none'}).then(reg => reg.update()).catch(()=>{}));
+  // Quando chegar uma versão nova do app, recarrega uma vez para mostrá-la.
+  let recarregou = false;
+  const tinhaControle = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!tinhaControle || recarregou) return;
+    if (!$('#sheetWrap').hidden) return; // não interrompe quem está anotando
+    recarregou = true; location.reload();
+  });
 }
 </script>
 </body>
