@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Caderno da Roça</title>
+<!--
+  Caderno da Roça
+  © 2026 Pedro Gonçalves de Oliveira Silva. Todos os direitos reservados.
+  É proibido copiar, modificar, distribuir ou usar este código, no todo ou em parte,
+  sem autorização por escrito do autor. Ver o arquivo LICENSE.
+-->
+<meta name="author" content="Pedro Gonçalves de Oliveira Silva">
+<meta name="copyright" content="© 2026 Pedro Gonçalves de Oliveira Silva. Todos os direitos reservados.">
 <meta name="description" content="Caderno de campo do produtor rural: chuva, leite, queijo, criações, serviços, gastos, vendas, relatórios e guias para o semiárido.">
 <meta name="theme-color" content="#1a1311">
 <link rel="manifest" href="manifest.json">
@@ -335,13 +343,16 @@ tfoot td{font-weight:800;background:var(--surface-2)}
 
 <script>
 'use strict';
+/* © 2026 Pedro Gonçalves de Oliveira Silva. Todos os direitos reservados.
+   Uso, cópia, modificação ou distribuição deste código só com autorização por escrito do autor. */
+const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
 /* =========================================================
    Caderno da Roça — app do produtor rural (funciona offline)
    Os dados ficam guardados no próprio celular (localStorage).
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.2';
+const VERSAO_APP = '3.3';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -528,6 +539,7 @@ function telaBoasVindas(){
       <button class="btn" data-act="exemplo">Ver com exemplo</button>
     </div>
     <p class="small muted" style="margin:0">Os dados ficam guardados só neste celular. Funciona sem internet depois de aberto a primeira vez.</p>
+    <p class="small muted" style="margin:0">© 2026 ${AUTOR}. Todos os direitos reservados.</p>
   </section>`;
 }
 function ligarBoasVindas(){
@@ -1638,7 +1650,7 @@ function textoRelatorio(p){
   if (d.gastos.length) { L.push(''); L.push('*Maiores gastos*'); d.gastos.slice(0,4).forEach(g=>L.push(`• ${g.desc}: ${fR(g.valor)}`)); }
   if (d.nasc||d.mortes||d.vendAnimais) { L.push(''); L.push(`*Criação:* ${d.nasc} nascimento(s) · ${d.vendAnimais} vendido(s) · ${d.mortes} morte(s)`); }
   L.push(''); L.push(`🌧️ Chuva: ${fNum(r.chuva)} mm`);
-  L.push(''); L.push('_Feito com o Caderno da Roça_');
+  L.push(''); L.push('_Feito com o Caderno da Roça · © 2026 ' + AUTOR + '_');
   return L.join('\n');
 }
 
@@ -2028,7 +2040,7 @@ function telaMais(){
       <button class="btn danger" data-act="apagarTudo">Apagar todos os dados</button>
     </div>
   </section>
-  <p class="small muted" style="margin:0">Caderno da Roça · funciona sem internet · versão ${VERSAO_APP}<br>As orientações são gerais e não substituem a assistência técnica.</p>`;
+  <p class="small muted" style="margin:0">Caderno da Roça · funciona sem internet · versão ${VERSAO_APP}<br>© 2026 ${AUTOR}. Todos os direitos reservados.<br>As orientações são gerais e não substituem a assistência técnica.</p>`;
 }
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; if (ui.tab==='mais') render(); });

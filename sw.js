@@ -1,6 +1,7 @@
+// © 2026 Pedro Gonçalves de Oliveira Silva. Todos os direitos reservados.
 // Caderno da Roça — guarda o app no celular para abrir sem internet.
 // Ao mudar qualquer arquivo do app, aumente o número da versão abaixo.
-const VERSAO = 'caderno-da-roca-v7';
+const VERSAO = 'caderno-da-roca-v8';
 const ARQUIVOS = [
   './',
   './index.html',
