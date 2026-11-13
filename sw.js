@@ -1,7 +1,7 @@
 // © 2026 Pedro Gonçalves de Oliveira Silva. Todos os direitos reservados.
 // Caderno da Roça — guarda o app no celular para abrir sem internet.
 // Ao mudar qualquer arquivo do app, aumente o número da versão abaixo.
-const VERSAO = 'caderno-da-roca-v8';
+const VERSAO = 'caderno-da-roca-v9';
 const ARQUIVOS = [
   './',
   './index.html',
@@ -27,6 +27,10 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
+
+  // Outras páginas do site (como o painel da secretaria) não passam pelo cache do app.
+  const caminho = new URL(req.url).pathname, raiz = new URL(self.registration.scope).pathname;
+  if (req.mode === 'navigate' && caminho !== raiz && caminho !== raiz + 'index.html') return;
 
   // A página do app: com internet, busca sempre a versão nova; sem internet, usa a guardada.
   if (req.mode === 'navigate') {
