@@ -254,6 +254,34 @@ tfoot td{font-weight:800;background:var(--surface-2)}
 .kv b{font-size:16px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .rel ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px}
 
+/* Produções */
+.prods{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.prod-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border-radius:16px;border:1px solid var(--line);background:var(--surface);cursor:pointer;text-align:left;min-width:0}
+.prod-card .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center}
+.prod-card .ic svg{width:26px;height:26px}
+.prod-card b{font-size:17px;line-height:1.2}
+.prod-card .sob{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.prod-card .sob.pos{color:var(--good)} .prod-card .sob.neg{color:var(--bad)} .prod-card .sob.nada{color:var(--muted);font-weight:600;font-size:14px}
+.prod-card.add{border-style:dashed;justify-content:center;align-items:center;text-align:center;color:var(--muted);min-height:120px}
+.prod-h{display:flex;align-items:center;gap:12px}
+.prod-h .ic{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none}
+.prod-h .ic svg{width:30px;height:30px}
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acao{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:100px;padding:12px 8px;border-radius:16px;border:1px solid var(--line);background:var(--surface);font-weight:800;font-size:17px;cursor:pointer;text-align:center}
+.acao .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
+.acao .ic svg{width:24px;height:24px}
+.acao.principal{background:var(--red);color:var(--red-ink);border-color:var(--red)}
+.acao.principal .ic{background:rgba(255,255,255,.18);color:#fff}
+.acao:focus-visible,.prod-card:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.fixo{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:8px 12px}
+.fixo .ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center}
+.fixo .ic svg{width:20px;height:20px}
+.fixo b{flex:1}
+.ouvir{gap:6px}
+.ouvir svg{width:20px;height:20px}
+.topbtn{margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:1px;background:none;border:0;color:#fff;cursor:pointer;font-size:11px;padding:6px 4px;min-width:48px}
+.topbtn svg{width:24px;height:24px}
+.topbtn:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--black);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.3);max-width:calc(100% - 32px)}
 
 @media (max-width:420px){
@@ -285,6 +313,7 @@ tfoot td{font-weight:800;background:var(--surface-2)}
       <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#b3201b"/><path d="M32 54V22" stroke="#1a1311" stroke-width="4" stroke-linecap="round"/><g fill="#e9b23c"><ellipse cx="26" cy="20" rx="5" ry="7"/><ellipse cx="38" cy="20" rx="5" ry="7"/><ellipse cx="26" cy="32" rx="5" ry="7"/><ellipse cx="38" cy="32" rx="5" ry="7"/><ellipse cx="32" cy="11" rx="4.5" ry="6.5"/></g><path d="M32 44c-6-1-11-5-13-10 6 0 11 3 13 8 2-5 7-8 13-8-2 5-7 9-13 10z" fill="#1a1311"/></svg>
       <div style="min-width:0"><b>Caderno da Roça</b><small id="who">Seu caderno de campo</small></div>
     </div>
+    <button class="topbtn" id="btnMais" aria-label="Mais opções"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Mais</button>
   </div>
   <div class="top-stripe"></div>
 </header>
@@ -312,7 +341,7 @@ tfoot td{font-weight:800;background:var(--surface-2)}
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '2.1';
+const VERSAO_APP = '3.0';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -365,14 +394,14 @@ const PRODUTOS = {
   'Carvão':{un:'sacos de carvão'}, 'Lenha':{un:'metros de lenha'}, 'Outro':{un:'unidades'}
 };
 const TIPOS = {
-  chuva:{nome:'Chuva', desc:'Milímetros do pluviômetro'},
-  leite:{nome:'Leite', desc:'Litros tirados no dia'},
-  producao:{nome:'Produção', desc:'Queijo, ovos, peixe…'},
-  venda:{nome:'Venda ou serviço', curto:'Venda', desc:'Dinheiro que entrou'},
-  gasto:{nome:'Gasto', desc:'Dinheiro que saiu'},
-  plantio:{nome:'Plantio', desc:'O que e quanto plantou'},
-  colheita:{nome:'Colheita', desc:'Quanto colheu'},
-  anotacao:{nome:'Anotação', desc:'Serviço feito, observação'}
+  venda:{nome:'Vendi ou recebi', curto:'Venda', tit:'Vendi ou recebi', desc:'Dinheiro que entrou'},
+  gasto:{nome:'Gastei', curto:'Gasto', tit:'Gastei', desc:'Dinheiro que saiu'},
+  leite:{nome:'Tirei leite', tit:'Tirei leite', desc:'Litros do dia'},
+  chuva:{nome:'Choveu', tit:'Choveu', desc:'Milímetros do pluviômetro'},
+  producao:{nome:'Produzi', tit:'Produzi', desc:'Queijo, ovos, peixe…'},
+  plantio:{nome:'Plantei', tit:'Plantei', desc:'O que e quanto plantou'},
+  colheita:{nome:'Colhi', tit:'Colhi', desc:'Quanto colheu'},
+  anotacao:{nome:'Anotação', tit:'Anotação', desc:'Serviço feito, observação'}
 };
 const CULTURAS = ['Milho','Feijão-de-corda','Feijão','Sorgo','Mandioca','Palma','Capim','Coentro','Alface','Cebolinha','Couve','Tomate','Pimentão','Quiabo','Jerimum','Melancia','Outra'];
 const HORTALICAS = ['Coentro','Alface','Cebolinha','Couve','Tomate','Pimentão','Quiabo'];
@@ -395,11 +424,14 @@ const ICONS = {
   servico:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></svg>',
   sino:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg>',
   relatorio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 17v-3M12 17v-6M15 17v-4"/></svg>',
+  som:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></svg>',
+  parar:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+  mais:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
   prev:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
   next:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
   close:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>'
 };
-const ICON_ATIV = {leite:['vaca','ic-cria'], corte:['vaca','ic-cria2'], caprinos:['cabra','ic-cria'], ovinos:['cabra','ic-cria3'], suinos:['porco','ic-cria2'], aves:['ave','ic-cria3'], equinos:['cavalo','ic-cria'], pesca:['peixe','ic-cria']};
+const ICON_ATIV = {leite:['vaca','ic-cria'], corte:['vaca','ic-cria2'], caprinos:['cabra','ic-cria'], ovinos:['cabra','ic-cria3'], suinos:['porco','ic-cria2'], aves:['ave','ic-cria3'], equinos:['cavalo','ic-cria'], pesca:['peixe','ic-cria'], queijo:['producao','ic-cria3'], graos:['colheita','ic-plantio'], horta:['plantio','ic-venda'], geral:['anotacao','ic-anotacao']};
 
 /* ---------- utilidades ---------- */
 const $ = (s, el=document) => el.querySelector(s);
@@ -464,13 +496,15 @@ $$('.tab').forEach(b => b.addEventListener('click', () => {
   irPara(b.dataset.tab);
 }));
 function irPara(tab){ ui.tab = tab; if (tab!=='guias') ui.guia=null; render(); window.scrollTo(0,0); }
+$('#btnMais').addEventListener('click', () => irPara('mais'));
 function render(){
-  const atual = {mais:'guias', relatorio:'inicio'}[ui.tab] || ui.tab;
+  pararFala();
+  const atual = {relatorio:'inicio', producao:'inicio'}[ui.tab] || ui.tab;
   $$('.tab').forEach(b => { if (b.dataset.tab === atual) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   $('#who').textContent = S.nome ? S.nome : 'Seu caderno de campo';
   const v = $('#view');
   if (!S.inicioVisto && !S.registros.length && !S.animais.length) { v.innerHTML = telaBoasVindas(); ligarBoasVindas(); return; }
-  const fn = {inicio:telaInicio, caderno:telaCaderno, criacao:telaCriacao, guias:telaGuias, mais:telaMais, relatorio:telaRelatorio}[ui.tab] || telaInicio;
+  const fn = {inicio:telaInicio, caderno:telaCaderno, criacao:telaCriacao, guias:telaGuias, mais:telaMais, relatorio:telaRelatorio, producao:telaProducao}[ui.tab] || telaInicio;
   v.innerHTML = (S.exemplo && ui.tab!=='relatorio' ? bannerExemplo() : '') + fn();
   ligar(v);
 }
@@ -482,12 +516,12 @@ function telaBoasVindas(){
   <section class="section" style="gap:16px">
     <p class="eyebrow">Bem-vindo</p>
     <h1 style="font-family:var(--font-display);font-size:30px">Anote o trabalho.<br>Veja o que dá lucro.</h1>
-    <p style="margin:0">Marque a chuva, o leite, a produção, os gastos e as vendas. O app soma tudo, mostra o resultado de cada atividade, faz o relatório do mês e avisa de parto e cio.</p>
+    <p style="margin:0">Anote o que vendeu, o que gastou, o leite e a chuva. O app faz as contas e mostra quanto sobrou em cada coisa que você produz.</p>
     <div class="field"><label for="nomeIni">Seu nome ou nome do sítio (opcional)</label><input id="nomeIni" placeholder="Ex.: Sítio Boa Vista" autocomplete="off"></div>
-    <div class="field"><label>O que você cria e produz?</label>
+    <div class="field"><label>O que você produz?</label>
       <div class="chips wrap" id="iniAtiv">${opc.map(k=>`<button type="button" class="chip" data-k="${k}" aria-pressed="true">${ATIV_BASE[k].nome}</button>`).join('')}</div>
-      <span class="hint">Toque para desmarcar o que não faz. Dá para mudar depois.</span></div>
-    <div class="field"><label>Também faz outros trabalhos?</label>
+      <span class="hint">Toque para tirar o que você não faz. Dá para mudar depois.</span></div>
+    <div class="field"><label>Faz outros trabalhos para ganhar dinheiro?</label>
       <div class="chips wrap" id="iniServ">${SUG_SERVICOS.map(n=>`<button type="button" class="chip" data-n="${esc(n)}" aria-pressed="false">${esc(n)}</button>`).join('')}</div></div>
     <div class="btn-row">
       <button class="btn primary" data-act="comecar">Começar do zero</button>
@@ -609,16 +643,28 @@ function alertas(){
 }
 
 /* ---------- INÍCIO ---------- */
+const PROD_NOME = {leite:'Leite', corte:'Gado de corte', caprinos:'Cabras', ovinos:'Ovelhas', suinos:'Porcos', aves:'Galinhas e ovos', equinos:'Cavalos e jumentos', pesca:'Peixes', queijo:'Queijo', graos:'Roçado', horta:'Horta', geral:'Casa e sítio'};
+const nomeProd = k => PROD_NOME[k] || ativ(k).nome;
+function prodsDoInicio(m){
+  const r = resumo(m);
+  const lim = addDias(hoje(), -90);
+  const uso = {};
+  S.registros.forEach(x => { if (x.ativ && x.data >= lim) uso[x.ativ] = (uso[x.ativ]||0) + 1; });
+  S.animais.forEach(a => { uso[a.ativ] = (uso[a.ativ]||0) + 1; });
+  let ks = ativsAtivas().filter(k => k!=='geral');
+  Object.keys(r.porAtiv).forEach(k => { if (!ks.includes(k)) ks.push(k); });
+  if (ks.includes('geral') === false && (r.porAtiv.geral)) ks.push('geral');
+  const base = [...Object.keys(ATIV_BASE), ...S.ativExtra.map(x=>x.id)];
+  ks = [...new Set(ks)].sort((x,y) => (uso[y]||0)-(uso[x]||0) || base.indexOf(x)-base.indexOf(y));
+  return ks;
+}
 function telaInicio(){
   const m = ui.mes, [y,mm] = m.split('-').map(Number);
-  const r = resumo(m), cl = custoLitro(m);
+  const r = resumo(m);
   const ehAtual = m === hoje().slice(0,7);
   const al = alertas();
   const chuvaAno = resumo(String(y)).chuva;
-  const mediaLeite = r.diasLeite ? r.leite / r.diasLeite : 0;
-  const prods = producoes(r.rs);
-  const colh = r.rs.filter(x=>x.tipo==='colheita');
-  const temProd = prods.length || colh.length || r.leiteCabra;
+  const ks = prodsDoInicio(m);
 
   return `
   <div class="monthnav">
@@ -635,42 +681,35 @@ function telaInicio(){
       </div>`).join('')}
     </div></section>` : ''}
 
-  <div class="stats">
-    <div class="stat money ${r.saldo>=0?'pos':'neg'}" style="grid-column:1/-1">
-      <span class="k">Resultado do mês (entradas − saídas)</span>
-      <span class="v">${fR(r.saldo)}</span>
-      <span class="s num">Entrou ${fR(r.ent)} · Saiu ${fR(r.sai)}</span>
-    </div>
-    <div class="stat rain"><span class="k">Chuva no mês</span><span class="v">${fNum(r.chuva)} <small>mm</small></span><span class="s">${r.diasChuva} dia${r.diasChuva===1?'':'s'} com chuva · ${fNum(chuvaAno)} mm no ano</span></div>
-    <div class="stat"><span class="k">Leite no mês</span><span class="v">${fNum(r.leite)} <small>L</small></span><span class="s">${r.diasLeite ? `média ${fNum(mediaLeite)} L por dia` : 'nenhum dia anotado'}</span></div>
+  <div class="stat money ${r.saldo>=0?'pos':'neg'}">
+    <span class="k">${r.saldo>=0?'Quanto sobrou no mês':'No mês, gastou mais do que recebeu'}</span>
+    <span class="v">${fR(r.saldo)}</span>
+    <span class="s num">Recebi ${fR(r.ent)} · Gastei ${fR(r.sai)}</span>
+    ${podeFalar()?`<button class="btn sm ouvir" data-act="ouvirInicio" style="align-self:flex-start;margin-top:6px">${ICONS.som} Ouvir o resumo</button>`:''}
   </div>
 
-  <button class="btn gold block" data-act="abrirRel" data-p="${m}">${ICONS.relatorio.replace('<svg','<svg width="22" height="22"')} Relatório de ${MESES[mm-1]}</button>
-
-  ${temProd ? `<section class="section"><div class="section-h"><h2>Produção do mês</h2></div>
-    <div class="list">
-      ${r.leiteCabra ? `<div class="row" style="cursor:default"><span class="tx"><b>Leite de cabra</b></span><span class="amt">${fQ(r.leiteCabra)} L</span></div>`:''}
-      ${prods.map(p=>`<div class="row" style="cursor:default"><span class="tx"><b>${esc(p.produto)}</b>${p.litros?`<span>${fQ(p.litros)} L de leite · ${fNum(p.litros/p.qtdComLeite,1)} L por ${singular(p.unidade)}</span>`:''}</span><span class="amt">${fQ(p.qtd)} ${esc(p.unidade)}</span></div>`).join('')}
-      ${colh.map(c=>`<div class="row" style="cursor:default"><span class="tx"><b>Colheita de ${esc(c.cultura)}</b><span>${fDataC(c.data)}</span></span><span class="amt">${fQ(c.qtd)} ${esc(c.unidade)}</span></div>`).join('')}
-    </div></section>` : ''}
-
-  ${cl.custo != null ? `
   <section class="section">
-    <div class="section-h"><h2>Custo do litro de leite</h2></div>
-    <div class="card" style="display:flex;flex-direction:column;gap:8px">
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <div><span class="muted small">Custa produzir</span><div style="font-size:24px;font-weight:800" class="num">${fR(cl.custo)}</div></div>
-        <div style="text-align:right"><span class="muted small">Preço recebido</span><div style="font-size:24px;font-weight:800" class="num">${cl.preco!=null?fR(cl.preco):'—'}</div></div>
-      </div>
-      ${cl.preco!=null ? (cl.preco >= cl.custo
-        ? `<span class="pill good" style="align-self:flex-start">Sobra ${fR(cl.preco-cl.custo)} por litro</span>`
-        : `<span class="pill red" style="align-self:flex-start">Falta ${fR(cl.custo-cl.preco)} por litro: o leite está dando prejuízo</span>`)
-        : `<span class="small muted">Anote as vendas de leite em litros para comparar com o preço.</span>`}
-      <span class="small muted">Gastos do gado de leite no mês divididos pelos litros anotados.</span>
+    <div class="section-h"><h2>Minhas produções</h2><span class="muted small">toque para abrir</span></div>
+    <div class="prods">
+      ${ks.map(k => { const a = r.porAtiv[k], sob = a ? a.ent - a.sai : null; return `
+        <button class="prod-card" data-act="abrirProd" data-id="${k}">
+          ${iconeProd(k)}
+          <b>${esc(nomeProd(k))}</b>
+          ${sob==null ? `<span class="sob nada">Nada anotado no mês</span>` : `<span class="sob ${sob>=0?'pos':'neg'}">${sob>=0?'Sobrou':'Faltou'} ${fR(Math.abs(sob))}</span>`}
+        </button>`; }).join('')}
+      <button class="prod-card add" data-act="irMais"><span style="font-size:28px;line-height:1">+</span><span class="small">Outra produção ou trabalho</span></button>
     </div>
-  </section>` : ''}
+  </section>
 
-  ${blocoBalanco()}
+  <section class="section">
+    <div class="section-h"><h2>Chuva</h2></div>
+    <div class="stat rain" style="flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0"><span class="k">Choveu no mês</span><div class="v">${fNum(r.chuva)} <small>mm</small></div><span class="s">${fNum(chuvaAno)} mm no ano</span></div>
+      <button class="btn" data-act="nova" data-tipo="chuva">${ICONS.chuva.replace('<svg','<svg width="22" height="22"')} Anotar chuva</button>
+    </div>
+  </section>
+
+  <button class="btn gold block" data-act="abrirRel" data-p="${m}">${ICONS.relatorio.replace('<svg','<svg width="22" height="22"')} Relatório de ${MESES[mm-1]}</button>
 
   <section class="section">
     <div class="section-h"><h2>Chuva em ${y}</h2><span class="muted small num">${fNum(chuvaAno)} mm</span></div>
@@ -681,6 +720,126 @@ function telaInicio(){
     <div class="section-h"><h2>Últimas anotações</h2><button class="link" data-act="irCaderno">Ver todas</button></div>
     ${listaRegistros([...S.registros].sort(ordem).slice(0,5))}
   </section>`;
+}
+function iconeProd(k){
+  const [i,c] = ICON_ATIV[k] || (String(k).startsWith('x_') ? ['servico','ic-anotacao'] : ['anotacao','ic-anotacao']);
+  return `<span class="ic ${c}">${ICONS[i]}</span>`;
+}
+
+/* ---------- tela de uma produção ---------- */
+function acoesProd(k){
+  const A = [];
+  if (k==='leite' || k==='caprinos') A.push({tipo:'leite', t:'Tirei leite', ic:'leite'});
+  if (k==='queijo') A.push({tipo:'producao', t:'Fiz queijo', ic:'producao', produto:'Queijo coalho'});
+  if (k==='aves') A.push({tipo:'producao', t:'Juntei ovos', ic:'producao', produto:'Ovos'});
+  if (k==='pesca') A.push({tipo:'producao', t:'Pesquei', ic:'peixe', produto:'Peixe'});
+  if (k==='graos' || k==='horta') A.push({tipo:'plantio', t:'Plantei', ic:'plantio'}, {tipo:'colheita', t:'Colhi', ic:'colheita'});
+  const servico = String(k).startsWith('x_') || k==='geral';
+  A.push({tipo:'venda', t: servico ? 'Recebi' : 'Vendi', ic:'venda'}, {tipo:'gasto', t:'Gastei', ic:'gasto'});
+  if (CRIA[k]) A.push({tipo:'animal', t: CRIA[k].lote ? 'Cadastrar grupo' : 'Cadastrar animal', ic:'mais'});
+  A.push({tipo:'anotacao', t:'Anotação', ic:'anotacao'});
+  return A;
+}
+const GUIA_DA_PROD = {leite:['leite','queijo'], corte:['corte'], caprinos:['caprinos'], ovinos:['caprinos'], suinos:['suinos'], aves:['aves'], equinos:['equinos'], pesca:['pesca'], queijo:['queijo'], graos:['graos'], horta:['horta'], geral:['geral']};
+function resumoProd(k, m){
+  const rs = doPer(m).filter(x => (x.ativ||'geral')===k);
+  const ent = rs.filter(x=>x.tipo==='venda').reduce((s,x)=>s+(x.valor||0),0);
+  const sai = rs.filter(x=>x.tipo==='gasto').reduce((s,x)=>s+(x.valor||0),0);
+  return {rs, ent, sai, sob: ent - sai};
+}
+function telaProducao(){
+  const k = ui.prod, m = ui.mes, [y,mm] = m.split('-').map(Number);
+  const ehAtual = m === hoje().slice(0,7);
+  const {rs, ent, sai, sob} = resumoProd(k, m);
+  const extra = [];
+  if (k==='leite') {
+    const r = resumo(m), cl = custoLitro(m);
+    extra.push(`<div class="stat"><span class="k">Leite tirado no mês</span><span class="v">${fNum(r.leite)} <small>litros</small></span><span class="s">${r.diasLeite?`média de ${fNum(r.leite/r.diasLeite)} litros por dia`:'nenhum dia anotado'}</span></div>`);
+    if (cl.custo != null) extra.push(`<div class="card" style="display:flex;flex-direction:column;gap:8px">
+      <b>Quanto custa o seu litro</b>
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div><span class="muted small">Custa produzir</span><div style="font-size:24px;font-weight:800" class="num">${fR(cl.custo)}</div></div>
+        <div style="text-align:right"><span class="muted small">Você recebe</span><div style="font-size:24px;font-weight:800" class="num">${cl.preco!=null?fR(cl.preco):'—'}</div></div>
+      </div>
+      ${cl.preco!=null ? (cl.preco >= cl.custo ? `<span class="pill good" style="align-self:flex-start">Sobra ${fR(cl.preco-cl.custo)} em cada litro</span>` : `<span class="pill red" style="align-self:flex-start;white-space:normal">Falta ${fR(cl.custo-cl.preco)} em cada litro: o leite está dando prejuízo</span>`) : `<span class="small muted">Anote as vendas de leite em litros para comparar.</span>`}
+    </div>`);
+  }
+  if (k==='caprinos') { const l = resumo(m).leiteCabra; if (l) extra.push(`<div class="stat"><span class="k">Leite de cabra no mês</span><span class="v">${fQ(l)} <small>litros</small></span></div>`); }
+  const pr = producoes(rs);
+  if (pr.length) extra.push(`<div class="list">${pr.map(p=>`<div class="row" style="cursor:default"><span class="tx"><b>${esc(p.produto)} no mês</b>${p.litros?`<span>${fQ(p.litros)} litros de leite · ${fNum(p.litros/p.qtdComLeite,1)} litros por ${singular(p.unidade)}</span>`:''}</span><span class="amt">${fQ(p.qtd)} ${esc(p.unidade)}</span></div>`).join('')}</div>`);
+  const colh = rs.filter(x=>x.tipo==='colheita');
+  if (colh.length) extra.push(`<div class="list">${colh.map(c=>`<div class="row" style="cursor:default"><span class="tx"><b>Colheita de ${esc(c.cultura)}</b><span>${fDataC(c.data)}</span></span><span class="amt">${fQ(c.qtd)} ${esc(c.unidade)}</span></div>`).join('')}</div>`);
+  const animais = S.animais.filter(a=>a.ativ===k).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{numeric:true}));
+  const guias = GUIAS.filter(g => (GUIA_DA_PROD[k] || (String(k).startsWith('x_') ? ['servicos'] : [])).includes(g.f));
+  return `
+  <button class="link" data-act="voltarInicio">‹ Início</button>
+  <div class="prod-h">${iconeProd(k)}<div style="min-width:0"><p class="eyebrow">Minha produção</p><h1 class="h1">${esc(nomeProd(k))}</h1></div></div>
+  <div class="monthnav">
+    <button class="iconbtn" data-act="mesAnt" aria-label="Mês anterior">${ICONS.prev}</button>
+    <b style="text-transform:capitalize;font-size:18px">${MESES[mm-1]} ${y}</b>
+    <button class="iconbtn" data-act="mesProx" aria-label="Próximo mês" ${ehAtual?'disabled':''}>${ICONS.next}</button>
+  </div>
+  <div class="stat money ${sob>=0?'pos':'neg'}">
+    <span class="k">${sob>=0?'Quanto sobrou':'Gastou mais do que recebeu'}</span>
+    <span class="v">${fR(sob)}</span>
+    <span class="s num">Recebi ${fR(ent)} · Gastei ${fR(sai)}</span>
+    <div class="btn-row" style="margin-top:8px">
+      ${podeFalar()?`<button class="btn sm ouvir" data-act="ouvirProd">${ICONS.som} Ouvir</button>`:''}
+      ${rs.length?`<button class="btn sm" data-act="detAtiv" data-id="${k}" data-p="${m}">Ver detalhes</button>`:''}
+    </div>
+  </div>
+  <section class="section">
+    <h2 style="font-size:19px">O que você quer anotar?</h2>
+    <div class="acoes">${acoesProd(k).map((a,i)=>`<button class="acao${i===0?' principal':''}" data-act="nova" data-tipo="${a.tipo}" data-prod="${k}" ${a.produto?`data-produto="${esc(a.produto)}"`:''}><span class="ic ic-${a.tipo==='animal'?'anotacao':a.tipo}">${ICONS[a.ic]}</span>${a.t}</button>`).join('')}</div>
+  </section>
+  ${extra.length?`<section class="section">${extra.join('')}</section>`:''}
+  ${CRIA[k] ? `<section class="section"><div class="section-h"><h2>Meus animais</h2><span class="muted small">${fNum(animais.reduce((s,a)=>s+qtdAnimal(a),0))}</span></div>
+    ${animais.length ? `<div class="list">${animais.map(cardAnimal).join('')}</div>` : `<div class="list"><p class="empty">Nenhum cadastrado ainda. Toque em <b>${CRIA[k].lote?'Cadastrar grupo':'Cadastrar animal'}</b>.</p></div>`}</section>` : ''}
+  <section class="section"><div class="section-h"><h2>Anotações do mês</h2></div>${listaRegistros(rs.sort(ordem).slice(0,30))}</section>
+  ${guias.length ? `<section class="section"><div class="section-h"><h2>Dicas</h2></div><div class="list">${guias.map(g=>`<button class="row" data-act="abrirGuia" data-id="${g.id}"><span class="tx"><b>${g.t}</b><span>${g.r}</span></span>${ICONS.next}</button>`).join('')}</div></section>` : ''}`;
+}
+
+/* ---------- falar (ler em voz alta) ---------- */
+const podeFalar = () => 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let botaoFalando = null;
+function falaR(n){
+  const a = Math.abs(n||0), reais = Math.floor(a + 1e-9), cent = Math.round((a - reais) * 100);
+  if (!reais && !cent) return 'zero real';
+  return `${n<0?'menos ':''}${reais ? `${reais.toLocaleString('pt-BR')} ${reais===1?'real':'reais'}` : ''}${reais&&cent?' e ':''}${cent ? `${cent} ${cent===1?'centavo':'centavos'}` : ''}`;
+}
+function marcarBotao(btn, ativo){
+  if (!btn || !btn.isConnected) return;
+  if (ativo) { btn.dataset.orig = btn.innerHTML; btn.innerHTML = `${ICONS.parar} Parar`; }
+  else if (btn.dataset.orig) { btn.innerHTML = btn.dataset.orig; delete btn.dataset.orig; }
+}
+function pararFala(){ try { if (podeFalar() && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); } catch(e){} marcarBotao(botaoFalando, false); botaoFalando = null; }
+function falar(txt, btn){
+  if (!podeFalar()) return;
+  const mesmo = botaoFalando === btn;
+  pararFala();
+  if (mesmo) return;
+  const u = new SpeechSynthesisUtterance(txt.replace(/R\$\s?/g,'').replace(/\s+/g,' '));
+  u.lang = 'pt-BR'; u.rate = 0.95;
+  const vs = speechSynthesis.getVoices();
+  const voz = vs.find(v=>/^pt[-_]BR/i.test(v.lang)) || vs.find(v=>/^pt/i.test(v.lang));
+  if (voz) u.voice = voz;
+  u.onend = u.onerror = () => { if (botaoFalando === btn) { marcarBotao(btn, false); botaoFalando = null; } };
+  botaoFalando = btn; marcarBotao(btn, true);
+  speechSynthesis.speak(u);
+}
+function textoInicio(){
+  const m = ui.mes, r = resumo(m), mesN = MESES[Number(m.slice(5,7))-1];
+  const L = [r.saldo>=0 ? `Em ${mesN}, sobrou ${falaR(r.saldo)}.` : `Em ${mesN}, você gastou mais do que recebeu. Faltou ${falaR(-r.saldo)}.`, `Recebeu ${falaR(r.ent)} e gastou ${falaR(r.sai)}.`];
+  Object.entries(r.porAtiv).sort((a,b)=>(b[1].ent-b[1].sai)-(a[1].ent-a[1].sai)).forEach(([k,a]) => { const s = a.ent-a.sai; L.push(`${nomeProd(k)}: ${s>=0?'sobrou':'faltou'} ${falaR(Math.abs(s))}.`); });
+  if (r.chuva) L.push(`Choveu ${fNum(r.chuva)} milímetros no mês.`);
+  const al = alertas(); if (al.length) L.push(`Você tem ${al.length} aviso${al.length>1?'s':''}: ` + al.slice(0,4).map(a=>a.t).join('. ') + '.');
+  return L.join(' ');
+}
+function textoProd(){
+  const k = ui.prod, m = ui.mes, {ent, sai, sob} = resumoProd(k, m), mesN = MESES[Number(m.slice(5,7))-1];
+  const L = [`${nomeProd(k)}, ${mesN}.`, sob>=0 ? `Sobrou ${falaR(sob)}.` : `Faltou ${falaR(-sob)}: gastou mais do que recebeu.`, `Recebeu ${falaR(ent)} e gastou ${falaR(sai)}.`];
+  if (k==='leite') { const r = resumo(m), cl = custoLitro(m); if (r.leite) L.push(`Tirou ${fNum(r.leite)} litros de leite.`); if (cl.custo!=null) L.push(`Cada litro custou ${falaR(cl.custo)} para produzir${cl.preco!=null?` e você recebeu ${falaR(cl.preco)} por litro`:''}.`); }
+  return L.join(' ');
 }
 function blocoBalanco(){
   const p = ui.balPer==='ano' ? ui.mes.slice(0,4) : ui.mes;
@@ -737,9 +896,9 @@ function detalheAtividade(k, p){
   abrirFolha(ativ(k).nome, `
     <div style="display:flex;flex-direction:column;gap:14px">
       <p class="muted" style="margin:-8px 0 0">${nomePer(p).replace(/^./, c=>c.toUpperCase())}</p>
-      <div class="kv"><div><span>Entrou</span><b style="color:var(--good)">${fR(ent)}</b></div><div><span>Saiu</span><b style="color:var(--bad)">${fR(sai)}</b></div><div><span>Resultado</span><b style="color:${ent-sai>=0?'var(--good)':'var(--bad)'}">${fR(ent-sai)}</b></div></div>
-      ${unid && unid[1].qtd ? `<div class="result"><span class="muted small">Por ${singular(unid[0])}</span><span class="big">${fR((ent-sai)/unid[1].qtd)}</span><span class="small muted">de resultado em ${fQ(unid[1].qtd)} ${esc(unid[0])} · preço médio ${fR(unid[1].valor/unid[1].qtd)}</span></div>`:''}
-      ${vu.length ? `<section class="section"><h2 style="font-size:17px">O que entrou</h2><div class="table-wrap"><table><thead><tr><th>Item</th><th class="n">Qtd.</th><th class="n">Preço R$</th><th class="n">Total R$</th></tr></thead><tbody>
+      <div class="kv"><div><span>Recebi</span><b style="color:var(--good)">${fR(ent)}</b></div><div><span>Gastei</span><b style="color:var(--bad)">${fR(sai)}</b></div><div><span>Sobrou</span><b style="color:${ent-sai>=0?'var(--good)':'var(--bad)'}">${fR(ent-sai)}</b></div></div>
+      ${unid && unid[1].qtd ? `<div class="result"><span class="muted small">Por ${singular(unid[0])}</span><span class="big">${fR((ent-sai)/unid[1].qtd)}</span><span class="small muted">sobrou em ${fQ(unid[1].qtd)} ${esc(unid[0])} · preço médio ${fR(unid[1].valor/unid[1].qtd)}</span></div>`:''}
+      ${vu.length ? `<section class="section"><h2 style="font-size:17px">O que vendeu ou recebeu</h2><div class="table-wrap"><table><thead><tr><th>Item</th><th class="n">Qtd.</th><th class="n">Preço R$</th><th class="n">Total R$</th></tr></thead><tbody>
         ${vu.map(v=>`<tr><td>${esc(v.desc)}</td><td class="n">${fQ(v.qtd)} ${esc(v.unidade)}</td><td class="n">${fV(v.valor/v.qtd)}</td><td class="n">${fV(v.valor)}</td></tr>`).join('')}
       </tbody></table></div></section>`:''}
       ${gi.length ? `<section class="section"><h2 style="font-size:17px">Onde gastou</h2><div class="table-wrap"><table><tbody>
@@ -804,7 +963,7 @@ function resumoGrupo(rs, f){
 
 /* ---------- formulários de registro ---------- */
 function abrirEscolhaRegistro(){
-  abrirFolha('O que você quer anotar?', `
+  abrirFolha('O que você quer anotar?', `<p class="muted small" style="margin:-6px 0 12px">Dica: pelo Início, toque numa produção para anotar direto nela.</p>
     <div class="tiles">${Object.entries(TIPOS).map(([k,t])=>`
       <button class="tile" data-tipo="${k}"><span class="ic ic-${k}">${ICONS[k]}</span><b>${t.nome}</b><span>${t.desc}</span></button>`).join('')}
       <button class="tile" data-tipo="lembrete"><span class="ic ic-anotacao">${ICONS.sino}</span><b>Lembrete</b><span>Vacina, adubo, pagamento</span></button>
@@ -819,9 +978,23 @@ function opcoesAtiv(val, permitir){
   ks.forEach(k => (grupos[ativ(k).grupo||'Outros'] ||= []).push(k));
   return Object.entries(grupos).map(([g,arr]) => `<optgroup label="${esc(g)}">${arr.map(k=>`<option value="${k}" ${val===k?'selected':''}>${esc(ativ(k).nome)}</option>`).join('')}</optgroup>`).join('');
 }
-function selAtiv(id, val, permitir){
-  return `<div class="field"><label for="${id}">Atividade</label><select id="${id}">${opcoesAtiv(val, permitir)}</select>
-    <span class="hint">Falta alguma? Crie em <b>Guias › Mais › Minhas atividades</b>.</span></div>`;
+function selAtiv(id, val, permitir, fixo){
+  const ks = [...(permitir || ativsAtivas())]; if (val && !ks.includes(val)) ks.push(val);
+  return `<div class="field"><label>${fixo?'Produção':'De qual produção?'}</label>
+    <select id="${id}" hidden>${opcoesAtiv(val, permitir)}</select>
+    ${fixo ? `<div class="fixo">${iconeProd(val)}<b>${esc(nomeProd(val))}</b><button type="button" class="link" data-trocar>Trocar</button></div>` : ''}
+    <div class="chips wrap atchips" data-for="${id}" ${fixo?'hidden':''}>${ks.map(k=>`<button type="button" class="chip" data-k="${k}" aria-pressed="${k===val}">${esc(nomeProd(k))}</button>`).join('')}</div>
+    <span class="hint" ${fixo?'hidden':''}>Falta alguma? Toque em <b>Mais</b>, no alto da tela, e depois em <b>Minhas produções</b>.</span></div>`;
+}
+function ligarAtiv(root){
+  $$('.atchips', root).forEach(box => {
+    const sel = $('#'+box.dataset.for, root);
+    const sync = () => $$('.chip', box).forEach(c => c.setAttribute('aria-pressed', c.dataset.k===sel.value));
+    $$('.chip', box).forEach(c => c.onclick = () => { sel.value = c.dataset.k; sel.dispatchEvent(new Event('change')); sync(); });
+    sel.addEventListener('change', sync);
+    const field = box.closest('.field'), tr = $('[data-trocar]', field);
+    if (tr) tr.onclick = () => { $('.fixo', field).hidden = true; box.hidden = false; $('.hint', field).hidden = false; };
+  });
 }
 const selUn = (id, val, lista=UNIDADES) => `<select id="${id}">${(lista.includes(val)||!val?lista:[...lista,val]).map(u=>`<option ${u===val?'selected':''}>${u}</option>`).join('')}</select>`;
 function ultimo(fn){ return [...S.registros].sort(ordem).find(fn); }
@@ -833,8 +1006,12 @@ const SUG_DESC = {
   venda:['Leite para o laticínio','Leite','Queijo coalho','Ovos','Galinha caipira','Bezerro','Garrote','Cabrito','Borrego','Leitão','Peixe','Milho','Feijão','Verduras','Serviço de manicure','Frete','Carrada de lenha','Carvão',"Viagem de pipa d'água",'Ração'],
   gasto:['Ração','Farelo de milho','Torta de algodão','Sal mineral','Vacina','Vermífugo','Remédio','Coalho','Sal para o queijo','Embalagem','Diária','Semente','Adubo','Esterco','Óleo diesel','Gasolina','Energia','Manutenção','Pneu','Material de manicure','Ração para revenda','Alevinos','Pintinhos','Arame']
 };
-function formRegistro(tipo, reg){
-  const r = reg || {tipo, data:hoje(), ativ: tipo==='venda'||tipo==='gasto' ? ((ultimo(x=>x.tipo===tipo)||{}).ativ||'leite') : tipo==='leite' ? 'leite' : 'geral'};
+function formRegistro(tipo, reg, pre){
+  pre = pre || {};
+  const fixo = !reg && !!pre.ativ;
+  const r = reg || {tipo, data:hoje(), ativ: pre.ativ || (tipo==='venda'||tipo==='gasto' ? ((ultimo(x=>x.tipo===tipo)||{}).ativ||'leite') : tipo==='leite' ? 'leite' : 'geral')};
+  if (!reg && pre.produto) r.produto = pre.produto;
+  if (!reg && (tipo==='plantio'||tipo==='colheita') && pre.ativ==='horta') r.cultura = 'Coentro';
   const v = x => x==null || Number.isNaN(x) ? '' : String(x).replace('.',',');
   const temCabra = criacoesAtivas().includes('caprinos');
   let campos = `<div class="field"><label for="fData">Data</label><input id="fData" type="date" value="${r.data}" max="${addDias(hoje(),1)}" required></div>`;
@@ -842,7 +1019,7 @@ function formRegistro(tipo, reg){
   if (tipo==='chuva') campos += `<div class="field"><label for="fMm">Chuva (mm)</label><input id="fMm" inputmode="decimal" value="${v(r.mm)}" placeholder="Ex.: 25" required><span class="hint">Leia o pluviômetro de manhã e anote o número.</span></div>`;
 
   if (tipo==='leite') campos += `
-    ${temCabra?`<div class="field"><label>Leite de</label><div class="seg" id="fLeiteDe"><button type="button" data-v="leite" aria-pressed="${(r.ativ||'leite')==='leite'}">Vaca</button><button type="button" data-v="caprinos" aria-pressed="${r.ativ==='caprinos'}">Cabra</button></div></div>`:''}
+    ${temCabra && !fixo?`<div class="field"><label>Leite de</label><div class="seg" id="fLeiteDe"><button type="button" data-v="leite" aria-pressed="${(r.ativ||'leite')==='leite'}">Vaca</button><button type="button" data-v="caprinos" aria-pressed="${r.ativ==='caprinos'}">Cabra</button></div></div>`:''}
     <div class="field"><label for="fLitros">Litros</label><input id="fLitros" inputmode="decimal" value="${v(r.litros)}" placeholder="Ex.: 48" required><span class="hint">Pode ser o total do dia ou de um animal só.</span></div>
     <div class="field" id="fAnimalF"><label for="fAnimal">Animal (opcional)</label><select id="fAnimal"></select></div>`;
 
@@ -850,18 +1027,18 @@ function formRegistro(tipo, reg){
     <div class="field"><label for="fProd">Produto</label><select id="fProd">${Object.keys(PRODUTOS).map(p=>`<option ${r.produto===p?'selected':''}>${p}</option>`).join('')}${r.produto&&!PRODUTOS[r.produto]?`<option selected>${esc(r.produto)}</option>`:''}</select></div>
     <div class="field" id="fProdOutroF" hidden><label for="fProdOutro">Qual produto?</label><input id="fProdOutro" placeholder="Ex.: Doce de goiaba"></div>
     <div class="inline"><div class="field"><label for="fQtd">Quantidade</label><input id="fQtd" inputmode="decimal" value="${v(r.qtd)}" placeholder="Ex.: 6" required></div>
-    <div class="field"><label for="fUn">Unidade</label>${selUn('fUn', r.unidade||'kg')}</div></div>
+    <div class="field"><label for="fUn">Medida</label>${selUn('fUn', r.unidade||'kg')}</div></div>
     <div class="field" id="fLitrosQF"><label for="fLitrosQ">Litros de leite usados (opcional)</label><input id="fLitrosQ" inputmode="decimal" value="${v(r.litrosUsados)}" placeholder="Ex.: 60"><span class="hint" id="fRend">O app calcula quantos litros vão em cada quilo.</span></div>
-    ${selAtiv('fAtiv', r.ativ)}
+    ${selAtiv('fAtiv', r.ativ, null, fixo)}
     <div class="field"><label for="fDesc">Observação</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="Opcional"></div>`;
 
-  if (tipo==='gasto' || tipo==='venda') campos += `${selAtiv('fAtiv', r.ativ)}
-    <div class="field"><label for="fDesc">${tipo==='venda'?'O que vendeu ou que serviço fez?':'Com o quê?'}</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="${tipo==='venda'?'Ex.: leite para o laticínio':'Ex.: ração, vacina, diesel'}" list="sug${tipo}"></div>
+  if (tipo==='gasto' || tipo==='venda') campos += `${selAtiv('fAtiv', r.ativ, null, fixo)}
+    <div class="field"><label for="fDesc">${tipo==='venda'?'O que vendeu ou que serviço fez?':'Gastou com quê?'}</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="${tipo==='venda'?'Ex.: leite para o laticínio':'Ex.: ração, vacina, diesel'}" list="sug${tipo}"></div>
     <datalist id="sug${tipo}">${SUG_DESC[tipo].map(x=>`<option value="${esc(x)}">`).join('')}</datalist>
     <div class="inline"><div class="field"><label for="fQtd">Quantidade</label><input id="fQtd" inputmode="decimal" value="${v(r.qtd)}" placeholder="Ex.: 540"></div>
-    <div class="field"><label for="fUn">Unidade</label>${selUn('fUn', r.unidade || unPadrao(tipo, r.ativ))}</div></div>
+    <div class="field"><label for="fUn">Medida</label>${selUn('fUn', r.unidade || unPadrao(tipo, r.ativ))}</div></div>
     <div class="field"><label for="fPreco" id="fPrecoL">Preço por ${singular(r.unidade || unPadrao(tipo, r.ativ))} (R$)</label><input id="fPreco" inputmode="decimal" value="${v(r.preco && Math.round(r.preco*100)/100)}" placeholder="Ex.: 2,45"></div>
-    <div class="field"><label for="fValor">Valor total (R$)</label><input id="fValor" inputmode="decimal" value="${r.valor?fNum(r.valor,2):''}" placeholder="0,00"><span class="hint">Preencha quantidade e preço que o total sai sozinho. Ou escreva só o total.</span></div>
+    <div class="field"><label for="fValor">${tipo==='venda'?'Total recebido (R$)':'Total gasto (R$)'}</label><input id="fValor" inputmode="decimal" value="${r.valor?fNum(r.valor,2):''}" placeholder="0,00"><span class="hint">Com quantidade e preço, o total sai sozinho. Ou escreva só o total.</span></div>
     <div class="total-live" id="fTotal"><span>Total</span><b>R$ 0,00</b></div>`;
 
   if (tipo==='plantio') campos += `<div class="field"><label for="fCult">Cultura</label><select id="fCult">${CULTURAS.map(c=>`<option ${r.cultura===c?'selected':''}>${c}</option>`).join('')}</select></div>
@@ -871,18 +1048,19 @@ function formRegistro(tipo, reg){
 
   if (tipo==='colheita') campos += `<div class="field"><label for="fCult">Cultura</label><select id="fCult">${CULTURAS.map(c=>`<option ${r.cultura===c?'selected':''}>${c}</option>`).join('')}</select></div>
     <div class="inline"><div class="field"><label for="fQtd">Quantidade</label><input id="fQtd" inputmode="decimal" value="${v(r.qtd)}" placeholder="Ex.: 12" required></div>
-    <div class="field"><label for="fUn">Unidade</label>${selUn('fUn', r.unidade||'sacos de 60 kg', ['sacos de 60 kg','kg','maços','caixas','unidades','toneladas'])}</div></div>
+    <div class="field"><label for="fUn">Medida</label>${selUn('fUn', r.unidade||'sacos de 60 kg', ['sacos de 60 kg','kg','maços','caixas','unidades','toneladas'])}</div></div>
     <div class="field"><label for="fDesc">Observação</label><input id="fDesc" value="${esc(r.desc||'')}" placeholder="Opcional"></div>`;
 
-  if (tipo==='anotacao') campos += `${selAtiv('fAtiv', r.ativ)}<div class="field"><label for="fDesc">O que foi feito ou observado?</label><textarea id="fDesc" placeholder="Ex.: vermifuguei os garrotes; apareceu lagarta no milho">${esc(r.desc||'')}</textarea></div>`;
+  if (tipo==='anotacao') campos += `${selAtiv('fAtiv', r.ativ, null, fixo)}<div class="field"><label for="fDesc">O que foi feito ou observado?</label><textarea id="fDesc" placeholder="Ex.: vermifuguei os garrotes; apareceu lagarta no milho">${esc(r.desc||'')}</textarea></div>`;
 
-  abrirFolha((reg?'Editar ':'') + TIPOS[tipo].nome, `
+  abrirFolha(reg ? 'Mudar anotação' : TIPOS[tipo].tit, `
     <form class="form" id="fReg" novalidate>${campos}
       <p class="erro" id="fErro" hidden></p>
       <button class="btn primary block" type="submit">${reg?'Salvar alterações':'Anotar'}</button>
       ${reg?`<button class="btn danger block" type="button" data-act="del">Apagar esta anotação</button>`:''}
     </form>`, f => {
       const form = $('#fReg', f);
+      ligarAtiv(form);
       const g = id => { const el = $('#'+id, form); return el ? el.value.trim() : undefined; };
 
       // leite: vaca ou cabra e lista de animais
@@ -905,9 +1083,10 @@ function formRegistro(tipo, reg){
           $('#fProdOutroF', form).hidden = prod.value !== 'Outro';
           if (!inicial) {
             if (p.un) un.value = p.un;
+            if (fixo) { rend(); return; }
             let a = p.ativ;
             if (!a && (prod.value==='Carvão'||prod.value==='Lenha')) { const ex = S.ativExtra.find(x=>x.nome.toLowerCase()===prod.value.toLowerCase()); a = ex && ex.id; }
-            if (a && [...at.options].some(o=>o.value===a)) at.value = a;
+            if (a && [...at.options].some(o=>o.value===a)) { at.value = a; at.dispatchEvent(new Event('change')); }
           }
           rend();
         };
@@ -958,13 +1137,13 @@ function formRegistro(tipo, reg){
           novo.valor = Math.round(t*100)/100; novo.qtd = q>0 ? q : null;
           novo.preco = p>0 ? p : (q>0 ? novo.valor/q : null);
         }
-        if (tipo==='plantio'){ novo.cultura=g('fCult'); const a=num(g('fArea')); novo.area=a>0?a:null; novo.unidade=g('fUn'); novo.desc=g('fDesc'); novo.ativ = HORTALICAS.includes(novo.cultura)?'horta':'graos'; }
-        if (tipo==='colheita'){ novo.cultura=g('fCult'); novo.qtd=num(g('fQtd')); novo.unidade=g('fUn'); novo.desc=g('fDesc'); if (!(novo.qtd>0)) return erro('Escreva quanto colheu.'); novo.ativ = HORTALICAS.includes(novo.cultura)?'horta':'graos'; }
+        if (tipo==='plantio'){ novo.cultura=g('fCult'); const a=num(g('fArea')); novo.area=a>0?a:null; novo.unidade=g('fUn'); novo.desc=g('fDesc'); novo.ativ = fixo ? r.ativ : HORTALICAS.includes(novo.cultura)?'horta':'graos'; }
+        if (tipo==='colheita'){ novo.cultura=g('fCult'); novo.qtd=num(g('fQtd')); novo.unidade=g('fUn'); novo.desc=g('fDesc'); if (!(novo.qtd>0)) return erro('Escreva quanto colheu.'); novo.ativ = fixo ? r.ativ : HORTALICAS.includes(novo.cultura)?'horta':'graos'; }
         if (tipo==='anotacao'){ novo.ativ=g('fAtiv'); novo.desc=g('fDesc'); if (!novo.desc) return erro('Escreva a anotação.'); }
         if (reg) { delete novo.ex; S.registros = S.registros.map(x => x.id===reg.id ? novo : x); }
         else { novo.id = uid(); novo.criado = Date.now(); S.registros.push(novo); }
         save(); fecharFolha(); render();
-        toast(reg ? 'Alteração salva' : (tipo==='venda'||tipo==='gasto') ? `${TIPOS[tipo].curto||TIPOS[tipo].nome} de ${fR(novo.valor)} anotado` : 'Anotado');
+        toast(reg ? 'Alteração salva' : tipo==='venda' ? `Anotado: recebeu ${fR(novo.valor)}` : tipo==='gasto' ? `Anotado: gastou ${fR(novo.valor)}` : 'Anotado');
       };
       const del = $('[data-act="del"]', form);
       if (del) confirmar(del, () => { S.registros = S.registros.filter(x=>x.id!==reg.id); save(); fecharFolha(); render(); toast('Anotação apagada'); });
@@ -1325,7 +1504,7 @@ function dadosRelatorio(p){
   const ehAno = p.length===4;
   const ant = ehAno ? String(Number(p)-1) : iso(new Date(Number(p.slice(0,4)), Number(p.slice(5,7))-2, 1)).slice(0,7);
   const rAnt = resumo(ant);
-  const atividades = Object.entries(r.porAtiv).map(([k,a])=>({k, nome:ativ(k).nome, ent:a.ent, sai:a.sai, res:a.ent-a.sai})).sort((a,b)=>b.res-a.res);
+  const atividades = Object.entries(r.porAtiv).map(([k,a])=>({k, nome:nomeProd(k), ent:a.ent, sai:a.sai, res:a.ent-a.sai})).sort((a,b)=>b.res-a.res);
   const nasc = rs.filter(x=>x.evento==='parto').reduce((s,x)=>s+(x.crias||1),0);
   const mortesInd = rs.filter(x=>x.evento==='morte').length;
   let nascLote=0, mortLote=0, vendLote=0;
@@ -1356,11 +1535,11 @@ function telaRelatorio(){
     <header class="rel-h"><p class="eyebrow">Caderno da Roça${S.nome?' · '+esc(S.nome):''}</p><h1>${titulo}</h1><span class="small muted">Gerado em ${fData(hoje())}</span></header>
     ${vazio ? `<p class="empty">Nada anotado neste período.</p>` : `
     <section class="sec"><h2>Dinheiro</h2>
-      <div class="kv"><div><span>Entrou</span><b>${fR(r.ent)}</b></div><div><span>Saiu</span><b>${fR(r.sai)}</b></div><div><span>Resultado</span><b style="color:${r.saldo>=0?'var(--good)':'var(--bad)'}">${fR(r.saldo)}</b></div></div>
-      ${d.rAnt.rs.length ? `<p class="small" style="margin:0">Comparado com ${d.ehAno?d.ant:MESES[Number(d.ant.slice(5,7))-1]}: <b style="color:${delta>=0?'var(--good)':'var(--bad)'}">${delta>=0?'+':''}${fR(delta)}</b> no resultado.</p>`:''}
+      <div class="kv"><div><span>Recebi</span><b>${fR(r.ent)}</b></div><div><span>Gastei</span><b>${fR(r.sai)}</b></div><div><span>Sobrou</span><b style="color:${r.saldo>=0?'var(--good)':'var(--bad)'}">${fR(r.saldo)}</b></div></div>
+      ${d.rAnt.rs.length ? `<p class="small" style="margin:0">Comparado com ${d.ehAno?d.ant:MESES[Number(d.ant.slice(5,7))-1]}: <b style="color:${delta>=0?'var(--good)':'var(--bad)'}">${delta>=0?'+':''}${fR(delta)}</b> no que sobrou.</p>`:''}
     </section>
-    ${d.atividades.length ? `<section class="sec"><h2>Balanço por atividade</h2><div class="table-wrap"><table>
-      <thead><tr><th>Atividade</th><th class="n">Entrou R$</th><th class="n">Saiu R$</th><th class="n">Result. R$</th></tr></thead>
+    ${d.atividades.length ? `<section class="sec"><h2>Quanto sobrou em cada produção</h2><div class="table-wrap"><table>
+      <thead><tr><th>Produção</th><th class="n">Recebi R$</th><th class="n">Gastei R$</th><th class="n">Sobrou R$</th></tr></thead>
       <tbody>${d.atividades.map(a=>`<tr><td>${esc(a.nome)}</td><td class="n">${fV(a.ent)}</td><td class="n">${fV(a.sai)}</td><td class="n ${a.res>=0?'pos':'neg'}">${fV(a.res)}</td></tr>`).join('')}</tbody>
       <tfoot><tr><td>Total</td><td class="n">${fV(r.ent)}</td><td class="n">${fV(r.sai)}</td><td class="n">${fV(r.saldo)}</td></tr></tfoot></table></div></section>`:''}
     ${(r.leite||r.leiteCabra||d.prods.length||d.colh.length) ? `<section class="sec"><h2>Produção</h2><ul>
@@ -1394,9 +1573,9 @@ function textoRelatorio(p){
   const L = [];
   L.push(`*${d.ehAno?`Relatório do ano de ${p}`:`Relatório de ${MESES[Number(p.slice(5,7))-1]} de ${p.slice(0,4)}`}*${S.nome?` · ${S.nome}`:''}`);
   L.push('');
-  L.push(`💰 Entrou ${fR(r.ent)} · Saiu ${fR(r.sai)}`);
-  L.push(`*Resultado: ${fR(r.saldo)}*`);
-  if (d.atividades.length) { L.push(''); L.push('*Por atividade*'); d.atividades.forEach(a=>L.push(`• ${a.nome}: ${fR(a.res)}`)); }
+  L.push(`💰 Recebi ${fR(r.ent)} · Gastei ${fR(r.sai)}`);
+  L.push(`*Sobrou: ${fR(r.saldo)}*`);
+  if (d.atividades.length) { L.push(''); L.push('*Por produção*'); d.atividades.forEach(a=>L.push(`• ${a.nome}: ${fR(a.res)}`)); }
   const prod = [];
   if (r.leite) prod.push(`• Leite: ${fNum(r.leite)} L`);
   if (r.leiteCabra) prod.push(`• Leite de cabra: ${fQ(r.leiteCabra)} L`);
@@ -1614,7 +1793,7 @@ const GUIAS = [
  {id:'servicos', f:'servicos', t:'Balanço de serviços e outros trabalhos', r:'Manicure, frete, lenha, pipa: saiba quanto sobra.', h:`
   <p>Todo trabalho que gera dinheiro pode ter seu próprio balanço no app, do mesmo jeito que o leite ou a horta.</p>
   <h3>Como fazer</h3>
-  <ol><li>Crie a atividade em <b>Guias › Mais › Minhas atividades</b>: manicure, lenha, carvão, transporte de leite, comércio de ração, pipa d'água, frete…</li>
+  <ol><li>Crie a atividade em <b>Mais › Minhas produções</b>: manicure, lenha, carvão, transporte de leite, comércio de ração, pipa d'água, frete…</li>
   <li>Cada serviço feito ou venda vira uma <b>Venda ou serviço</b>, com a quantidade (viagens, serviços, sacos) e o preço de cada um.</li>
   <li>Cada despesa vira um <b>Gasto</b> na mesma atividade: combustível, material, peça, ração comprada para revender.</li>
   <li>No Início, toque na atividade em <b>Balanço por atividade</b>. O app mostra quanto entrou, quanto saiu e quanto sobra por viagem ou por serviço.</li></ol>
@@ -1643,9 +1822,10 @@ function telaGuias(){
   if (ui.guia === 'programas') return telaProgramas();
   if (ui.guia) { const g = GUIAS.find(x=>x.id===ui.guia); if (g) return `
     <button class="link" data-act="voltarGuias">‹ Guias</button>
-    <article class="article">
+    <article class="article" id="artigo">
       <p class="eyebrow">${(FILTROS_GUIA.find(x=>x[0]===g.f)||[,''])[1]}</p>
       <h1 class="h1">${g.t}</h1>
+      ${podeFalar()?`<button class="btn ouvir" data-act="ouvirGuia" style="align-self:flex-start">${ICONS.som} Ouvir esta dica</button>`:''}
       ${g.h}
       <p class="small muted" style="border-top:1px solid var(--line);padding-top:12px;margin:0">Orientação geral. Para o seu caso, procure a Ematerce, o sindicato, um técnico agrícola ou um médico-veterinário.</p>
     </article>`; }
@@ -1659,7 +1839,7 @@ function telaGuias(){
   </div>
   <div class="chips">${FILTROS_GUIA.map(([k,n])=>`<button class="chip" data-act="guiaF" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
   <div class="list">${gs.map(g=>`<button class="row" data-act="abrirGuia" data-id="${g.id}"><span class="tx"><b>${g.t}</b><span>${g.r}</span></span>${ICONS.next}</button>`).join('')}</div>
-  <button class="btn block" data-act="irMais">Minhas atividades, lembretes, cópia de segurança</button>`;
+  <button class="btn block" data-act="irMais">Mais: minhas produções, lembretes, cópia de segurança</button>`;
 }
 function telaForragem(){
   const peq = S.animais.filter(a=>a.ativ==='caprinos'||a.ativ==='ovinos').reduce((s,a)=>s+qtdAnimal(a),0);
@@ -1734,19 +1914,19 @@ function telaMais(){
   const base = Object.keys(ATIV_BASE).filter(k=>k!=='geral');
   const sugs = SUG_SERVICOS.filter(n => !S.ativExtra.some(a=>a.nome.toLowerCase()===n.toLowerCase()));
   return `
-  <button class="link" data-act="voltarGuias">‹ Guias</button>
+  <button class="link" data-act="voltarInicio">‹ Início</button>
   <h1 class="h1">Mais</h1>
 
   <section class="section">
-    <div class="section-h"><h2>Minhas atividades</h2></div>
+    <div class="section-h"><h2>Minhas produções</h2></div>
     <div class="card form">
-      <div class="field"><label>Criação, lavoura e produção</label>
+      <div class="field"><label>O que você produz</label>
         <div class="chips wrap">${base.map(k=>`<button class="chip" data-act="togAtiv" data-k="${k}" aria-pressed="${!S.ativOcultas.includes(k)}">${ATIV_BASE[k].nome}</button>`).join('')}</div>
-        <span class="hint">As marcadas aparecem na hora de anotar.</span></div>
+        <span class="hint">As marcadas aparecem no Início.</span></div>
       <div class="field"><label>Serviços e outros trabalhos</label>
         ${S.ativExtra.length ? `<div class="list">${S.ativExtra.map(a=>`<div class="row" style="cursor:default"><span class="ic ic-anotacao">${ICONS.servico}</span><span class="tx"><b>${esc(a.nome)}</b><span>${S.registros.filter(r=>r.ativ===a.id).length} anotações</span></span><button class="btn sm danger" data-act="delAtiv" data-id="${a.id}">Remover</button></div>`).join('')}</div>` : `<p class="small muted" style="margin:0">Nenhum ainda.</p>`}
       </div>
-      <div class="field"><label for="novaAtiv">Criar nova atividade</label>
+      <div class="field"><label for="novaAtiv">Criar outra produção ou trabalho</label>
         <div style="display:flex;gap:8px"><input id="novaAtiv" placeholder="Ex.: Manicure" style="flex:1;min-width:0"><button class="btn primary" data-act="addAtiv">Criar</button></div>
         ${sugs.length?`<div class="chips wrap" style="margin-top:4px">${sugs.map(n=>`<button class="chip" data-act="addAtivSug" data-n="${esc(n)}">+ ${esc(n)}</button>`).join('')}</div>`:''}</div>
     </div>
@@ -1847,6 +2027,14 @@ function ligar(v){
       case 'mesAnt': ui.mes = iso(new Date(y, m-2, 1)).slice(0,7); render(); break;
       case 'mesProx': ui.mes = iso(new Date(y, m, 1)).slice(0,7); render(); break;
       case 'balPer': ui.balPer = b.dataset.v; render(); break;
+      case 'abrirProd': ui.prod = id; irPara('producao'); break;
+      case 'nova': {
+        const t = b.dataset.tipo, k = b.dataset.prod;
+        if (t==='animal') { ui.cria = k; formAnimal(); break; }
+        formRegistro(t, null, k ? {ativ:k, produto:b.dataset.produto} : {}); break; }
+      case 'ouvirInicio': falar(textoInicio(), b); break;
+      case 'ouvirProd': falar(textoProd(), b); break;
+      case 'ouvirGuia': { const art = $('#artigo'); const c = art.cloneNode(true); $$('button', c).forEach(x=>x.remove()); falar(c.innerText, b); break; }
       case 'detAtiv': detalheAtividade(id, b.dataset.p); break;
       case 'irCaderno': irPara('caderno'); break;
       case 'irMais': irPara('mais'); break;
@@ -1869,13 +2057,13 @@ function ligar(v){
       case 'lembEdit': formLembrete(S.lembretes.find(l=>l.id===id)); break;
       case 'novoLemb': formLembrete(); break;
       case 'togAtiv': { const k = b.dataset.k; S.ativOcultas = S.ativOcultas.includes(k) ? S.ativOcultas.filter(x=>x!==k) : [...S.ativOcultas, k]; save(); render(); break; }
-      case 'addAtiv': { const n = $('#novaAtiv').value.trim(); if (!n) { $('#novaAtiv').focus(); break; } addAtivExtra(n); save(); render(); toast(`Atividade "${n}" criada`); break; }
-      case 'addAtivSug': addAtivExtra(b.dataset.n); save(); render(); toast(`Atividade "${b.dataset.n}" criada`); break;
+      case 'addAtiv': { const n = $('#novaAtiv').value.trim(); if (!n) { $('#novaAtiv').focus(); break; } addAtivExtra(n); save(); render(); toast(`"${n}" criado`); break; }
+      case 'addAtivSug': addAtivExtra(b.dataset.n); save(); render(); toast(`"${b.dataset.n}" criado`); break;
       case 'delAtiv': {
         const a = S.ativExtra.find(x=>x.id===id), n = S.registros.filter(r=>r.ativ===id).length;
-        if (n && !b.dataset.armado) { b.dataset.armado='1'; b.textContent=`Tem ${n} anotações. Tocar de novo remove e passa elas para Geral`; b.classList.add('primary'); break; }
+        if (n && !b.dataset.armado) { b.dataset.armado='1'; b.textContent=`Tem ${n} anotações. Toque de novo: elas vão para Casa e sítio`; b.classList.add('primary'); break; }
         S.registros = S.registros.map(r => r.ativ===id ? {...r, ativ:'geral', desc:`${r.desc||''} (${a.nome})`.trim()} : r);
-        S.ativExtra = S.ativExtra.filter(x=>x.id!==id); save(); render(); toast('Atividade removida'); break; }
+        S.ativExtra = S.ativExtra.filter(x=>x.id!==id); save(); render(); toast('Removido'); break; }
       case 'exportar': exportar(); break;
       case 'importar': { const i = $('#arqImport'); i.onchange = () => i.files[0] && importar(i.files[0]); i.click(); break; }
       case 'instalar': if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.finally(()=>{ deferredPrompt=null; render(); }); } break;
