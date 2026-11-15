@@ -355,7 +355,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.7.2';
+const VERSAO_APP = '3.8';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1497,7 +1497,9 @@ function planoVaca(a, c, P){
     }
     d.L = L; return d;
   };
-  const fn = kg => calc(kg).L; fn.minGanho = 1; // só vale dar mais ração se cada kg a mais render pelo menos 2 litros
+  const pr = precoRac(cc.n), pl = precoLeiteAtual(false);
+  // com preços: cada meio quilo a mais precisa pagar o próprio custo e sobrar 15%; sem preços: pelo menos 2 litros por kg
+  const fn = kg => calc(kg).L; fn.minGanho = pr && pl ? 0.5*pr/pl*1.15 : 1;
   const maxKg = meio(PV*0.018); // ração até cerca de metade da matéria seca
   const rec = c.conc==='nenhuma' ? 0 : recomendar(fn, 0.5, maxKg);
   const d = calc(rec), d0 = calc(0);
@@ -1506,6 +1508,12 @@ function planoVaca(a, c, P){
   if (rec && d.L) { const regra = meio(d.L/3); P.rende.push({k:'Comparando com a regra prática (1 kg de ração para cada 3 litros)', v:`a regra daria ${fK(regra)} kg; o app calculou ${fK(rec)} kg (1 kg para cada ${fNum(d.L/rec,1)} L)`});
     if (rec > regra + 0.75) P.dicas.push('O app pede mais ração que a regra de 1 para 3 porque a comida de volume desta dieta tem pouca proteína: a ração precisa cobrir também essa falta. Com ureia na palma, ou com silagem, a conta chega perto da regra.');
     else if (rec < regra - 0.75) P.dicas.push('O app pede menos ração que a regra de 1 para 3 porque a comida de volume já sustenta parte do leite.'); }
+  if (rec && pr && pl) {
+    const custo = rec*pr, extra = (d.L - d0.L)*pl;
+    P.rende.push({k:'Custo da ração', v:`${fR(custo)} por dia · ${fR(custo*30)} por mês`});
+    P.rende.push({k:'Leite a mais por causa da ração', v:`${fNum(d.L - d0.L)} litros = ${fR(extra)} por dia`});
+    P.rende.push({k:'Sobra da ração (leite a mais menos o custo)', v:`${fR(extra - custo)} por dia · ${fR((extra - custo)*30)} por mês`});
+  } else if (rec) P.dicas.push('Coloque o preço do kg da ração e do litro de leite em "Mudar fase, peso ou comida". Assim o app recomenda só a ração que dá lucro e mostra quanto ela custa por mês.');
   P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
   if (d.L < pot - 0.5) P.dicas.push(d.lP < d.lE ? 'O que segura o leite é a falta de proteína. Uma ração com mais proteína (farelo de soja ou de algodão) rende mais do que dar mais milho.' : 'O que segura o leite é a falta de energia na dieta.');
   else P.dicas.push(`A conta foi feita para ${fNum(pot)} litros por dia${c.meta ? ' (a meta que você colocou)' : hist ? ' (a média das suas anotações)' : ' (uma média para a raça no semiárido)'}. Se a vaca dá mais ou menos que isso, mude em "Mudar fase, peso ou comida".`);
@@ -1762,7 +1770,7 @@ function blocoAlim(a){
         ${P.sal ? `<tr><td>Sal mineral (no cocho, à vontade)</td><td class="n">${fNum(P.sal)} g</td>${lote?`<td class="n">${fKg(P.sal*P.n/1000)}</td>`:''}<td class="n muted">—</td></tr>` : ''}
       </tbody></table></div>
       ${P.tratosTxt ? `<p class="small" style="margin:0"><b>Como dar:</b> ${esc(P.tratosTxt)}${lote?' A coluna "Em cada trato" já é para o grupo todo.':''}</p>` : ''}
-      ${P.racao ? `<span class="small muted">Ração por mês: <b>${fKg(P.racaoMes)}</b>${P.racaoNome ? ' de ' + esc(P.racaoNome.toLowerCase()) : ''}</span>` : ''}
+      ${P.racao ? `<span class="small muted">Ração por mês: <b>${fKg(P.racaoMes)}</b>${P.racaoNome ? ' de ' + esc(P.racaoNome.toLowerCase()) : ''}${precoRac(P.racaoNome) ? ` · custa <b>${fR(P.racaoMes*precoRac(P.racaoNome))}</b>` : ''}</span>` : ''}
     </div>
     <p class="small muted" style="margin:0">Quer trocar uma comida por outra? Toque em <b>Mudar fase, peso ou comida</b>: o app refaz a conta da dieta inteira.</p>
     ${P.dicas.map(d=>`<div class="tip">${esc(d)}</div>`).join('')}
@@ -1795,9 +1803,13 @@ function formAlim(a, box, depois){
     <div class="field"><label for="alConc">${RUMINANTE(k)||k==='equinos' ? 'Ração' : 'Comida'}</label><select id="alConc">${Object.entries(concs).map(([v,o])=>`<option value="${v}" ${c.conc===v?'selected':''}>${esc(o.n)}</option>`).join('')}</select></div>
     ${(k==='leite' || k==='caprinos') ? `<div class="field" id="alMetaF"><label for="alMeta">Quantos litros ela dá no dia, somando manhã e tarde (ou quer que dê)</label><input id="alMeta" inputmode="decimal" value="${c.meta||''}" placeholder="Ex.: ${k==='leite'?'8':'1,5'}"><span class="hint">Só para quem está dando leite. Deixe vazio para usar a média das suas anotações.</span></div>` : ''}
     ${RUMINANTE(k) ? `<div class="field"><label for="alHoje">Ração que você dá hoje, em kg por dia (opcional)</label><input id="alHoje" inputmode="decimal" value="${c.hojeKg||''}" placeholder="Ex.: 2"><span class="hint">Para comparar com o que o app recomenda.</span></div>` : ''}
+    <div class="field"><label for="alPrR">Preço do kg da ração escolhida (R$, opcional)</label><input id="alPrR" inputmode="decimal" value="${(precoRac((concs[c.conc]||{}).n)||'').toString().replace('.',',')}" placeholder="Ex.: 2,20"><span class="hint">Se a ração vem em saco, divida o preço do saco pelos quilos. Ex.: saco de 40 kg a R$ 88 = R$ 2,20 o kg.</span></div>
+    ${(k==='leite' || k==='caprinos') ? `<div class="field"><label for="alPrL">Preço que você recebe por litro de leite (R$, opcional)</label><input id="alPrL" inputmode="decimal" value="${(precoLeiteAtual(k==='caprinos')||'').toString().replace('.',',')}" placeholder="Ex.: 2,30"><span class="hint">Se você anota as vendas de leite em litros, o app já usa esse preço.</span></div>` : ''}
     <button class="btn primary" type="submit">Calcular</button>
   </form>`;
   box.scrollIntoView({behavior:'smooth', block:'center'});
+  const atualizaPreco = () => { const cn = (concs[$('#alConc', box).value]||{}).n; $('#alPrR', box).value = (precoRac(cn)||'').toString().replace('.',','); };
+  $('#alConc', box).addEventListener('change', atualizaPreco);
   $('#fAlim', box).onsubmit = e => {
     e.preventDefault();
     const val = id => { const el = $('#'+id, box); return el ? el.value : undefined; };
@@ -1806,13 +1818,24 @@ function formAlim(a, box, depois){
     const p = num(val('alPeso')); if (p > 0) alim.peso = p;
     const h = num(val('alHoje')); if (h > 0) alim.hojeKg = h;
     const mt = num(val('alMeta')); if (mt > 0) alim.meta = mt;
+    S.precos ||= {}; S.precos.racao ||= {}; S.precos.leite ||= {};
+    const prR = num(val('alPrR')), cn = (concs[alim.conc]||{}).n; if (cn) { if (prR > 0) S.precos.racao[cn] = prR; else delete S.precos.racao[cn]; }
+    const prL = num(val('alPrL')); if (prL > 0) S.precos.leite[k==='caprinos'?'caprinos':'leite'] = prL;
     S.animais = S.animais.map(y => y.id===a.id ? {...y, alim} : y);
     save(); depois(); render(); toast('Alimentação calculada');
   };
 }
+const precoRac = nome => ((S.precos||{}).racao||{})[nome] || null;
+function precoLeiteAtual(cabra){
+  const lim = addDias(hoje(), -120), at = cabra ? 'caprinos' : 'leite';
+  const vs = S.registros.filter(r => r.tipo==='venda' && r.ativ===at && r.unidade==='litros' && r.qtd && r.data >= lim);
+  const q = vs.reduce((s,r)=>s+r.qtd,0);
+  if (q) return vs.reduce((s,r)=>s+(r.valor||0),0) / q;
+  return ((S.precos||{}).leite||{})[at] || null;
+}
 function resumoRacao(){
   const g = {};
-  S.animais.forEach(a => { const P = plano(a); if (!P || !P.racao || !P.n) return; const nm = P.racaoNome || 'Ração'; g[nm] ||= {dia:0, mes:0}; g[nm].dia += P.racao*P.n; g[nm].mes += P.racaoMes; });
+  S.animais.forEach(a => { const P = plano(a); if (!P || !P.racao || !P.n) return; const nm = P.racaoNome || 'Ração'; g[nm] ||= {dia:0, mes:0, preco:precoRac(nm)}; g[nm].dia += P.racao*P.n; g[nm].mes += P.racaoMes; });
   return Object.entries(g).sort((x,y)=>y[1].mes-x[1].mes);
 }
 
@@ -1825,8 +1848,8 @@ function telaCriacao(){
   <h1 class="h1">Criação</h1>
   <p class="muted small" style="margin:-6px 0 0">Seus animais separados por criação, com quanto dar de comida e quanto cada um pode render. Toque num animal para ver tudo.</p>
   ${rac.length ? `<div class="card" style="display:flex;flex-direction:column;gap:8px"><b>Ração para todos os animais</b>
-    <div class="table-wrap"><table><thead><tr><th>Ração</th><th class="n">Por dia</th><th class="n">Por mês</th></tr></thead><tbody>
-    ${rac.map(([n,v])=>`<tr><td style="white-space:normal">${esc(n)}</td><td class="n">${fKg(v.dia)}</td><td class="n"><b>${fKg(v.mes)}</b></td></tr>`).join('')}</tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Ração</th><th class="n">Por dia</th><th class="n">Por mês</th>${rac.some(([,v])=>v.preco)?'<th class="n">Custo no mês</th>':''}</tr></thead><tbody>
+    ${rac.map(([n,v])=>`<tr><td style="white-space:normal">${esc(n)}</td><td class="n">${fKg(v.dia)}</td><td class="n"><b>${fKg(v.mes)}</b></td>${rac.some(([,x])=>x.preco)?`<td class="n">${v.preco?fR(v.mes*v.preco):'—'}</td>`:''}</tr>`).join('')}</tbody></table></div>
     <span class="small muted">Use para planejar a compra. Muda quando você muda a comida ou a fase de cada animal.</span></div>` : ''}
   ${grupos.map(([k,as]) => { const n = as.reduce((s,a)=>s+qtdAnimal(a),0); return `
     <section class="section">
