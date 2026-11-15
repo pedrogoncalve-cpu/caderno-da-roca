@@ -355,7 +355,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.6';
+const VERSAO_APP = '3.7';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1268,7 +1268,8 @@ function iconeAtiv(k){ const [i,c] = ICON_ATIV[k] || ['vaca','ic-cria']; return 
    Cálculo por energia e proteína, com equações publicadas (ver FONTES).
    Composição dos alimentos na matéria seca (MS): ms = fração de MS, ndt e pb em %, fdn em %. */
 const FONTES = {
-  nrcLeite:'NRC (2001). Nutrient Requirements of Dairy Cattle, 7ª ed. Washington: National Academy Press. Consumo de matéria seca (eq. 1-2 e 1-3), energia de mantença (0,080 × PV^0,75), energia do leite e da gestação, consumo de água.',
+  nrcLeite:'NRC (2001). Nutrient Requirements of Dairy Cattle, 7ª ed. Washington: National Academy Press. Consumo de matéria seca (eq. 1-2 e 1-3), energia de mantença (0,080 × PV^0,75), energia do leite e da gestação, proteína metabolizável (proteína microbiana e proteína não degradada no rúmen), consumo de água.',
+  cavalcanti:'Cavalcanti, C.V.A.; Ferreira, M.A. et al. (2006). Palma forrageira e ureia em substituição ao feno de capim-tifton em dietas de vacas holandesas em lactação. Acta Scientiarum. Animal Sciences, 28(2): 145-152. Usado para conferir o cálculo: vacas de 480 kg comendo 16,5 kg de matéria seca, com 30% de concentrado, produziram de 14 a 19 kg de leite.',
   nrcCorte:'NRC (2000). Nutrient Requirements of Beef Cattle, 7ª ed. atualizada. Washington: National Academy Press. Energia de mantença (0,077 × PCJ^0,75; zebuínos 10% menos), energia e proteína do ganho, conversão de NDT em energia líquida.',
   brcorte:'Valadares Filho, S.C. et al. (2016). Exigências Nutricionais de Zebuínos Puros e Cruzados – BR-CORTE, 3ª ed. Viçosa: UFV. Referência brasileira para conferir as exigências de zebuínos.',
   mertens:'Mertens, D.R. (1994). Regulation of forage intake. In: Forage Quality, Evaluation, and Utilization. Madison: ASA. Limite de consumo de fibra (FDN) de cerca de 1,2% do peso vivo.',
@@ -1282,22 +1283,24 @@ const FONTES = {
   nrcEquinos:'NRC (2007). Nutrient Requirements of Horses, 6ª ed. Washington: National Academies Press. Energia digestível de mantença (33,3 kcal/kg PV) e de trabalho; proteína de mantença (1,26 g/kg PV).'
 };
 const ALIM = {
-  palma:{n:'Palma picada', ms:0.10, ndt:61.8, pb:4.8, fdn:29},
-  capim_verde:{n:'Capim verde', ms:0.25, ndt:55, pb:8, fdn:65},
-  pasto_seco:{n:'Capim seco e rama no pasto', ms:0.85, ndt:45, pb:4.5, fdn:72},
-  capim_seco:{n:'Capim seco, feno ou bagaço', ms:0.88, ndt:48, pb:5, fdn:75},
-  silagem:{n:'Silagem de milho ou sorgo', ms:0.30, ndt:62, pb:7, fdn:52},
-  milho:{n:'Milho moído', ms:0.88, ndt:85, pb:9, fdn:13},
-  soja:{n:'Farelo de soja', ms:0.90, ndt:81, pb:50, fdn:15},
-  algodao:{n:'Farelo ou torta de algodão', ms:0.91, ndt:65, pb:33, fdn:30},
-  trigo:{n:'Farelo de trigo', ms:0.90, ndt:70, pb:15, fdn:42},
-  racao:{n:'Ração comercial (cerca de 20% de proteína)', ms:0.88, ndt:72, pb:22.7, fdn:20}
+  palma:{n:'Palma picada', ms:0.10, ndt:61.8, pb:4.8, fdn:29, dg:0.75},
+  capim_verde:{n:'Capim verde', ms:0.25, ndt:55, pb:8, fdn:65, dg:0.7},
+  pasto_seco:{n:'Capim seco e rama no pasto', ms:0.85, ndt:45, pb:4.5, fdn:72, dg:0.6},
+  capim_seco:{n:'Capim seco, feno ou bagaço', ms:0.88, ndt:48, pb:5, fdn:75, dg:0.6},
+  silagem:{n:'Silagem de milho ou sorgo', ms:0.30, ndt:62, pb:7, fdn:52, dg:0.75},
+  milho:{n:'Milho moído', ms:0.88, ndt:85, pb:9, fdn:13, dg:0.45},
+  soja:{n:'Farelo de soja', ms:0.90, ndt:81, pb:50, fdn:15, dg:0.65},
+  algodao:{n:'Farelo ou torta de algodão', ms:0.91, ndt:65, pb:33, fdn:30, dg:0.6},
+  trigo:{n:'Farelo de trigo', ms:0.90, ndt:70, pb:15, fdn:42, dg:0.75},
+  racao:{n:'Ração comercial (cerca de 20% de proteína)', ms:0.88, ndt:72, pb:22.7, fdn:20, dg:0.65},
+  ureia:{n:'Ureia (misturada na palma)', ms:1, ndt:0, pb:281, fdn:0, dg:1}
 };
 // comida de volume: partes da MS do volumoso
 const VOL = {
   pasto_seco:{n:'Pasto seco ou caatinga', solto:true, mix:[['pasto_seco',1]]},
   capim_verde:{n:'Capim verde (tempo de chuva)', solto:true, mix:[['capim_verde',1]]},
   palma_capim:{n:'Palma com capim seco ou bagaço', mix:[['palma',0.4],['capim_seco',0.6]]},
+  palma_ureia:{n:'Palma com bagaço ou capim seco e ureia', mix:[['palma',0.45],['capim_seco',0.54],['ureia',0.01]]},
   silagem:{n:'Silagem de milho ou sorgo', mix:[['silagem',1]]},
   palma_silagem:{n:'Palma com silagem', mix:[['palma',0.4],['silagem',0.6]]}
 };
@@ -1346,8 +1349,8 @@ const FASES = {
 };
 const rv = (mapa, raca, pad) => { const r = String(raca||'').toLowerCase(); const k = Object.keys(mapa).find(x => r && r.startsWith(x.toLowerCase().slice(0,5))); return k ? mapa[k] : pad; };
 // potencial genético médio por raça (limite superior do cálculo; estimativa)
-const LEITE_POT = {Holandesa:25,'Pardo-suíço':18,Jersey:16,Girolando:15,'Gir leiteiro':10,Guzerá:7,Sindi:7};
-const CABRA_POT = {Saanen:3,'Parda alpina':2.8,'Anglo-nubiana':1.8};
+const LEITE_POT = {Holandesa:16,'Pardo-suíço':12,Jersey:11,Girolando:10,'Gir leiteiro':7,Guzerá:5,Sindi:5}; // meta padrão (média de rebanho do semiárido, estimada); o produtor pode mudar
+const CABRA_POT = {Saanen:2,'Parda alpina':2,'Anglo-nubiana':1.2};
 const GANHO_BOV = {Nelore:1.2,Brahman:1.3,Tabapuã:1.2,Guzerá:1.1,Sindi:0.9,'Pé-duro':0.7,Girolando:1,Holandesa:1.1};
 const GANHO_PEQ = {Boer:0.25,Dorper:0.28,'Santa Inês':0.22,'Anglo-nubiana':0.18,Somalis:0.15,'Morada Nova':0.15};
 const GANHO_SUI = {Landrace:0.9,'Large White':0.9,Duroc:0.9,Moura:0.7,Piau:0.6};
@@ -1406,19 +1409,19 @@ function cfgAlim(a){
   const vols = VOL_DE(k), concs = CONC_DE(k);
   const vol = vols[x.vol] ? x.vol : (RUMINANTE(k) || k==='equinos') ? (chuvoso ? 'capim_verde' : (k==='equinos' ? 'feno' : 'palma_capim')) : null;
   const conc = concs[x.conc] ? x.conc : Object.keys(concs)[0];
-  return {fase, peso, pesoInformado: x.peso > 0 || pesado > 0, vol, conc, hojeKg: x.hojeKg > 0 ? x.hojeKg : null};
+  return {fase, peso, pesoInformado: x.peso > 0 || pesado > 0, vol, conc, hojeKg: x.hojeKg > 0 ? x.hojeKg : null, meta: x.meta > 0 ? x.meta : null};
 }
 // mistura -> composição média na MS
 function compMix(mix){
   const tot = mix.reduce((s,[k,p])=>s + p*ALIM[k].ms, 0); // kg MS por kg de mistura (como dado)
-  const r = {ms:tot, ndt:0, pb:0, fdn:0};
+  const r = {ms:tot, ndt:0, pb:0, fdn:0, pdr:0};
   if (!tot) return r;
-  mix.forEach(([k,p]) => { const f = p*ALIM[k].ms/tot; ['ndt','pb','fdn'].forEach(c => r[c] += f*ALIM[k][c]); });
+  mix.forEach(([k,p]) => { const f = p*ALIM[k].ms/tot; ['ndt','pb','fdn'].forEach(c => r[c] += f*ALIM[k][c]); r.pdr += f*ALIM[k].pb*ALIM[k].dg; });
   return r;
 }
 function compVol(v){ // mix do volumoso é em partes da MS
-  const r = {ndt:0, pb:0, fdn:0};
-  v.mix.forEach(([k,p]) => ['ndt','pb','fdn'].forEach(c => r[c] += p*ALIM[k][c]));
+  const r = {ndt:0, pb:0, fdn:0, pdr:0};
+  v.mix.forEach(([k,p]) => { ['ndt','pb','fdn'].forEach(c => r[c] += p*ALIM[k][c]); r.pdr += p*ALIM[k].pb*ALIM[k].dg; });
   return r;
 }
 // energia (NRC 2000): EM = 0,03615 × NDT; ELm e ELg pelas equações cúbicas; ELl = 0,0245 × NDT − 0,12 (NRC 1989/2001)
@@ -1455,20 +1458,26 @@ function dietaRum(PV, v, cc, kg, capMS, limFdn){
   const ms = msV + msC;
   const ndt = (msV*cv.ndt + msC*cm.ndt) / Math.max(ms, 0.001);
   const pb = msV*cv.pb*10 + msC*cm.pb*10; // g de proteína bruta
-  return {msV, msC, ms, ndt, pbG:pb, pbPct: pb/10/Math.max(ms,0.001)};
+  // proteína metabolizável (NRC, 2001): proteína microbiana limitada pela energia (130 g por kg de NDT) ou pela proteína degradável (85%)
+  const pdr = msV*cv.pdr*10 + msC*cm.pdr*10, pndr = pb - pdr;
+  const pmic = Math.min(130*ms*ndt/100, 0.85*pdr);
+  const mp = 0.64*pmic + 0.8*pndr;
+  return {msV, msC, ms, ndt, pbG:pb, pbPct: pb/10/Math.max(ms,0.001), mp, faltaPdr: 0.85*pdr < 130*ms*ndt/100};
 }
 function recomendar(fn, passo, max){
-  // menor quantidade de ração que chega perto do melhor resultado possível com essa dieta
+  // a ração só aumenta enquanto cada porção a mais ainda rende o mínimo que compensa (fn.minGanho por passo)
   const xs = []; for (let x = 0; x <= max + 1e-9; x += passo) xs.push(Math.round(x*100)/100);
-  const ys = xs.map(fn), best = Math.max(...ys);
-  const i = ys.findIndex(y => y >= best - fn.minGanho);
-  return xs[Math.max(0, i)];
+  const ys = xs.map(fn);
+  let rec = 0;
+  for (let i = 1; i < xs.length; i++) if (ys[i] - ys[i-1] >= fn.minGanho) rec = xs[i];
+  return rec;
 }
 /* vaca dando leite — NRC (2001) */
 function planoVaca(a, c, P){
   const PV = c.peso, v = VOL[c.vol], cc = CONC[c.conc], s = a.modo==='animal' ? situacao(a) : {};
-  P.fontes.push('nrcLeite','nrcCorte','mertens','cqbal'); if (/palma/.test(c.vol)) P.fontes.push('palma');
-  let pot = rv(LEITE_POT, a.raca, 8); const hist = a.modo==='animal' ? leiteRecente(a) : null; if (hist) pot = Math.max(pot, hist);
+  P.fontes.push('nrcLeite','nrcCorte','mertens','cqbal'); if (/palma/.test(c.vol)) P.fontes.push('palma','cavalcanti');
+  const hist = a.modo==='animal' ? leiteRecente(a) : null;
+  let pot = c.meta || (hist ? Math.max(hist, 3) : rv(LEITE_POT, a.raca, 6));
   const sem = s.diasParida != null ? Math.max(1, s.diasParida/7) : 20;
   const diasPrenhe = s.prenha && a.cobertura ? diffDias(a.cobertura, hoje()) : 0;
   const elPreg = diasPrenhe > 190 ? Math.max(0, (0.00318*diasPrenhe - 0.0352) * (0.06275*PV/45) / 0.14) : 0;
@@ -1481,13 +1490,13 @@ function planoVaca(a, c, P){
       const cap = (0.372*fcm + 0.0968*Math.pow(PV,0.75)) * (1 - Math.exp(-0.192*(sem + 3.67)));
       d = dietaRum(PV, v, cc, kg, cap, 0.012);
       const lE = (d.ms*ellDe(d.ndt) - elM - elPreg) / elLeite;
-      const lP = (d.pbG*0.67 - mpM) / mpLeite;
+      const lP = (d.mp - mpM) / mpLeite;
       d.lE = lE; d.lP = lP;
       L = clamp(Math.min(pot, lE, lP), 0, pot);
     }
     d.L = L; return d;
   };
-  const fn = kg => calc(kg).L; fn.minGanho = 0.6; // pelo menos 0,6 L a mais por meio quilo
+  const fn = kg => calc(kg).L; fn.minGanho = 1; // só vale dar mais ração se cada kg a mais render pelo menos 2 litros
   const maxKg = meio(PV*0.018); // ração até cerca de metade da matéria seca
   const rec = c.conc==='nenhuma' ? 0 : recomendar(fn, 0.5, maxKg);
   const d = calc(rec), d0 = calc(0);
@@ -1495,8 +1504,7 @@ function planoVaca(a, c, P){
   if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L)} litros`});
   P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
   if (d.L < pot - 0.5) P.dicas.push(d.lP < d.lE ? 'O que segura o leite é a falta de proteína. Uma ração com mais proteína (farelo de soja ou de algodão) rende mais do que dar mais milho.' : 'O que segura o leite é a falta de energia na dieta.');
-  else P.dicas.push(`Com essa dieta a vaca chega perto do que a raça costuma produzir (cerca de ${fNum(pot)} litros). Ração a mais não aumenta o leite.`);
-  if (hist) P.dicas.push(`Pelas suas anotações, ela deu em média ${fNum(hist,1)} litros por dia nas últimas duas semanas.`);
+  else P.dicas.push(`A conta foi feita para ${fNum(pot)} litros por dia${c.meta ? ' (a meta que você colocou)' : hist ? ' (a média das suas anotações)' : ' (uma média para a raça no semiárido)'}. Se a vaca dá mais ou menos que isso, mude em "Mudar fase, peso ou comida".`);
   if (elPreg) P.dicas.push('Ela está no fim da prenhez: o cálculo já reserva energia para o bezerro.');
   montarItens(P, v, d.msV, cc, rec);
   P.ms = d.ms;
@@ -1508,6 +1516,7 @@ function planoVaca(a, c, P){
 }
 function aguaDaPalma(P){ return P.itens.filter(i=>/Palma/.test(i.n)).reduce((s,i)=>s+i.kg*0.9,0); }
 function dicasComuns(P, v, c){
+  if (v && v.mix.some(([k])=>k==='ureia')) P.dicas.push('Ureia: misture bem na palma picada, nunca dê pura nem dissolvida na água. Comece com metade da quantidade e aumente aos poucos em 2 semanas. Não use ureia para bezerros novos nem para cavalos.');
   if (v && v.mix.some(([k])=>k==='palma')) P.dicas.push('Dê a palma sempre misturada com capim seco, feno ou bagaço. Palma sozinha solta o intestino. A palma tem muita água, por isso o animal bebe menos; mesmo assim, deixe água limpa à vontade.');
   if (v && v.solto) P.dicas.push('No pasto, a quantidade de capim é o que o animal come solto por dia. Se o pasto estiver fraco, complete no cocho.');
   if (c.conc==='milho' && P.racao) P.dicas.push('Só milho tem pouca proteína. Misture farelo de soja ou de algodão.');
@@ -1532,13 +1541,13 @@ function planoBov(a, c, P){
     let g = re > 0 ? 13.91 * Math.pow(re, 0.9116) * Math.pow(eqsbw, -0.6837) : (d.ms - fm) * nem / 5; // perda aproximada
     // proteína (NRC 2000): ganho limitado pela proteína metabolizável (≈ 67% da PB)
     const eff = eqsbw < 300 ? (83.4 - 0.114*eqsbw)/100 : 0.492;
-    const mpDisp = d.pbG*0.67 - mpM;
+    const mpDisp = d.mp - mpM;
     if (g > 0) { const npg = g*(268 - 29.4*re/g); const mpG = npg/eff; if (mpG > mpDisp) g = Math.max(0, g * Math.max(0, mpDisp)/mpG); d.limP = mpG > mpDisp; }
     d.g = Math.min(maxG, g); return d;
   };
   let rec = 0, d, d0 = calc(0);
   if (f==='engorda' || f==='novilha') {
-    const fn = kg => calc(kg).g; fn.minGanho = 0.03;
+    const fn = kg => calc(kg).g; fn.minGanho = 0.05; // cada kg a mais precisa render pelo menos 100 g de ganho
     rec = c.conc==='nenhuma' ? 0 : recomendar(fn, 0.5, PV*0.012);
     d = calc(rec);
     const alvo = f==='novilha' ? (a.ativ==='leite' ? 330 : 300) : 480;
@@ -1555,12 +1564,12 @@ function planoBov(a, c, P){
     const amamenta = s.diasParida != null && s.diasParida <= 120 && !s.prenha && a.ativ==='corte';
     const extra = preg + (amamenta ? 4 * 0.75 : 0); // vaca de corte: cerca de 4 kg de leite para o bezerro
     const pbNec = mpM/0.67 * (1 + (preg ? 0.25 : 0) + (amamenta ? 0.4 : 0));
-    const fn = kg => { const d = calc(kg); return Math.min((d.ms*elmDe(d.ndt) - elmReq) - extra, (d.pbG - pbNec)/100); };
+    const fn = kg => { const d = calc(kg); return Math.min((d.ms*elmDe(d.ndt) - elmReq) - extra, (d.mp - mpM*(1 + (preg ? 0.25 : 0) + (amamenta ? 0.4 : 0)))/100); };
     let x = 0; if (c.conc!=='nenhuma') { while (fn(x) < 0 && x < PV*0.008) x += 0.5; }
     rec = f==='seca' && diasPrenhe > 260 && c.conc!=='nenhuma' ? Math.max(x, 2) : x;
     d = calc(rec);
     const sobra = fn(rec);
-    if (calc(rec).pbG < pbNec) P.dicas.push('A dieta tem pouca proteína para manter este animal. Dê uma ração com farelo de soja ou de algodão, mesmo em pouca quantidade.');
+    if (calc(rec).mp < mpM) P.dicas.push('A dieta tem pouca proteína para manter este animal. Dê uma ração com farelo de soja ou de algodão, mesmo em pouca quantidade.');
     P.rende.push({k:'Peso e condição', v: sobra < 0 ? 'pode perder peso' : 'mantém o peso', s: f==='seca' ? (diasPrenhe > 260 ? 'Nas 3 últimas semanas antes do parto, cerca de 2 kg de ração ajudam a vaca a começar a nova lactação.' : 'Fase de descanso do úbere.') : f==='manut' ? 'Reprodutor em boa condição cobre melhor.' : amamenta ? 'Amamentando: precisa de mais comida para criar bem o bezerro.' : 'Vaca em boa condição emprenha mais rápido.', big:true});
     if (preg) P.dicas.push('Ela está no fim da prenhez: o cálculo já reserva energia para o bezerro.');
     P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}${P.rende[0].v}`;
@@ -1581,7 +1590,7 @@ function planoPeq(a, c, P){
   const pbM = interp(CAPR_M.map(r=>[r[0],r[2]]), PV);
   const ndtG = interp(CAPR_G.map(r=>[r[0],r[1]]), PV)/1000, pbG = interp(CAPR_G.map(r=>[r[0],r[2]]), PV);
   const lact = f==='lactacao';
-  const pot = lact ? rv(CABRA_POT, a.raca, 1) : 0;
+  const pot = lact ? (c.meta || rv(CABRA_POT, a.raca, 0.8)) : 0;
   const maxG = rv(GANHO_PEQ, a.raca, 0.13);
   const calc = kg => {
     let L = pot, d;
@@ -1597,14 +1606,14 @@ function planoPeq(a, c, P){
   let rec = 0, d;
   const passo = 0.1;
   if (lact) {
-    const fn = kg => calc(kg).L; fn.minGanho = 0.08;
+    const fn = kg => calc(kg).L; fn.minGanho = 0.15; // pelo menos 1,5 L por kg de ração
     rec = c.conc==='nenhuma' ? 0 : recomendar(fn, passo, PV*0.02);
     d = calc(rec); const d0 = calc(0);
     P.rende.push({k:'Leite por dia', v:`${fNum(d.L,1)} litros`, s: d0.L < 0.2 ? 'Sem ração, esta comida de volume não dá para produzir leite: a cabra emagrece.' : `Sem ração: cerca de ${fNum(d0.L,1)} litros`, big:true});
     if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L,1)} litros`});
     P.curto = `${rec ? 'Ração ' + fK(dec1(rec)) + ' kg/dia · ' : ''}pode dar ${fNum(d.L,1)} L de leite/dia`;
   } else if (f==='engorda') {
-    const fn = kg => calc(kg).g; fn.minGanho = 0.008;
+    const fn = kg => calc(kg).g; fn.minGanho = 0.01; // pelo menos 100 g de ganho por kg de ração
     rec = c.conc==='nenhuma' ? 0 : recomendar(fn, passo, PV*0.02);
     d = calc(rec); const d0 = calc(0);
     const alvo = k==='caprinos' ? 30 : 35;
@@ -1780,6 +1789,7 @@ function formAlim(a, box, depois){
     <div class="field"><label for="alPeso">${pesoKg || a.modo==='lote' ? 'Peso médio em kg' : 'Peso em kg'}</label><input id="alPeso" inputmode="decimal" value="${(a.alim||{}).peso||''}" placeholder="${(ultPeso(a)||{}).peso ? 'Última pesagem: ' + fQ(ultPeso(a).peso) : 'Ex.: ' + fQ(pesoPadrao(k, c.fase, a.raca))}"><span class="hint">Deixe vazio para usar a última pesagem ou um peso médio da raça.</span></div>
     ${vols ? `<div class="field"><label for="alVol">Comida de volume</label><select id="alVol">${Object.entries(vols).map(([v,o])=>`<option value="${v}" ${c.vol===v?'selected':''}>${esc(o.n)}</option>`).join('')}</select></div>` : ''}
     <div class="field"><label for="alConc">${RUMINANTE(k)||k==='equinos' ? 'Ração' : 'Comida'}</label><select id="alConc">${Object.entries(concs).map(([v,o])=>`<option value="${v}" ${c.conc===v?'selected':''}>${esc(o.n)}</option>`).join('')}</select></div>
+    ${(k==='leite' || k==='caprinos') ? `<div class="field" id="alMetaF"><label for="alMeta">Quantos litros ela dá por dia (ou quer que dê)</label><input id="alMeta" inputmode="decimal" value="${c.meta||''}" placeholder="Ex.: ${k==='leite'?'8':'1,5'}"><span class="hint">Só para quem está dando leite. Deixe vazio para usar a média das suas anotações.</span></div>` : ''}
     ${RUMINANTE(k) ? `<div class="field"><label for="alHoje">Ração que você dá hoje, em kg por dia (opcional)</label><input id="alHoje" inputmode="decimal" value="${c.hojeKg||''}" placeholder="Ex.: 2"><span class="hint">Para comparar com o que o app recomenda.</span></div>` : ''}
     <button class="btn primary" type="submit">Calcular</button>
   </form>`;
@@ -1791,6 +1801,7 @@ function formAlim(a, box, depois){
     if (val('alVol')) alim.vol = val('alVol');
     const p = num(val('alPeso')); if (p > 0) alim.peso = p;
     const h = num(val('alHoje')); if (h > 0) alim.hojeKg = h;
+    const mt = num(val('alMeta')); if (mt > 0) alim.meta = mt;
     S.animais = S.animais.map(y => y.id===a.id ? {...y, alim} : y);
     save(); depois(); render(); toast('Alimentação calculada');
   };
