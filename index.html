@@ -331,7 +331,7 @@ tfoot td{font-weight:800;background:var(--surface-2)}
 <nav class="tabs" aria-label="Seções">
   <div class="tabs-in">
     <button class="tab" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Início</button>
-    <button class="tab" data-tab="caderno"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h12a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2z"/><path d="M5 19a2 2 0 0 1 2-2h12"/><path d="M9 7h6M9 11h6"/></svg>Caderno</button>
+    <button class="tab" data-tab="balancos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 21h10"/><path d="M4 7h16"/><path d="M6 7l-3 7a3 3 0 0 0 6 0z"/><path d="M18 7l-3 7a3 3 0 0 0 6 0z"/></svg>Balanços</button>
     <button class="tab plus" data-tab="anotar" aria-label="Anotar"><span class="bubble"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>Anotar</button>
     <button class="tab" data-tab="criacao"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6c1 2 3 3 5 3h6c2 0 4-1 5-3"/><path d="M7 9c-1 1-1 3-1 5 0 3 2 6 6 6s6-3 6-6c0-2 0-4-1-5"/><circle cx="10" cy="13" r=".8" fill="currentColor"/><circle cx="14" cy="13" r=".8" fill="currentColor"/><path d="M10 17h4"/></svg>Criação</button>
     <button class="tab" data-tab="guias"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c0-6 0-10 0-14"/><path d="M12 12c-4 0-7-3-7-7 4 0 7 3 7 7z"/><path d="M12 9c3 0 6-2 6-6-3 0-6 2-6 6z"/><path d="M8 21h8"/></svg>Guias</button>
@@ -352,7 +352,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.3';
+const VERSAO_APP = '3.4';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -510,12 +510,12 @@ function irPara(tab){ ui.tab = tab; if (tab!=='guias') ui.guia=null; render(); w
 $('#btnMais').addEventListener('click', () => irPara('mais'));
 function render(){
   pararFala();
-  const atual = {relatorio:'inicio', producao:'inicio'}[ui.tab] || ui.tab;
+  const atual = {relatorio:'balancos', producao:'inicio', caderno:'balancos'}[ui.tab] || ui.tab;
   $$('.tab').forEach(b => { if (b.dataset.tab === atual) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
   $('#who').textContent = S.nome ? S.nome : 'Seu caderno de campo';
   const v = $('#view');
   if (!S.inicioVisto && !S.registros.length && !S.animais.length) { v.innerHTML = telaBoasVindas(); ligarBoasVindas(); return; }
-  const fn = {inicio:telaInicio, caderno:telaCaderno, criacao:telaCriacao, guias:telaGuias, mais:telaMais, relatorio:telaRelatorio, producao:telaProducao}[ui.tab] || telaInicio;
+  const fn = {inicio:telaInicio, caderno:telaBalancos, balancos:telaBalancos, criacao:telaCriacao, guias:telaGuias, mais:telaMais, relatorio:telaRelatorio, producao:telaProducao}[ui.tab] || telaInicio;
   v.innerHTML = (S.exemplo && ui.tab!=='relatorio' ? bannerExemplo() : '') + fn();
   ligar(v);
 }
@@ -675,33 +675,18 @@ function telaInicio(){
   const r = resumo(m);
   const ehAtual = m === hoje().slice(0,7);
   const al = alertas();
-  const chuvaAno = resumo(String(y)).chuva;
   const ks = prodsDoInicio(m);
 
   return `
   <div class="monthnav">
     <button class="iconbtn" data-act="mesAnt" aria-label="Mês anterior">${ICONS.prev}</button>
-    <div style="text-align:center"><p class="eyebrow">${ehAtual ? 'Este mês' : 'Resumo do mês'}</p><h1>${MESES[mm-1]} ${y}</h1></div>
+    <div style="text-align:center"><p class="eyebrow">${ehAtual ? 'Este mês' : 'Mês'}</p><h1>${MESES[mm-1]} ${y}</h1></div>
     <button class="iconbtn" data-act="mesProx" aria-label="Próximo mês" ${ehAtual?'disabled':''}>${ICONS.next}</button>
   </div>
 
-  ${al.length ? `<section class="section"><div class="section-h"><h2>Avisos</h2><span class="muted small">${al.length}</span></div>
-    <div class="alerts">${al.slice(0,5).map(a => `
-      <div class="alert ${a.nivel}">
-        <div class="tx"><b>${esc(a.t)}</b><span class="when">${esc(a.d)}</span></div>
-        ${a.lembrete ? `<button class="btn sm" data-act="lembFeito" data-id="${a.lembrete}">Feito</button>` : `<button class="btn sm" data-act="verAnimal" data-id="${a.id}">Ver</button>`}
-      </div>`).join('')}
-    </div></section>` : ''}
-
-  <div class="stat money ${r.saldo>=0?'pos':'neg'}">
-    <span class="k">${r.saldo>=0?'Quanto sobrou no mês':'No mês, gastou mais do que recebeu'}</span>
-    <span class="v">${fR(r.saldo)}</span>
-    <span class="s num">Recebi ${fR(r.ent)} · Gastei ${fR(r.sai)}</span>
-    ${podeFalar()?`<button class="btn sm ouvir" data-act="ouvirInicio" style="align-self:flex-start;margin-top:6px">${ICONS.som} Ouvir o resumo</button>`:''}
-  </div>
-
   <section class="section">
-    <div class="section-h"><h2>Minhas produções</h2><span class="muted small">toque para abrir</span></div>
+    <div class="section-h"><h2>Minhas produções</h2>${podeFalar()?`<button class="btn sm ouvir" data-act="ouvirInicio">${ICONS.som} Ouvir</button>`:''}</div>
+    <p class="muted small" style="margin:-4px 0 2px">Toque numa produção para anotar e ver quanto sobrou.</p>
     <div class="prods">
       ${ks.map(k => { const a = r.porAtiv[k], sob = a ? a.ent - a.sai : null; return `
         <button class="prod-card" data-act="abrirProd" data-id="${k}">
@@ -713,25 +698,90 @@ function telaInicio(){
     </div>
   </section>
 
+  ${al.length ? `<section class="section"><div class="section-h"><h2>Avisos</h2><span class="muted small">${al.length}</span></div>
+    <div class="alerts">${al.slice(0,5).map(a => `
+      <div class="alert ${a.nivel}">
+        <div class="tx"><b>${esc(a.t)}</b><span class="when">${esc(a.d)}</span></div>
+        ${a.lembrete ? `<button class="btn sm" data-act="lembFeito" data-id="${a.lembrete}">Feito</button>` : `<button class="btn sm" data-act="verAnimal" data-id="${a.id}">Ver</button>`}
+      </div>`).join('')}
+    </div></section>` : ''}
+
+  <button class="btn block" data-act="irBalancos">${ICONS.relatorio.replace('<svg','<svg width="22" height="22"')} Ver o balanço do mês</button>`;
+}
+
+/* ---------- BALANÇOS ---------- */
+function telaBalancos(){
+  const ehAno = ui.balPer==='ano';
+  const m = ui.mes, [y,mm] = m.split('-').map(Number);
+  const p = ehAno ? String(y) : m;
+  const r = resumo(p);
+  const ehAtual = ehAno ? y === Number(hoje().slice(0,4)) : m === hoje().slice(0,7);
+  const nomeP = ehAno ? `${y}` : `${MESES[mm-1]} ${y}`;
+  const ks = Object.keys(r.porAtiv).sort((a,b)=>(r.porAtiv[b].ent-r.porAtiv[b].sai)-(r.porAtiv[a].ent-r.porAtiv[a].sai));
+  const maxAbs = Math.max(1, ...ks.map(k => Math.abs(r.porAtiv[k].ent - r.porAtiv[k].sai)));
+  const filtros = [['todos','Tudo'],['dinheiro','Vendas e gastos'],['leite','Leite'],['producao','Produção'],['chuva','Chuva'],['lavoura','Plantio e colheita'],['anotacao','Anotações']];
+  let rs = [...r.rs].sort(ordem); const f = ui.filtro;
+  if (f==='dinheiro') rs = rs.filter(x=>x.tipo==='gasto'||x.tipo==='venda');
+  else if (f==='lavoura') rs = rs.filter(x=>x.tipo==='plantio'||x.tipo==='colheita');
+  else if (f!=='todos') rs = rs.filter(x=>x.tipo===f);
+  const chuvaAno = resumo(String(y)).chuva;
+
+  return `
+  <h1 class="h1">Balanços</h1>
+  <div class="seg" role="group" aria-label="Período"><button data-act="balPer" data-v="mes" aria-pressed="${!ehAno}">Mês</button><button data-act="balPer" data-v="ano" aria-pressed="${ehAno}">Ano</button></div>
+  <div class="monthnav">
+    <button class="iconbtn" data-act="${ehAno?'anoAnt':'mesAnt'}" aria-label="Período anterior">${ICONS.prev}</button>
+    <div style="text-align:center"><p class="eyebrow">${ehAtual ? (ehAno?'Este ano':'Este mês') : (ehAno?'Ano':'Mês')}</p><h1>${nomeP}</h1></div>
+    <button class="iconbtn" data-act="${ehAno?'anoProx':'mesProx'}" aria-label="Próximo período" ${ehAtual?'disabled':''}>${ICONS.next}</button>
+  </div>
+
+  <div class="stat money ${r.saldo>=0?'pos':'neg'}">
+    <span class="k">${r.saldo>=0?(ehAno?'Quanto sobrou no ano':'Quanto sobrou no mês'):(ehAno?'No ano, gastou mais do que recebeu':'No mês, gastou mais do que recebeu')}</span>
+    <span class="v">${fR(r.saldo)}</span>
+    <span class="s num">Recebi ${fR(r.ent)} · Gastei ${fR(r.sai)}</span>
+    ${podeFalar()?`<button class="btn sm ouvir" data-act="ouvirBal" style="align-self:flex-start;margin-top:6px">${ICONS.som} Ouvir o balanço</button>`:''}
+  </div>
+
   <section class="section">
-    <div class="section-h"><h2>Chuva</h2></div>
-    <div class="stat rain" style="flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap">
-      <div style="flex:1;min-width:0"><span class="k">Choveu no mês</span><div class="v">${fNum(r.chuva)} <small>mm</small></div><span class="s">${fNum(chuvaAno)} mm no ano</span></div>
-      <button class="btn" data-act="nova" data-tipo="chuva">${ICONS.chuva.replace('<svg','<svg width="22" height="22"')} Anotar chuva</button>
+    <div class="section-h"><h2>Quanto cada produção deu</h2></div>
+    <div class="card">
+      ${ks.length ? `<div class="bars">${ks.map(k => {
+        const a = r.porAtiv[k], s = a.ent - a.sai;
+        const w = Math.max(4, Math.abs(s)/maxAbs*100);
+        return `<button class="bar-row" data-act="detAtiv" data-id="${k}" data-p="${p}">
+          <span class="lbl">${esc(nomeProd(k))}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${s>=0?'var(--good-soft)':'var(--red-soft)'};border-right:4px solid ${s>=0?'var(--good)':'var(--bad)'}"></div><span class="bar-val" style="color:${s>=0?'var(--good)':'var(--bad)'}">${fR(s)}</span></div>
+          <span class="bar-sub num">entrou ${fRc(a.ent)} · saiu ${fRc(a.sai)}</span>
+        </button>`;}).join('')}</div>
+        <p class="small muted" style="margin:8px 0 0">Toque numa produção para ver o balanço completo.</p>`
+      : `<p class="empty">Anote vendas e gastos em cada produção. Aqui aparece quanto cada uma está dando, inclusive serviços como frete, manicure ou pipa d'água.</p>`}
     </div>
   </section>
 
-  <button class="btn gold block" data-act="abrirRel" data-p="${m}">${ICONS.relatorio.replace('<svg','<svg width="22" height="22"')} Relatório de ${MESES[mm-1]}</button>
+  <button class="btn gold block" data-act="abrirRel" data-p="${p}">${ICONS.relatorio.replace('<svg','<svg width="22" height="22"')} Relatório ${ehAno?'do ano':'de '+MESES[mm-1]}</button>
 
   <section class="section">
-    <div class="section-h"><h2>Chuva em ${y}</h2><span class="muted small num">${fNum(chuvaAno)} mm</span></div>
+    <div class="section-h"><h2>Chuva</h2><span class="muted small num">${fNum(chuvaAno)} mm em ${y}</span></div>
+    <div class="stat rain" style="flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0"><span class="k">Choveu ${ehAno?'no ano':'no mês'}</span><div class="v">${fNum(r.chuva)} <small>mm</small></div></div>
+      <button class="btn" data-act="nova" data-tipo="chuva">${ICONS.chuva.replace('<svg','<svg width="22" height="22"')} Anotar chuva</button>
+    </div>
     <div class="card">${graficoChuva(String(y))}</div>
   </section>
 
   <section class="section">
-    <div class="section-h"><h2>Últimas anotações</h2><button class="link" data-act="irCaderno">Ver todas</button></div>
-    ${listaRegistros([...S.registros].sort(ordem).slice(0,5))}
+    <div class="section-h"><h2>Anotações ${ehAno?'do ano':'do mês'}</h2><span class="muted small">${r.rs.length}</span></div>
+    <div class="chips" role="group" aria-label="Filtrar">${filtros.map(([k,n])=>`<button class="chip" data-act="filtro" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
+    ${listaRegistros(rs.slice(0,300))}
   </section>`;
+}
+function textoBalanco(){
+  const ehAno = ui.balPer==='ano', p = ehAno ? ui.mes.slice(0,4) : ui.mes, r = resumo(p);
+  const quando = ehAno ? `No ano de ${p}` : `Em ${MESES[Number(p.slice(5,7))-1]}`;
+  const L = [r.saldo>=0 ? `${quando}, sobrou ${falaR(r.saldo)}.` : `${quando}, você gastou mais do que recebeu. Faltou ${falaR(-r.saldo)}.`, `Recebeu ${falaR(r.ent)} e gastou ${falaR(r.sai)}.`];
+  Object.entries(r.porAtiv).sort((a,b)=>(b[1].ent-b[1].sai)-(a[1].ent-a[1].sai)).forEach(([k,a]) => { const s = a.ent-a.sai; L.push(`${nomeProd(k)}: ${s>=0?'sobrou':'faltou'} ${falaR(Math.abs(s))}.`); });
+  if (r.chuva) L.push(`Choveu ${fNum(r.chuva)} milímetros.`);
+  return L.join(' ');
 }
 function iconeProd(k){
   const [i,c] = ICON_ATIV[k] || (String(k).startsWith('x_') ? ['servico','ic-anotacao'] : ['anotacao','ic-anotacao']);
@@ -844,9 +894,8 @@ function falar(txt, btn){
 }
 function textoInicio(){
   const m = ui.mes, r = resumo(m), mesN = MESES[Number(m.slice(5,7))-1];
-  const L = [r.saldo>=0 ? `Em ${mesN}, sobrou ${falaR(r.saldo)}.` : `Em ${mesN}, você gastou mais do que recebeu. Faltou ${falaR(-r.saldo)}.`, `Recebeu ${falaR(r.ent)} e gastou ${falaR(r.sai)}.`];
-  Object.entries(r.porAtiv).sort((a,b)=>(b[1].ent-b[1].sai)-(a[1].ent-a[1].sai)).forEach(([k,a]) => { const s = a.ent-a.sai; L.push(`${nomeProd(k)}: ${s>=0?'sobrou':'faltou'} ${falaR(Math.abs(s))}.`); });
-  if (r.chuva) L.push(`Choveu ${fNum(r.chuva)} milímetros no mês.`);
+  const L = [`Suas produções em ${mesN}.`];
+  prodsDoInicio(m).forEach(k => { const a = r.porAtiv[k]; if (!a) L.push(`${nomeProd(k)}: nada anotado.`); else { const s = a.ent-a.sai; L.push(`${nomeProd(k)}: ${s>=0?'sobrou':'faltou'} ${falaR(Math.abs(s))}.`); } });
   const al = alertas(); if (al.length) L.push(`Você tem ${al.length} aviso${al.length>1?'s':''}: ` + al.slice(0,4).map(a=>a.t).join('. ') + '.');
   return L.join(' ');
 }
@@ -855,28 +904,6 @@ function textoProd(){
   const L = [`${nomeProd(k)}, ${mesN}.`, sob>=0 ? `Sobrou ${falaR(sob)}.` : `Faltou ${falaR(-sob)}: gastou mais do que recebeu.`, `Recebeu ${falaR(ent)} e gastou ${falaR(sai)}.`];
   if (k==='leite') { const r = resumo(m), cl = custoLitro(m); if (r.leite) L.push(`Tirou ${fNum(r.leite)} litros de leite.`); if (cl.custo!=null) L.push(`Cada litro custou ${falaR(cl.custo)} para produzir${cl.preco!=null?` e você recebeu ${falaR(cl.preco)} por litro`:''}.`); }
   return L.join(' ');
-}
-function blocoBalanco(){
-  const p = ui.balPer==='ano' ? ui.mes.slice(0,4) : ui.mes;
-  const r = resumo(p);
-  const ks = Object.keys(r.porAtiv).sort((a,b)=>(r.porAtiv[b].ent-r.porAtiv[b].sai)-(r.porAtiv[a].ent-r.porAtiv[a].sai));
-  const maxAbs = Math.max(1, ...ks.map(k => Math.abs(r.porAtiv[k].ent - r.porAtiv[k].sai)));
-  return `<section class="section">
-    <div class="section-h"><h2>Balanço por atividade</h2></div>
-    <div class="seg" role="group" aria-label="Período"><button data-act="balPer" data-v="mes" aria-pressed="${ui.balPer==='mes'}">No mês</button><button data-act="balPer" data-v="ano" aria-pressed="${ui.balPer==='ano'}">No ano ${p.slice(0,4)}</button></div>
-    <div class="card">
-      ${ks.length ? `<div class="bars">${ks.map(k => {
-        const a = r.porAtiv[k], s = a.ent - a.sai;
-        const w = Math.max(4, Math.abs(s)/maxAbs*100);
-        return `<button class="bar-row" data-act="detAtiv" data-id="${k}" data-p="${p}">
-          <span class="lbl">${esc(ativNome(k))}</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${s>=0?'var(--good-soft)':'var(--red-soft)'};border-right:4px solid ${s>=0?'var(--good)':'var(--bad)'}"></div><span class="bar-val" style="color:${s>=0?'var(--good)':'var(--bad)'}">${fR(s)}</span></div>
-          <span class="bar-sub num">entrou ${fRc(a.ent)} · saiu ${fRc(a.sai)}</span>
-        </button>`;}).join('')}</div>
-        <p class="small muted" style="margin:8px 0 0">Toque numa atividade para ver o balanço completo.</p>`
-      : `<p class="empty">Anote gastos e vendas escolhendo a atividade de cada um. Aqui aparece quanto cada uma está dando, inclusive serviços como frete, manicure ou pipa d'água.</p>`}
-    </div>
-  </section>`;
 }
 const ordem = (a,b) => a.data < b.data ? 1 : a.data > b.data ? -1 : (b.criado||0) - (a.criado||0);
 
@@ -952,23 +979,6 @@ function listaRegistros(rs){
 }
 
 /* ---------- CADERNO ---------- */
-function telaCaderno(){
-  const filtros = [['todos','Tudo'],['dinheiro','Vendas e gastos'],['leite','Leite'],['producao','Produção'],['chuva','Chuva'],['lavoura','Plantio e colheita'],['anotacao','Anotações']];
-  let rs = [...S.registros].sort(ordem);
-  const f = ui.filtro;
-  if (f==='dinheiro') rs = rs.filter(r=>r.tipo==='gasto'||r.tipo==='venda');
-  else if (f==='lavoura') rs = rs.filter(r=>r.tipo==='plantio'||r.tipo==='colheita');
-  else if (f!=='todos') rs = rs.filter(r=>r.tipo===f);
-  const grupos = {};
-  rs.forEach(r => (grupos[r.data.slice(0,7)] ||= []).push(r));
-  const meses = Object.keys(grupos).sort().reverse();
-  return `
-  <div class="section-h"><h1 class="h1">Caderno</h1><span class="muted small">${S.registros.length} anotações</span></div>
-  <div class="chips" role="group" aria-label="Filtrar">${filtros.map(([k,n])=>`<button class="chip" data-act="filtro" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
-  ${meses.length ? meses.map(m => { const [y,mm]=m.split('-').map(Number); return `
-    <section class="section"><div class="section-h"><p class="eyebrow">${MESES[mm-1]} ${y}</p>${resumoGrupo(grupos[m], f)}</div>${listaRegistros(grupos[m].slice(0,200))}</section>`; }).join('')
-  : listaRegistros([])}`;
-}
 function resumoGrupo(rs, f){
   if (f==='chuva') return `<span class="small muted num">${fNum(rs.reduce((s,r)=>s+(r.mm||0),0))} mm</span>`;
   if (f==='leite') return `<span class="small muted num">${fNum(rs.reduce((s,r)=>s+(r.litros||0),0))} L</span>`;
@@ -1588,7 +1598,7 @@ function telaRelatorio(){
   const vazio = !r.rs.length;
   return `
   <div class="noprint" style="display:flex;flex-direction:column;gap:12px">
-    <button class="link" data-act="voltarInicio">‹ Início</button>
+    <button class="link" data-act="irBalancos">‹ Balanços</button>
     <div class="monthnav">
       <button class="iconbtn" data-act="relAnt" aria-label="Período anterior">${ICONS.prev}</button>
       <div class="seg" style="flex:1"><button data-act="relTipo" data-v="mes" aria-pressed="${!d.ehAno}">Mês</button><button data-act="relTipo" data-v="ano" aria-pressed="${d.ehAno}">Ano</button></div>
@@ -1860,7 +1870,7 @@ const GUIAS = [
   <ol><li>Crie a atividade em <b>Mais › Minhas produções</b>: manicure, lenha, carvão, transporte de leite, comércio de ração, pipa d'água, frete…</li>
   <li>Cada serviço feito ou venda vira uma <b>Venda ou serviço</b>, com a quantidade (viagens, serviços, sacos) e o preço de cada um.</li>
   <li>Cada despesa vira um <b>Gasto</b> na mesma atividade: combustível, material, peça, ração comprada para revender.</li>
-  <li>No Início, toque na atividade em <b>Balanço por atividade</b>. O app mostra quanto entrou, quanto saiu e quanto sobra por viagem ou por serviço.</li></ol>
+  <li>Na aba <b>Balanços</b>, toque na atividade em <b>Quanto cada produção deu</b>. O app mostra quanto entrou, quanto saiu e quanto sobra por viagem ou por serviço.</li></ol>
   <h3>Custos que todo mundo esquece</h3>
   <ul><li>Combustível, pneu, óleo e conserto do carro, moto ou caminhão.</li>
   <li>Material que acaba: esmalte e lixa, saco de carvão, lona, mangueira.</li>
@@ -2100,7 +2110,9 @@ function ligar(v){
       case 'ouvirProd': falar(textoProd(), b); break;
       case 'ouvirGuia': { const art = $('#artigo'); const c = art.cloneNode(true); $$('button', c).forEach(x=>x.remove()); falar(c.innerText, b); break; }
       case 'detAtiv': detalheAtividade(id, b.dataset.p); break;
-      case 'irCaderno': irPara('caderno'); break;
+      case 'irCaderno': case 'irBalancos': irPara('balancos'); break;
+      case 'ouvirBal': falar(textoBalanco(), b); break;
+      case 'anoAnt': case 'anoProx': ui.mes = String(Number(ui.mes.slice(0,4)) + (act==='anoAnt'?-1:1)) + (act==='anoProx' && Number(ui.mes.slice(0,4))+1===Number(hoje().slice(0,4)) ? hoje().slice(4,7) : '-12'); render(); break;
       case 'irMais': irPara('mais'); break;
       case 'voltarInicio': irPara('inicio'); break;
       case 'abrirRel': ui.relPer = b.dataset.p; irPara('relatorio'); break;
