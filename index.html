@@ -355,7 +355,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.5';
+const VERSAO_APP = '3.6';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1264,46 +1264,75 @@ function formLembrete(l){
 /* ---------- CRIAÇÃO ---------- */
 const qtdAnimal = a => a.modo==='lote' ? (a.qtd||0) : 1;
 function iconeAtiv(k){ const [i,c] = ICON_ATIV[k] || ['vaca','ic-cria']; return `<span class="ic ${c}">${ICONS[i]}</span>`; }
-/* ---------- alimentação e rendimento (estimativas de referência) ---------- */
-// Volumoso para bois, vacas, cabras e ovelhas. q = qualidade (0 a 3); itens: [nome, matéria seca, parte da matéria seca]
+/* ---------- alimentação e rendimento ----------
+   Cálculo por energia e proteína, com equações publicadas (ver FONTES).
+   Composição dos alimentos na matéria seca (MS): ms = fração de MS, ndt e pb em %, fdn em %. */
+const FONTES = {
+  nrcLeite:'NRC (2001). Nutrient Requirements of Dairy Cattle, 7ª ed. Washington: National Academy Press. Consumo de matéria seca (eq. 1-2 e 1-3), energia de mantença (0,080 × PV^0,75), energia do leite e da gestação, consumo de água.',
+  nrcCorte:'NRC (2000). Nutrient Requirements of Beef Cattle, 7ª ed. atualizada. Washington: National Academy Press. Energia de mantença (0,077 × PCJ^0,75; zebuínos 10% menos), energia e proteína do ganho, conversão de NDT em energia líquida.',
+  brcorte:'Valadares Filho, S.C. et al. (2016). Exigências Nutricionais de Zebuínos Puros e Cruzados – BR-CORTE, 3ª ed. Viçosa: UFV. Referência brasileira para conferir as exigências de zebuínos.',
+  mertens:'Mertens, D.R. (1994). Regulation of forage intake. In: Forage Quality, Evaluation, and Utilization. Madison: ASA. Limite de consumo de fibra (FDN) de cerca de 1,2% do peso vivo.',
+  embrapaCapr:'Bomfim, M.A.D.; Barros, N.N. Exigências nutricionais de caprinos e ovinos leiteiros. Sobral: Embrapa Caprinos (baseado em AFRC, 1998). Tabelas de NDT e proteína para mantença, por kg de leite e por 100 g de ganho; equações de consumo.',
+  palma:'Tosto, M.S.L.; Araújo, G.G.L. et al. (2007). Composição química e estimativa de energia da palma forrageira. Revista Brasileira de Saúde e Produção Animal, 8(3): 239-249. Palma: NDT 61,8% e proteína 4,8% na MS.',
+  cqbal:'Valadares Filho, S.C. et al. Tabelas Brasileiras de Composição de Alimentos para Ruminantes (CQBAL 4.0). Viçosa: UFV. Valores médios de capim, silagem, milho e farelos; Campos, O.F. et al. (1995), Embrapa Gado de Leite, Circular Técnica 38: farelo de soja 50%, algodão 33% e trigo 15% de proteína na MS.',
+  nrcSuinos:'NRC (1998). Nutrient Requirements of Swine, 10ª ed. Washington: National Academy Press. Consumo de energia à vontade de porcos em crescimento e energia de mantença.',
+  rostagno:'Rostagno, H.S. et al. (2017). Tabelas Brasileiras para Aves e Suínos, 4ª ed. Viçosa: UFV. Consumo de ração de poedeiras e suínos.',
+  embrapa051:'Alves, A.L. et al. (2021). Ovos caipira de poedeira Embrapa 051. Brasília: Embrapa. Até 345 ovos por ave de 20 a 90 semanas (cerca de 70% de postura).',
+  tilapia:'Matos, F.T. et al. (2020). Produção de tilápias em tanques-rede: boas práticas de manejo. Palmas: Embrapa Pesca e Aquicultura. Tabela de alimentação (% da biomassa por dia, tratos e peso por semana de cultivo).',
+  nrcEquinos:'NRC (2007). Nutrient Requirements of Horses, 6ª ed. Washington: National Academies Press. Energia digestível de mantença (33,3 kcal/kg PV) e de trabalho; proteína de mantença (1,26 g/kg PV).'
+};
+const ALIM = {
+  palma:{n:'Palma picada', ms:0.10, ndt:61.8, pb:4.8, fdn:29},
+  capim_verde:{n:'Capim verde', ms:0.25, ndt:55, pb:8, fdn:65},
+  pasto_seco:{n:'Capim seco e rama no pasto', ms:0.85, ndt:45, pb:4.5, fdn:72},
+  capim_seco:{n:'Capim seco, feno ou bagaço', ms:0.88, ndt:48, pb:5, fdn:75},
+  silagem:{n:'Silagem de milho ou sorgo', ms:0.30, ndt:62, pb:7, fdn:52},
+  milho:{n:'Milho moído', ms:0.88, ndt:85, pb:9, fdn:13},
+  soja:{n:'Farelo de soja', ms:0.90, ndt:81, pb:50, fdn:15},
+  algodao:{n:'Farelo ou torta de algodão', ms:0.91, ndt:65, pb:33, fdn:30},
+  trigo:{n:'Farelo de trigo', ms:0.90, ndt:70, pb:15, fdn:42},
+  racao:{n:'Ração comercial (cerca de 20% de proteína)', ms:0.88, ndt:72, pb:22.7, fdn:20}
+};
+// comida de volume: partes da MS do volumoso
 const VOL = {
-  pasto_seco:{n:'Pasto seco ou caatinga', q:0, solto:true, itens:[['Capim seco e rama no pasto',0.85,1]]},
-  capim_verde:{n:'Capim verde (tempo de chuva)', q:2, solto:true, itens:[['Capim verde',0.25,1]]},
-  palma_capim:{n:'Palma com capim seco ou bagaço', q:1.5, itens:[['Palma picada',0.11,0.45],['Capim seco, feno ou bagaço',0.88,0.55]]},
-  silagem:{n:'Silagem de milho ou sorgo', q:2.5, itens:[['Silagem',0.32,1]]},
-  palma_silagem:{n:'Palma com silagem', q:3, itens:[['Palma picada',0.11,0.4],['Silagem',0.32,0.6]]}
+  pasto_seco:{n:'Pasto seco ou caatinga', solto:true, mix:[['pasto_seco',1]]},
+  capim_verde:{n:'Capim verde (tempo de chuva)', solto:true, mix:[['capim_verde',1]]},
+  palma_capim:{n:'Palma com capim seco ou bagaço', mix:[['palma',0.4],['capim_seco',0.6]]},
+  silagem:{n:'Silagem de milho ou sorgo', mix:[['silagem',1]]},
+  palma_silagem:{n:'Palma com silagem', mix:[['palma',0.4],['silagem',0.6]]}
 };
 const VOL_EQ = {
-  capim_verde:{n:'Capim verde (tempo de chuva)', q:2, solto:true, itens:[['Capim verde',0.25,1]]},
-  feno:{n:'Feno ou capim seco', q:1.5, itens:[['Feno ou capim seco',0.88,1]]},
-  pasto_seco:{n:'Pasto seco ou caatinga', q:0, solto:true, itens:[['Capim seco no pasto',0.85,1]]}
+  capim_verde:{n:'Capim verde (tempo de chuva)', solto:true, mix:[['capim_verde',1]]},
+  feno:{n:'Feno ou capim seco', mix:[['capim_seco',1]]},
+  pasto_seco:{n:'Pasto seco ou caatinga', solto:true, mix:[['pasto_seco',1]]}
 };
-// Ração (concentrado). ef = quanto rende comparado a uma ração completa
+// ração: partes do peso da ração
 const CONC = {
-  racao:{n:'Ração comercial', ef:1, itens:[['Ração',1]]},
-  milho_soja:{n:'Milho moído com farelo de soja (3 por 1)', ef:1, itens:[['Milho moído',0.75],['Farelo de soja',0.25]]},
-  milho_torta:{n:'Milho com torta de algodão (2 por 1)', ef:0.9, itens:[['Milho moído',0.65],['Torta de algodão',0.35]]},
-  farelo_trigo:{n:'Farelo de trigo', ef:0.7, itens:[['Farelo de trigo',1]]},
-  milho:{n:'Só milho moído', ef:0.6, itens:[['Milho moído',1]]},
-  nenhuma:{n:'Não dou ração', ef:0, itens:[]}
+  racao:{n:'Ração comercial', mix:[['racao',1]]},
+  milho_soja:{n:'Milho moído com farelo de soja (3 por 1)', mix:[['milho',0.75],['soja',0.25]]},
+  milho_torta:{n:'Milho com farelo ou torta de algodão (2 por 1)', mix:[['milho',0.67],['algodao',0.33]]},
+  farelo_trigo:{n:'Farelo de trigo', mix:[['trigo',1]]},
+  milho:{n:'Só milho moído', mix:[['milho',1]]},
+  nenhuma:{n:'Não dou ração', mix:[]}
 };
-const CONC_EQ = {racao:{n:'Ração para cavalos', ef:1, itens:[['Ração para cavalos',1]]}, milho:{n:'Milho em grão', ef:0.8, itens:[['Milho em grão',1]]}, nenhuma:{n:'Não dou ração', ef:0, itens:[]}};
+const CONC_EQ = {racao:{n:'Ração comercial para cavalos', mix:[['racao',1]]}, milho:{n:'Milho', mix:[['milho',1]]}, nenhuma:{n:'Não dou ração', mix:[]}};
+// porcos: energia digestível (Mcal/kg) e fator de desempenho da dieta (1 = ração balanceada)
 const RAC_SUI = {
-  balanceada:{n:'Ração balanceada para porcos', conv:2.8},
-  milho_conc:{n:'Milho com concentrado para porcos', conv:3.1},
-  milho_restos:{n:'Milho, restos de comida e lavagem', conv:4.5, cap:0.45},
-  milho:{n:'Só milho', conv:5, cap:0.35}
+  balanceada:{n:'Ração balanceada para porcos', ed:3.35, f:1},
+  milho_conc:{n:'Milho com concentrado para porcos', ed:3.35, f:0.95},
+  milho_restos:{n:'Milho, restos de comida e lavagem', ed:3.0, f:0.6},
+  milho:{n:'Só milho', ed:3.4, f:0.45}
 };
 const RAC_AVE = {
-  racao:{n:'Ração de galinha (postura ou frango)', f:1, conv:2.8},
-  milho_conc:{n:'Milho com concentrado para aves', f:0.85, conv:3.2},
-  milho_solta:{n:'Milho e ciscando solta', f:0.55, conv:4.5},
-  restos:{n:'Restos de comida e milho', f:0.45, conv:5}
+  racao:{n:'Ração de galinha (postura ou frango)', f:1},
+  milho_conc:{n:'Milho com concentrado para aves', f:0.9},
+  milho_solta:{n:'Milho e ciscando solta', f:0.6},
+  restos:{n:'Restos de comida e milho', f:0.45}
 };
 const RAC_PEIXE = {
-  r32:{n:'Ração para peixe com 32% de proteína', conv:1.5, f:1},
-  r28:{n:'Ração para peixe com 28% de proteína', conv:1.8, f:0.85},
-  farelo:{n:'Farelo, milho e restos', conv:3, f:0.5}
+  r32:{n:'Ração extrusada para peixe (32% a 45% de proteína)', f:1},
+  r28:{n:'Ração para peixe com 28% de proteína', f:0.8},
+  farelo:{n:'Farelo, milho e restos', f:0.4}
 };
 const FASES = {
   leite:[['lactacao','Dando leite'],['seca','Seca, esperando parir'],['novilha','Novilha ou bezerra crescendo'],['engorda','Garrote na engorda'],['manut','Touro ou boi de serviço']],
@@ -1316,20 +1345,22 @@ const FASES = {
   equinos:[['descanso','Descanso'],['leve','Trabalho leve'],['pesado','Trabalho pesado']]
 };
 const rv = (mapa, raca, pad) => { const r = String(raca||'').toLowerCase(); const k = Object.keys(mapa).find(x => r && r.startsWith(x.toLowerCase().slice(0,5))); return k ? mapa[k] : pad; };
+// potencial genético médio por raça (limite superior do cálculo; estimativa)
 const LEITE_POT = {Holandesa:25,'Pardo-suíço':18,Jersey:16,Girolando:15,'Gir leiteiro':10,Guzerá:7,Sindi:7};
 const CABRA_POT = {Saanen:3,'Parda alpina':2.8,'Anglo-nubiana':1.8};
-const GANHO_BOV = {Nelore:1,Brahman:1.1,Tabapuã:1,Guzerá:0.9,Sindi:0.8,'Pé-duro':0.6,Girolando:0.8,Holandesa:0.9};
+const GANHO_BOV = {Nelore:1.2,Brahman:1.3,Tabapuã:1.2,Guzerá:1.1,Sindi:0.9,'Pé-duro':0.7,Girolando:1,Holandesa:1.1};
 const GANHO_PEQ = {Boer:0.25,Dorper:0.28,'Santa Inês':0.22,'Anglo-nubiana':0.18,Somalis:0.15,'Morada Nova':0.15};
 const GANHO_SUI = {Landrace:0.9,'Large White':0.9,Duroc:0.9,Moura:0.7,Piau:0.6};
-const POSTURA = {'Embrapa 051':0.65,'Pescoço pelado':0.45,Caipira:0.4,'Índio gigante':0.35,Garnisé:0.35,Codorna:0.8,"Galinha-d'angola":0.3,Pato:0.4,Peru:0.3};
+const ZEBU = /nelore|guzer|sindi|tabapu|brahman|gir/i;
+const POSTURA = {'Embrapa 051':0.70,'Pescoço pelado':0.45,Caipira:0.35,'Índio gigante':0.35,Garnisé:0.3,Codorna:0.8,"Galinha-d'angola":0.3,Pato:0.4,Peru:0.3};
 const GANHO_FRANGO = {'Embrapa 051':40,'Pescoço pelado':38,'Índio gigante':40};
-const PEIXE = {Tilápia:{g:6,abate:0.8},Tambaqui:{g:9,abate:1.5},Tambacu:{g:9,abate:1.5},Curimatã:{g:3,abate:0.6},Carpa:{g:5,abate:1.2},Pescada:{g:4,abate:1},Camarão:{g:0.15,abate:0.015}};
 const PESO_BOV = {Holandesa:550,'Pardo-suíço':550,Jersey:380,Girolando:450,'Gir leiteiro':420,Guzerá:450,Sindi:350,Nelore:450,Brahman:500,Tabapuã:450,'Pé-duro':300};
 const PESO_EQ = {'Cavalo nordestino':330,'Quarto de milha':480,Mangalarga:450,Campolina:480,Jumento:180,Burro:300,Pônei:150};
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
 const meio = x => Math.round(x*2)/2;
-const fK = x => fNum(x, x%1 ? 1 : 0);
 const dec1 = x => Math.round(x*10)/10;
+const fK = x => fNum(x, x%1 ? 1 : 0);
+const interp = (pts, x) => { if (x <= pts[0][0]) return pts[0][1]; for (let i=1;i<pts.length;i++) if (x <= pts[i][0]) { const [x0,y0]=pts[i-1],[x1,y1]=pts[i]; return y0 + (y1-y0)*(x-x0)/(x1-x0); } return pts.at(-1)[1]; };
 
 function faseAuto(a){
   const k = a.ativ, s = a.modo==='animal' ? situacao(a) : {}, p = (ultPeso(a)||{}).peso;
@@ -1377,109 +1408,264 @@ function cfgAlim(a){
   const conc = concs[x.conc] ? x.conc : Object.keys(concs)[0];
   return {fase, peso, pesoInformado: x.peso > 0 || pesado > 0, vol, conc, hojeKg: x.hojeKg > 0 ? x.hojeKg : null};
 }
+// mistura -> composição média na MS
+function compMix(mix){
+  const tot = mix.reduce((s,[k,p])=>s + p*ALIM[k].ms, 0); // kg MS por kg de mistura (como dado)
+  const r = {ms:tot, ndt:0, pb:0, fdn:0};
+  if (!tot) return r;
+  mix.forEach(([k,p]) => { const f = p*ALIM[k].ms/tot; ['ndt','pb','fdn'].forEach(c => r[c] += f*ALIM[k][c]); });
+  return r;
+}
+function compVol(v){ // mix do volumoso é em partes da MS
+  const r = {ndt:0, pb:0, fdn:0};
+  v.mix.forEach(([k,p]) => ['ndt','pb','fdn'].forEach(c => r[c] += p*ALIM[k][c]));
+  return r;
+}
+// energia (NRC 2000): EM = 0,03615 × NDT; ELm e ELg pelas equações cúbicas; ELl = 0,0245 × NDT − 0,12 (NRC 1989/2001)
+const emDe = ndt => 0.04409*ndt*0.82;
+const elmDe = ndt => { const m = emDe(ndt); return 1.37*m - 0.138*m*m + 0.0105*m*m*m - 1.12; };
+const elgDe = ndt => { const m = emDe(ndt); return 1.42*m - 0.174*m*m + 0.0122*m*m*m - 1.65; };
+const ellDe = ndt => 0.0245*ndt - 0.12;
+
 function plano(a){
   const k = a.ativ; if (!FASES[k]) return null;
   const c = cfgAlim(a), n = a.modo==='lote' ? (a.qtd||0) : 1;
-  const P = {k, fase:c.fase, faseNome:(FASES[k].find(f=>f[0]===c.fase)||[])[1], peso:c.peso, pesoInformado:c.pesoInformado, n, cfg:c, itens:[], rende:[], dicas:[], racao:0, racaoNome:'', agua:0, sal:0, curto:''};
-  const PV = c.peso;
-  if (RUMINANTE(k)) planoRum(a, c, P); else if (k==='equinos') planoEq(a, c, P); else if (k==='suinos') planoSui(a, c, P); else if (k==='aves') planoAve(a, c, P); else if (k==='pesca') planoPeixe(a, c, P);
+  const P = {k, fase:c.fase, faseNome:(FASES[k].find(f=>f[0]===c.fase)||[])[1], peso:c.peso, pesoInformado:c.pesoInformado, n, cfg:c, itens:[], rende:[], dicas:[], racao:0, racaoNome:'', agua:0, sal:0, curto:'', tratos:2, fontes:[]};
+  if (k==='leite' && c.fase==='lactacao') planoVaca(a, c, P);
+  else if ((k==='leite' || k==='corte')) planoBov(a, c, P);
+  else if (k==='caprinos' || k==='ovinos') planoPeq(a, c, P);
+  else if (k==='equinos') planoEq(a, c, P);
+  else if (k==='suinos') planoSui(a, c, P);
+  else if (k==='aves') planoAve(a, c, P);
+  else if (k==='pesca') planoPeixe(a, c, P);
   P.racaoMes = P.racao * n * 30;
   return P;
 }
-function itensVol(v, msVol, P){
-  // palma: no máximo cerca de 8% do peso vivo por dia; o resto da matéria seca vai para o volumoso seco
-  let sobra = 0;
-  const its = v.itens.map(([nome, ms, sh]) => { let kg = msVol*sh/ms; if (/Palma/.test(nome)) { const max = P.peso*0.08; if (kg > max) { sobra += (kg-max)*ms; kg = max; } } return {n: nome + (v.solto ? ' (solto no pasto)' : ''), kg, ms, vol:true}; });
-  if (sobra) { const outros = its.filter(i=>!/Palma/.test(i.n)); outros.forEach(i => i.kg += sobra/outros.length/i.ms); }
-  its.forEach(i => { delete i.ms; P.itens.push(i); });
+// monta os itens a partir de kg de MS do volumoso e kg (como dado) de ração
+function montarItens(P, v, msVol, cc, kgConc){
+  v.mix.forEach(([k,p]) => P.itens.push({n: ALIM[k].n + (v.solto ? ' (solto no pasto)' : ''), kg: msVol*p/ALIM[k].ms, vol:true}));
+  if (kgConc > 0) { cc.mix.forEach(([k,p]) => P.itens.push({n:ALIM[k].n, kg:kgConc*p, conc:true})); P.racao = kgConc; P.racaoNome = cc.n; }
 }
-function itensConc(cc, kg, P){
-  if (!(kg > 0)) return;
-  cc.itens.forEach(([nome, sh]) => P.itens.push({n:nome, kg:kg*sh, conc:true}));
-  P.racao = kg; P.racaoNome = cc.n;
+// dieta de ruminante: dado kg de ração, devolve consumo e nutrientes. capMS = consumo máximo previsto (kg MS)
+function dietaRum(PV, v, cc, kg, capMS, limFdn){
+  const cv = compVol(v), cm = compMix(cc.mix);
+  const msC = kg * cm.ms;
+  let msV = Math.max(0, capMS - msC);
+  if (limFdn) msV = Math.min(msV, Math.max(0, (limFdn*PV - msC*cm.fdn/100) / (cv.fdn/100)));
+  const ms = msV + msC;
+  const ndt = (msV*cv.ndt + msC*cm.ndt) / Math.max(ms, 0.001);
+  const pb = msV*cv.pb*10 + msC*cm.pb*10; // g de proteína bruta
+  return {msV, msC, ms, ndt, pbG:pb, pbPct: pb/10/Math.max(ms,0.001)};
 }
-function planoRum(a, c, P){
-  const k = a.ativ, bov = k==='leite' || k==='corte', PV = c.peso, f = c.fase;
-  const v = VOL[c.vol], cc = CONC[c.conc], ef = cc.ef;
-  const s = a.modo==='animal' ? situacao(a) : {};
-  const cmsPct = bov ? ({lactacao:3, seca:2, novilha:2.5, engorda:2.4, vaca:2, manut:1.8}[f] || 2.2) : ({lactacao:3.8, matriz:3, engorda:3.5, manut:2.5}[f] || 3);
-  const CMS = PV * cmsPct / 100;
-  const arred = x => bov ? meio(x) : dec1(x);
-  let rec = 0, leite = 0;
-  if (f==='lactacao') {
-    const base = bov ? 3 + v.q*2.3 : 0.3 + v.q*0.3, taxa = bov ? 2.5 : 2;
-    let pot = bov ? rv(LEITE_POT, a.raca, 8) : rv(CABRA_POT, a.raca, 1);
-    const hist = a.modo==='animal' ? leiteRecente(a) : null; if (hist) pot = Math.max(pot, hist);
-    const L = x => Math.min(pot, base + x*taxa*ef);
-    if (ef > 0) rec = arred(clamp((pot - base) / (taxa*ef), 0, CMS*0.5/0.88));
-    leite = L(rec);
-    P.rende.push({k: bov ? 'Leite por dia' : 'Leite por dia', v:`${fNum(leite, bov?0:1)} litros`, s:`Sem ração: cerca de ${fNum(L(0), bov?0:1)} litros`, big:true});
-    if (c.hojeKg != null && ef > 0) P.rende.push({k:`Com o que você dá hoje (${fQ(c.hojeKg)} kg)`, v:`${fNum(L(c.hojeKg), bov?0:1)} litros`});
-    if (pot <= base) P.dicas.push('A comida de volume já dá para o leite que este animal consegue produzir. Ração a mais não aumenta o leite.');
-    P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}pode dar ${fNum(leite, bov?0:1)} L de leite/dia`;
-    if (hist) P.dicas.push(`Pelas suas anotações, este animal deu em média ${fNum(hist,1)} litros por dia nas últimas duas semanas.`);
-    if (bov) P.dicas.push('Divida a ração entre a ordenha da manhã e a da tarde.');
-  } else if (f==='engorda' || f==='novilha') {
-    const base = bov ? v.q*0.22 : v.q*0.03, taxa = bov ? 0.12 : 0.18;
-    const max = bov ? (f==='novilha' ? 0.7 : rv(GANHO_BOV, a.raca, 0.9)) : rv(GANHO_PEQ, a.raca, 0.13);
-    const G = x => Math.min(max, base + x*taxa*ef);
-    if (ef > 0) rec = arred(clamp((max - base) / (taxa*ef), 0, PV*(bov ? 1 : 1.5)/100));
-    const g = G(rec);
-    const alvo = bov ? (f==='novilha' ? (k==='leite' ? 330 : 300) : 480) : (k==='caprinos' ? 30 : 35);
-    const nomeAlvo = f==='novilha' ? 'peso de cobrir' : 'peso de venda';
-    P.rende.push({k:'Ganho de peso', v:`${fNum(g*1000)} g por dia`, s:`${fNum(g*30, bov?0:1)} kg por mês · sem ração: ${fNum(G(0)*1000)} g por dia`, big:true});
-    if (c.hojeKg != null && ef > 0) P.rende.push({k:`Com o que você dá hoje (${fQ(c.hojeKg)} kg)`, v:`${fNum(G(c.hojeKg)*1000)} g por dia`});
-    if (PV < alvo && g > 0) P.rende.push({k:`Chega a ${alvo} kg (${nomeAlvo})`, v:`em cerca de ${fNum((alvo-PV)/g/30, 1)} meses`});
-    else if (PV >= alvo) P.rende.push({k:'Peso', v:`já passou de ${alvo} kg (${nomeAlvo})`});
-    if (G(0) <= 0) P.dicas.push('Só com essa comida de volume o animal não engorda: na seca, pode até perder peso.');
-    P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}pode ganhar ${fNum(g*1000)} g/dia`;
-  } else {
-    if (f==='seca') {
-      const dp = s.parto ? diffDias(hoje(), s.parto) : 99;
-      rec = ef > 0 && dp <= 21 ? (bov ? 2 : 0.3) : 0;
-      P.rende.push({k:'Objetivo', v: dp <= 21 ? 'preparar para o parto' : 'descansar o úbere', s: dp <= 21 ? 'Nas 3 últimas semanas, um pouco de ração ajuda a vaca a começar a nova lactação com mais leite.' : 'Sem ração nesta fase. Comece a dar 3 semanas antes do parto.', big:true});
-    } else {
-      const amamenta = s.diasParida != null && s.diasParida <= 90 && !s.prenha;
-      rec = ef > 0 ? arred((v.q < 1 ? PV*(bov?0.3:0.5)/100 : 0) + (amamenta ? (bov ? 1 : 0.3) : 0)) : 0;
-      const perde = v.q < 1 && rec*ef < PV*0.002;
-      P.rende.push({k:'Peso e condição', v: perde ? 'pode perder peso' : 'mantém o peso', s: f==='manut' ? 'Reprodutor em boa condição cobre melhor.' : amamenta ? 'Amamentando: precisa de mais comida para criar bem a cria.' : 'Matriz em boa condição emprenha mais rápido.', big:true});
+function recomendar(fn, passo, max){
+  // menor quantidade de ração que chega perto do melhor resultado possível com essa dieta
+  const xs = []; for (let x = 0; x <= max + 1e-9; x += passo) xs.push(Math.round(x*100)/100);
+  const ys = xs.map(fn), best = Math.max(...ys);
+  const i = ys.findIndex(y => y >= best - fn.minGanho);
+  return xs[Math.max(0, i)];
+}
+/* vaca dando leite — NRC (2001) */
+function planoVaca(a, c, P){
+  const PV = c.peso, v = VOL[c.vol], cc = CONC[c.conc], s = a.modo==='animal' ? situacao(a) : {};
+  P.fontes.push('nrcLeite','nrcCorte','mertens','cqbal'); if (/palma/.test(c.vol)) P.fontes.push('palma');
+  let pot = rv(LEITE_POT, a.raca, 8); const hist = a.modo==='animal' ? leiteRecente(a) : null; if (hist) pot = Math.max(pot, hist);
+  const sem = s.diasParida != null ? Math.max(1, s.diasParida/7) : 20;
+  const diasPrenhe = s.prenha && a.cobertura ? diffDias(a.cobertura, hoje()) : 0;
+  const elPreg = diasPrenhe > 190 ? Math.max(0, (0.00318*diasPrenhe - 0.0352) * (0.06275*PV/45) / 0.14) : 0;
+  const elM = 0.08 * Math.pow(PV, 0.75), elLeite = 0.0929*3.7 + 0.0547*3.2 + 0.0395*4.8; // Mcal por kg de leite (3,7% gordura)
+  const sbw = 0.96*PV, mpM = 3.8*Math.pow(sbw, 0.75), mpLeite = 32/0.67; // g
+  const calc = kg => {
+    let L = pot, d;
+    for (let i=0;i<6;i++) {
+      const fcm = 0.4*L + 15*L*0.037;
+      const cap = (0.372*fcm + 0.0968*Math.pow(PV,0.75)) * (1 - Math.exp(-0.192*(sem + 3.67)));
+      d = dietaRum(PV, v, cc, kg, cap, 0.012);
+      const lE = (d.ms*ellDe(d.ndt) - elM - elPreg) / elLeite;
+      const lP = (d.pbG*0.67 - mpM) / mpLeite;
+      d.lE = lE; d.lP = lP;
+      L = clamp(Math.min(pot, lE, lP), 0, pot);
     }
+    d.L = L; return d;
+  };
+  const fn = kg => calc(kg).L; fn.minGanho = 0.6; // pelo menos 0,6 L a mais por meio quilo
+  const maxKg = meio(PV*0.018); // ração até cerca de metade da matéria seca
+  const rec = c.conc==='nenhuma' ? 0 : recomendar(fn, 0.5, maxKg);
+  const d = calc(rec), d0 = calc(0);
+  P.rende.push({k:'Leite por dia', v:`${fNum(d.L)} litros`, s: d0.L < 1 ? 'Sem ração, esta comida de volume não tem proteína e energia para leite: a vaca tira do próprio corpo e emagrece.' : `Sem ração: cerca de ${fNum(d0.L)} litros`, big:true});
+  if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L)} litros`});
+  P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
+  if (d.L < pot - 0.5) P.dicas.push(d.lP < d.lE ? 'O que segura o leite é a falta de proteína. Uma ração com mais proteína (farelo de soja ou de algodão) rende mais do que dar mais milho.' : 'O que segura o leite é a falta de energia na dieta.');
+  else P.dicas.push(`Com essa dieta a vaca chega perto do que a raça costuma produzir (cerca de ${fNum(pot)} litros). Ração a mais não aumenta o leite.`);
+  if (hist) P.dicas.push(`Pelas suas anotações, ela deu em média ${fNum(hist,1)} litros por dia nas últimas duas semanas.`);
+  if (elPreg) P.dicas.push('Ela está no fim da prenhez: o cálculo já reserva energia para o bezerro.');
+  montarItens(P, v, d.msV, cc, rec);
+  P.ms = d.ms;
+  P.agua = Math.max(0, 15.99 + 1.58*d.ms + 0.9*d.L + 0.05*40 + 1.2*22 - aguaDaPalma(P));
+  P.sal = 100;
+  P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}pode dar ${fNum(d.L)} L de leite/dia`;
+  P.tratosTxt = 'Divida em 2 tratos: metade de manhã e metade à tarde. A ração pode ser dada na hora de cada ordenha.';
+  dicasComuns(P, v, c);
+}
+function aguaDaPalma(P){ return P.itens.filter(i=>/Palma/.test(i.n)).reduce((s,i)=>s+i.kg*0.9,0); }
+function dicasComuns(P, v, c){
+  if (v && v.mix.some(([k])=>k==='palma')) P.dicas.push('Dê a palma sempre misturada com capim seco, feno ou bagaço. Palma sozinha solta o intestino. A palma tem muita água, por isso o animal bebe menos; mesmo assim, deixe água limpa à vontade.');
+  if (v && v.solto) P.dicas.push('No pasto, a quantidade de capim é o que o animal come solto por dia. Se o pasto estiver fraco, complete no cocho.');
+  if (c.conc==='milho' && P.racao) P.dicas.push('Só milho tem pouca proteína. Misture farelo de soja ou de algodão.');
+}
+/* bovinos em crescimento, engorda e manutenção — NRC (2000) */
+function planoBov(a, c, P){
+  const PV = c.peso, f = c.fase, v = VOL[c.vol], cc = CONC[c.conc], s = a.modo==='animal' ? situacao(a) : {};
+  P.fontes.push('nrcCorte','brcorte','cqbal'); if (/palma/.test(c.vol)) P.fontes.push('palma');
+  const sbw = 0.96*PV, zebu = ZEBU.test(a.raca||'') || a.ativ==='corte' && !a.raca;
+  const elmReq = 0.077*Math.pow(sbw, 0.75) * (zebu ? 0.9 : 1) * (v.solto ? 1.1 : 1);
+  const eqsbw = sbw * 478 / (a.sexo==='F' || f==='novilha' || f==='vaca' ? 435 : 478);
+  const maxG = f==='novilha' ? 0.7 : rv(GANHO_BOV, a.raca, 1);
+  const mpM = 3.8*Math.pow(sbw, 0.75);
+  const calc = kg => {
+    const cv = compVol(v), cm = compMix(cc.mix), msC = kg*cm.ms;
+    let ndt = cv.ndt, cap = 0;
+    for (let i=0;i<4;i++) { const nem = elmDe(ndt); cap = Math.pow(sbw,0.75) * (0.2435*nem - 0.0466*nem*nem - 0.1128) / nem; const msV = Math.max(0, cap - msC); ndt = (msV*cv.ndt + msC*cm.ndt)/Math.max(msV+msC, 0.001); }
+    const d = dietaRum(PV, v, cc, kg, cap, null);
+    const nem = elmDe(d.ndt), neg = elgDe(d.ndt);
+    const fm = elmReq / nem;
+    const re = (d.ms - fm) * neg;
+    let g = re > 0 ? 13.91 * Math.pow(re, 0.9116) * Math.pow(eqsbw, -0.6837) : (d.ms - fm) * nem / 5; // perda aproximada
+    // proteína (NRC 2000): ganho limitado pela proteína metabolizável (≈ 67% da PB)
+    const eff = eqsbw < 300 ? (83.4 - 0.114*eqsbw)/100 : 0.492;
+    const mpDisp = d.pbG*0.67 - mpM;
+    if (g > 0) { const npg = g*(268 - 29.4*re/g); const mpG = npg/eff; if (mpG > mpDisp) g = Math.max(0, g * Math.max(0, mpDisp)/mpG); d.limP = mpG > mpDisp; }
+    d.g = Math.min(maxG, g); return d;
+  };
+  let rec = 0, d, d0 = calc(0);
+  if (f==='engorda' || f==='novilha') {
+    const fn = kg => calc(kg).g; fn.minGanho = 0.03;
+    rec = c.conc==='nenhuma' ? 0 : recomendar(fn, 0.5, PV*0.012);
+    d = calc(rec);
+    const alvo = f==='novilha' ? (a.ativ==='leite' ? 330 : 300) : 480;
+    P.rende.push({k:'Ganho de peso', v:`${fNum(d.g*1000)} g por dia`, s:`${fNum(d.g*30)} kg por mês · sem ração: ${fNum(d0.g*1000)} g por dia`, big:true});
+    if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).g*1000)} g por dia`});
+    if (PV < alvo && d.g > 0.05) P.rende.push({k:`Chega a ${alvo} kg (${f==='novilha'?'peso de cobrir':'peso de venda'})`, v:`em cerca de ${fNum((alvo-PV)/d.g/30,1)} meses`});
+    if (d0.g <= 0.05) P.dicas.push('Só com essa comida de volume o animal não engorda e pode perder peso.');
+    if (d.limP) P.dicas.push('O que limita o ganho é a proteína. Uma ração com farelo de soja ou de algodão rende mais.');
+    P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}pode ganhar ${fNum(d.g*1000)} g/dia`;
+  } else {
+    // manter: vaca de cria, vaca seca, touro
+    const diasPrenhe = s.prenha && a.cobertura ? diffDias(a.cobertura, hoje()) : 0;
+    const preg = diasPrenhe > 190 ? Math.max(0, (0.00318*diasPrenhe - 0.0352) * (0.06275*PV/45) / 0.14) : 0;
+    const amamenta = s.diasParida != null && s.diasParida <= 120 && !s.prenha && a.ativ==='corte';
+    const extra = preg + (amamenta ? 4 * 0.75 : 0); // vaca de corte: cerca de 4 kg de leite para o bezerro
+    const pbNec = mpM/0.67 * (1 + (preg ? 0.25 : 0) + (amamenta ? 0.4 : 0));
+    const fn = kg => { const d = calc(kg); return Math.min((d.ms*elmDe(d.ndt) - elmReq) - extra, (d.pbG - pbNec)/100); };
+    let x = 0; if (c.conc!=='nenhuma') { while (fn(x) < 0 && x < PV*0.008) x += 0.5; }
+    rec = f==='seca' && diasPrenhe > 260 && c.conc!=='nenhuma' ? Math.max(x, 2) : x;
+    d = calc(rec);
+    const sobra = fn(rec);
+    if (calc(rec).pbG < pbNec) P.dicas.push('A dieta tem pouca proteína para manter este animal. Dê uma ração com farelo de soja ou de algodão, mesmo em pouca quantidade.');
+    P.rende.push({k:'Peso e condição', v: sobra < 0 ? 'pode perder peso' : 'mantém o peso', s: f==='seca' ? (diasPrenhe > 260 ? 'Nas 3 últimas semanas antes do parto, cerca de 2 kg de ração ajudam a vaca a começar a nova lactação.' : 'Fase de descanso do úbere.') : f==='manut' ? 'Reprodutor em boa condição cobre melhor.' : amamenta ? 'Amamentando: precisa de mais comida para criar bem o bezerro.' : 'Vaca em boa condição emprenha mais rápido.', big:true});
+    if (preg) P.dicas.push('Ela está no fim da prenhez: o cálculo já reserva energia para o bezerro.');
     P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}${P.rende[0].v}`;
   }
-  if (ef === 0) { rec = 0; if (f==='lactacao' || f==='engorda') P.dicas.push('Sem ração, o animal rende só o que a comida de volume sustenta.'); }
-  if (c.conc==='milho' && rec) P.dicas.push('Só milho tem pouca proteína. Misture farelo de soja ou torta de algodão para render mais.');
-  const msVol = Math.max(CMS*0.4, CMS - rec*0.88);
-  itensVol(v, msVol, P); itensConc(cc, rec, P);
-  const palma = P.itens.filter(i=>/Palma/.test(i.n)).reduce((s,i)=>s+i.kg,0);
-  P.agua = Math.max(PV*(bov?0.05:0.06), (bov ? PV*0.08 + leite*4 : PV*0.1 + leite*1.5) - palma*0.85);
-  P.sal = bov ? (f==='lactacao' ? 100 : 70) : 15;
-  if (palma) P.dicas.push('Dê a palma sempre junto com capim seco, feno ou bagaço. Palma sozinha solta o intestino.');
-  if (k==='ovinos') P.dicas.push('Use sal mineral próprio para ovelhas: o sal de gado tem cobre demais para elas.');
-  if (v.solto) P.dicas.push('No pasto, a quantidade de capim é o que o animal come solto por dia. Se o pasto estiver fraco, complete no cocho.');
+  montarItens(P, v, d.msV, cc, rec);
+  P.ms = d.ms; P.agua = Math.max(0, d.ms*4.5 - aguaDaPalma(P)); P.sal = a.ativ==='leite' ? 80 : 70;
+  P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
+  P.tratosTxt = 'Divida em 2 tratos: metade de manhã e metade à tarde.';
+  dicasComuns(P, v, c);
 }
+/* cabras e ovelhas — Embrapa Caprinos (AFRC, 1998) */
+const CAPR_M = [[10,159,22],[20,267,38],[30,362,51],[40,448,63],[50,530,75],[60,608,86],[70,682,96],[80,754,106],[90,824,116],[100,891,126]]; // PV, NDT g, PB g
+const CAPR_G = [[10,116,29],[20,159,29],[30,199,28],[40,245,27],[50,286,26],[60,331,25],[70,379,24]]; // por 100 g de ganho
+function planoPeq(a, c, P){
+  const PV = c.peso, f = c.fase, v = VOL[c.vol], cc = CONC[c.conc], k = a.ativ;
+  P.fontes.push('embrapaCapr','cqbal'); if (/palma/.test(c.vol)) P.fontes.push('palma');
+  const ndtM = interp(CAPR_M.map(r=>[r[0],r[1]]), PV)/1000 * (v.solto ? 1.15 : 1) * (f==='manut' ? 1.15 : 1);
+  const pbM = interp(CAPR_M.map(r=>[r[0],r[2]]), PV);
+  const ndtG = interp(CAPR_G.map(r=>[r[0],r[1]]), PV)/1000, pbG = interp(CAPR_G.map(r=>[r[0],r[2]]), PV);
+  const lact = f==='lactacao';
+  const pot = lact ? rv(CABRA_POT, a.raca, 1) : 0;
+  const maxG = rv(GANHO_PEQ, a.raca, 0.13);
+  const calc = kg => {
+    let L = pot, d;
+    for (let i=0;i<5;i++) {
+      const cap = lact ? 0.062*Math.pow(PV,0.75) + 0.305*L : (f==='engorda' ? PV*0.035 : 0.522 + 0.0135*PV);
+      d = dietaRum(PV, v, cc, kg, cap, null);
+      const ndtDisp = d.ms*d.ndt/100 - ndtM, pbDisp = d.pbG - pbM;
+      if (lact) { L = clamp(Math.min(pot, ndtDisp/0.342, pbDisp/68), 0, pot); d.lim = ndtDisp/0.342 < pbDisp/68 ? 'energia' : 'proteína'; }
+      else { d.g = Math.min(maxG, Math.max(-0.05, Math.min(ndtDisp/ndtG, pbDisp/pbG) * 0.1)); d.lim = ndtDisp/ndtG < pbDisp/pbG ? 'energia' : 'proteína'; d.sobra = Math.min(ndtDisp*1000, pbDisp); }
+    }
+    d.L = L; return d;
+  };
+  let rec = 0, d;
+  const passo = 0.1;
+  if (lact) {
+    const fn = kg => calc(kg).L; fn.minGanho = 0.08;
+    rec = c.conc==='nenhuma' ? 0 : recomendar(fn, passo, PV*0.02);
+    d = calc(rec); const d0 = calc(0);
+    P.rende.push({k:'Leite por dia', v:`${fNum(d.L,1)} litros`, s: d0.L < 0.2 ? 'Sem ração, esta comida de volume não dá para produzir leite: a cabra emagrece.' : `Sem ração: cerca de ${fNum(d0.L,1)} litros`, big:true});
+    if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L,1)} litros`});
+    P.curto = `${rec ? 'Ração ' + fK(dec1(rec)) + ' kg/dia · ' : ''}pode dar ${fNum(d.L,1)} L de leite/dia`;
+  } else if (f==='engorda') {
+    const fn = kg => calc(kg).g; fn.minGanho = 0.008;
+    rec = c.conc==='nenhuma' ? 0 : recomendar(fn, passo, PV*0.02);
+    d = calc(rec); const d0 = calc(0);
+    const alvo = k==='caprinos' ? 30 : 35;
+    P.rende.push({k:'Ganho de peso', v:`${fNum(d.g*1000)} g por dia`, s:`${fNum(d.g*30,1)} kg por mês · sem ração: ${fNum(Math.max(0,d0.g)*1000)} g por dia`, big:true});
+    if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(Math.max(0,calc(c.hojeKg).g)*1000)} g por dia`});
+    if (PV < alvo && d.g > 0.01) P.rende.push({k:`Chega a ${alvo} kg (peso de venda)`, v:`em cerca de ${fNum((alvo-PV)/d.g/30,1)} meses`});
+    P.curto = `${rec ? 'Ração ' + fK(dec1(rec)) + ' kg/dia · ' : ''}pode ganhar ${fNum(Math.max(0,d.g)*1000)} g/dia`;
+  } else {
+    let x = 0; if (c.conc!=='nenhuma') while (calc(x).sobra < 0 && x < PV*0.015) x = dec1(x + passo);
+    rec = x; d = calc(rec);
+    P.rende.push({k:'Peso e condição', v: d.sobra < 0 ? 'pode perder peso' : 'mantém o peso', s: f==='manut' ? 'Reprodutor em boa condição cobre melhor.' : 'Matriz em boa condição emprenha mais rápido e cria melhor.', big:true});
+    if (d.pbG < pbM) P.dicas.push('A dieta tem pouca proteína para manter este animal. Um pouco de ração com farelo de soja ou de algodão resolve.');
+    P.curto = `${rec ? 'Ração ' + fK(dec1(rec)) + ' kg/dia · ' : ''}${P.rende[0].v}`;
+  }
+  rec = dec1(rec);
+  if (d.lim && (lact || f==='engorda')) P.dicas.push(d.lim==='proteína' ? 'O que limita é a proteína: farelo de soja ou de algodão na ração ajuda mais do que milho.' : 'O que limita é a energia da dieta.');
+  montarItens(P, v, d.msV, cc, rec);
+  P.ms = d.ms; P.agua = Math.max(0.5, d.ms*4 + (d.L||0)*1.5 - aguaDaPalma(P)); P.sal = 15;
+  P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
+  if (k==='ovinos') { P.dicas.push('Use sal mineral próprio para ovelhas: o sal de gado tem cobre demais para elas.'); P.dicas.push('As tabelas usadas são da Embrapa para caprinos e ovinos leiteiros (sistema AFRC). Para ovelhas de corte, são uma aproximação.'); }
+  P.tratosTxt = 'Divida em 2 tratos: metade de manhã e metade à tarde.';
+  dicasComuns(P, v, c);
+}
+/* cavalos, jumentos e burros — NRC (2007) */
 function planoEq(a, c, P){
-  const PV = c.peso, f = c.fase, v = VOL_EQ[c.vol], cc = CONC_EQ[c.conc], ef = cc.ef;
-  const CMS = PV*0.02;
-  let rec = ef > 0 ? ({descanso: v.q < 1 ? PV*0.003 : 0, leve: PV*0.005, pesado: PV*0.01}[f] || 0) / Math.max(ef, 0.5) : 0;
-  rec = meio(rec);
-  const perde = (f !== 'descanso' && ef === 0) || (v.q < 1 && rec === 0);
+  const PV = c.peso, f = c.fase, v = VOL_EQ[c.vol], cc = CONC_EQ[c.conc];
+  P.fontes.push('nrcEquinos','cqbal');
+  const edReq = 0.0333*PV * ({descanso:1, leve:1.2, pesado:1.6}[f]||1);
+  const pbReq = 1.26*PV * ({descanso:1, leve:1.1, pesado:1.25}[f]||1);
+  const cv = compVol(v), cm = compMix(cc.mix);
+  const capV = PV*0.02; // volumoso: cerca de 2% do peso em MS
+  const ed = n => 4.409*n/100; // Mcal ED por kg MS (aproximação a partir do NDT)
+  let rec = 0;
+  if (c.conc!=='nenhuma') { const falta = edReq - capV*ed(cv.ndt); if (falta > 0) rec = Math.ceil(Math.min(PV*0.01, falta / (cm.ms*ed(cm.ndt)))*2)/2; }
+  const msV = capV, msC = rec*cm.ms, edTot = msV*ed(cv.ndt) + msC*ed(cm.ndt), pbTot = msV*cv.pb*10 + msC*cm.pb*10;
+  const perde = edTot < edReq*0.97;
   P.rende.push({k:'Peso e força', v: perde ? 'pode perder peso e força' : f==='descanso' ? 'mantém o peso' : 'aguenta o trabalho e mantém o peso', big:true});
+  if (pbTot < pbReq) P.dicas.push('A proteína está abaixo do recomendado: um pouco de farelo de soja ou feno de leguminosa ajuda.');
+  if (/jumento/i.test(a.raca||'')) P.dicas.push('Jumentos costumam precisar de menos comida que cavalos do mesmo peso. Se ele engordar demais, diminua a ração.');
+  P.dicas.push('Dê a ração dividida em 2 ou 3 vezes no dia. Muita ração de uma vez pode dar cólica. Palma e milho em excesso fazem mal.');
+  montarItens(P, v, msV, cc, rec);
+  P.ms = msV + msC; P.agua = P.ms*4; P.sal = 50;
   P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}${P.rende[0].v}`;
-  itensVol(v, Math.max(CMS*0.6, CMS - rec*0.88), P); itensConc(cc, rec, P);
-  P.agua = PV*0.06 * (f==='pesado' ? 1.5 : f==='leve' ? 1.2 : 1); P.sal = 50;
-  P.dicas.push('Dê a ração dividida em 2 ou 3 vezes no dia. Muita ração de uma vez pode dar cólica.');
-  P.dicas.push('Palma e milho em excesso fazem mal ao cavalo e ao jumento. O principal é capim ou feno.');
+  P.tratosTxt = 'Divida em 2 ou 3 tratos ao longo do dia. O capim ou feno pode ficar à vontade.';
 }
+/* porcos — NRC (1998) e Rostagno et al. (2017) */
 function planoSui(a, c, P){
   const PV = c.peso, f = c.fase, r = RAC_SUI[c.conc];
+  P.fontes.push('nrcSuinos','rostagno');
   let kg = 0;
   if (f==='engorda') {
-    kg = dec1(clamp(0.5 + 0.03*PV, 0.4, 3.2));
-    const max = Math.min(rv(GANHO_SUI, a.raca, 0.5), r.cap || 9);
-    const g = Math.min(max, kg / r.conv), alvo = /piau|caipira|sem raça|moura/i.test(a.raca||'') ? 90 : 100;
+    const edDia = 13162 * (1 - Math.exp(-0.0176*PV)) / 1000; // Mcal de ED por dia, à vontade
+    kg = dec1(edDia / r.ed);
+    const emDia = edDia*0.96, emM = 0.106*Math.pow(PV, 0.75);
+    const custoKg = 4.5 + 0.04*PV; // Mcal de EM por kg de ganho (aproximação)
+    const max = rv(GANHO_SUI, a.raca, 0.5);
+    const g = Math.max(0, Math.min(max, (emDia - emM)/custoKg * r.f));
+    const alvo = /piau|caipira|sem raça|moura/i.test(a.raca||'') ? 90 : 100;
     P.rende.push({k:'Ganho de peso', v:`${fNum(g*1000)} g por dia`, s:`${fNum(g*30)} kg por mês`, big:true});
-    if (PV < alvo) P.rende.push({k:`Chega a ${alvo} kg (peso de abate)`, v:`em cerca de ${fNum((alvo-PV)/g/30,1)} meses`});
-    if (r.cap) P.dicas.push('Com milho e restos o porco cresce mais devagar. Uma ração balanceada encurta a engorda em meses.');
+    if (PV < alvo && g > 0.05) P.rende.push({k:`Chega a ${alvo} kg (peso de abate)`, v:`em cerca de ${fNum((alvo-PV)/g/30,1)} meses`});
+    if (r.f < 1) P.dicas.push('Sem uma ração balanceada, falta proteína e o porco cresce mais devagar. A estimativa de ganho com milho e restos é aproximada.');
     P.curto = `${fK(kg)} kg de comida/dia · pode ganhar ${fNum(g*1000)} g/dia`;
   } else {
     kg = f==='gestacao' ? 2.2 : f==='lactacao' ? 5.5 : 2.5;
@@ -1489,20 +1675,24 @@ function planoSui(a, c, P){
   P.itens.push({n:r.n, kg, conc:true}); P.racao = kg; P.racaoNome = r.n;
   P.agua = f==='lactacao' ? 25 : kg*3; P.sal = 0;
   P.dicas.push('Abóbora, macaxeira, palma e verduras podem substituir parte do milho.');
+  P.tratosTxt = f==='lactacao' ? 'Divida em 3 tratos ao longo do dia.' : 'Divida em 2 tratos: metade de manhã e metade à tarde.';
 }
+/* aves — Rostagno et al. (2017) e Embrapa 051 */
 function planoAve(a, c, P){
   const f = c.fase, r = RAC_AVE[c.conc], cod = /codorna/i.test(a.raca||''), n = P.n;
+  P.fontes.push('rostagno'); if (/051/.test(a.raca||'')) P.fontes.push('embrapa051');
   let g = 0;
   if (f==='postura') {
-    g = cod ? 25 : c.conc==='racao' ? 110 : c.conc==='milho_conc' ? 100 : 70;
-    const tx = rv(POSTURA, a.raca, 0.4) * r.f, ovos = n * tx;
-    P.rende.push({k:'Ovos por dia', v:`${fNum(ovos)} ovos`, s:`cerca de ${fNum(ovos*30/12)} dúzias por mês · ${fNum(tx*100)}% das ${cod?'codornas':'galinhas'} botando`, big:true});
-    if (r.f < 1) P.rende.push({k:'Com ração completa', v:`${fNum(n*rv(POSTURA, a.raca, 0.4))} ovos por dia`});
+    g = cod ? 25 : c.conc==='racao' ? 110 : c.conc==='milho_conc' ? 105 : 80;
+    const tx = rv(POSTURA, a.raca, 0.35) * r.f, ovos = n * tx;
+    P.rende.push({k:'Ovos por dia', v:`${fNum(ovos)} ovos`, s:`cerca de ${fNum(ovos*30/12)} dúzias por mês · ${fNum(tx*100)}% das ${cod?'codornas':'galinhas'} botando por dia`, big:true});
+    if (r.f < 1) P.rende.push({k:'Com ração completa', v:`${fNum(n*rv(POSTURA, a.raca, 0.35))} ovos por dia`});
     P.dicas.push('Deixe casca de ovo moída ou calcário à vontade: a galinha precisa de cálcio para a casca.');
+    if (!/051|codorna/i.test(a.raca||'')) P.dicas.push('A postura da galinha caipira comum varia muito. O número é uma estimativa; anote os ovos por algumas semanas para conferir.');
     P.curto = `${fNum(g*n/1000,1)} kg de comida/dia · pode dar ${fNum(ovos)} ovos/dia`;
   } else if (f==='corte') {
     g = Math.round(clamp(30 + 60*c.peso, 20, 160));
-    const ganho = Math.min(rv(GANHO_FRANGO, a.raca, 25), g / r.conv);
+    const ganho = rv(GANHO_FRANGO, a.raca, 25) * r.f;
     P.rende.push({k:'Ganho de peso', v:`${fNum(ganho)} g por dia por frango`, s: c.peso < 2.5 ? `chega a 2,5 kg em cerca de ${fNum((2.5-c.peso)*1000/ganho)} dias` : 'já está no peso de abate', big:true});
     P.curto = `${fNum(g*n/1000,1)} kg de comida/dia · ganho de ${fNum(ganho)} g/dia por ave`;
   } else {
@@ -1512,51 +1702,72 @@ function planoAve(a, c, P){
     P.curto = `${fNum(g*n/1000,1)} kg de ração inicial/dia`;
   }
   const kgAve = g/1000;
-  P.itens.push({n: f==='pintos' ? 'Ração inicial' : r.n, kg:kgAve, conc:true, g}); P.racao = kgAve; P.racaoNome = f==='pintos' ? 'Ração inicial' : r.n;
-  P.agua = kgAve*2.2; P.sal = 0;
+  P.itens.push({n: f==='pintos' ? 'Ração inicial' : r.n, kg:kgAve, conc:true}); P.racao = kgAve; P.racaoNome = f==='pintos' ? 'Ração inicial' : r.n;
+  P.agua = kgAve*2; P.sal = 0;
+  P.tratosTxt = f==='pintos' ? 'Ração e água sempre à vontade nos comedouros.' : 'Divida em 2 tratos: de manhã cedo e no fim da tarde.';
 }
+/* peixes — Embrapa Pesca e Aquicultura (tilápia) */
+const TIL_PESO = [[1,1],[2,5],[3,10],[4,18],[7,55],[10,130],[15,305],[29,1045]]; // semana, g
+const TIL_TAXA = [[1,15],[5,11.7],[10,9.7],[18,9],[55,6.5],[130,5],[305,3.3],[1045,1.4]]; // g, % da biomassa
 function planoPeixe(a, c, P){
-  const r = RAC_PEIXE[c.conc], pk = c.peso, gr = pk*1000, sp = rv(PEIXE, a.raca, {g:5, abate:0.8});
-  const taxa = gr < 30 ? 0.06 : gr < 100 ? 0.04 : gr < 300 ? 0.03 : gr < 600 ? 0.02 : 0.015;
-  const kg = pk*taxa, ganho = Math.min(sp.g*r.f, kg*1000/r.conv), tratos = gr < 50 ? 4 : gr < 300 ? 3 : 2;
-  P.itens.push({n:r.n, kg, conc:true, g:kg*1000}); P.racao = kg; P.racaoNome = r.n;
-  P.rende.push({k:'Ganho de peso', v:`${fNum(ganho,1)} g por dia por peixe`, s: pk < sp.abate ? `chega a ${fQ(sp.abate)} kg em cerca de ${fNum((sp.abate-pk)*1000/ganho/30,1)} meses` : 'já está no peso de despesca', big:true});
-  P.rende.push({k:'Peixe no tanque hoje', v:`${fNum(pk*P.n)} kg`, s:`${fNum(P.n)} peixes de ${fNum(gr)} g`});
-  P.dicas.push(`Dê a ração em ${tratos} vezes por dia, só o que eles comem em 10 minutos.`);
+  const r = RAC_PEIXE[c.conc], gr = c.peso*1000, n = P.n;
+  P.fontes.push('tilapia');
+  const taxa = interp(TIL_TAXA, gr)/100;
+  const kgPeixe = c.peso*taxa;
+  const sem = interp(TIL_PESO.map(([s,g])=>[g,s]), gr);
+  const ganho = (interp(TIL_PESO, sem + 1) - gr) / 7 * r.f;
+  const tratos = gr < 18 ? 6 : gr < 55 ? 5 : 4;
+  const abate = /tambaqui|tambacu/i.test(a.raca||'') ? 1.5 : 0.8;
+  P.itens.push({n:r.n, kg:kgPeixe, conc:true}); P.racao = kgPeixe; P.racaoNome = r.n;
+  P.rende.push({k:'Ganho de peso', v:`${fNum(ganho,1)} g por dia por peixe`, s: c.peso < abate ? `chega a ${fQ(abate)} kg em cerca de ${fNum((abate - c.peso)*1000/Math.max(ganho,0.1)/30,1)} meses` : 'já está no peso de despesca', big:true});
+  P.rende.push({k:'Peixe no tanque hoje', v:`${fNum(c.peso*n)} kg`, s:`${fNum(n)} peixes de ${fNum(gr)} g`});
+  P.dicas.push(`Ração por dia: ${fNum(taxa*100,1)}% do peso dos peixes, como na tabela da Embrapa.`);
+  if (!/til/i.test(a.raca||'') && a.raca) P.dicas.push('A tabela da Embrapa usada aqui é da tilápia. Para outros peixes, use como referência e ajuste pelo que eles comem.');
+  if (r.f < 1) P.dicas.push('Com ração mais fraca ou farelo, o peixe cresce mais devagar. A estimativa de ganho é aproximada.');
   P.dicas.push('Em dia frio, nublado ou com água verde demais, diminua a ração. Pese alguns peixes a cada 15 dias para ajustar.');
-  P.curto = `${fNum(kg*P.n,1)} kg de ração/dia para o tanque · ${fNum(ganho,1)} g/dia por peixe`;
+  P.curto = `${fNum(kgPeixe*n,1)} kg de ração/dia para o tanque · ${fNum(ganho,1)} g/dia por peixe`;
+  P.tratos = tratos; P.tratosTxt = `Divida em ${tratos} tratos ao longo do dia, só o que eles comem em cerca de 10 minutos.`;
   P.agua = 0; P.sal = 0;
 }
 const fKg = kg => kg < 1 ? `${fNum(kg*1000)} g` : `${fNum(kg, kg < 10 ? 1 : 0)} kg`;
 function blocoAlim(a){
   const P = plano(a); if (!P) return '';
   const lote = P.n > 1 || a.modo==='lote';
-  const linha = i => `<tr><td style="white-space:normal">${esc(i.n)}</td><td class="n">${fKg(i.kg)}</td>${lote?`<td class="n">${fKg(i.kg*P.n)}</td>`:''}</tr>`;
+  const t = P.tratos || 2;
+  const linha = i => `<tr><td style="white-space:normal">${esc(i.n)}</td><td class="n">${fKg(i.kg)}</td>${lote?`<td class="n">${fKg(i.kg*P.n)}</td>`:''}<td class="n muted">${fKg(i.kg*(lote?P.n:1)/t)}</td></tr>`;
   return `<section class="section alim">
     <div class="section-h"><h2 style="font-size:18px">Alimentação e rendimento</h2>${podeFalar()?`<button class="btn sm ouvir" data-alim="ouvir">${ICONS.som} Ouvir</button>`:''}</div>
     <p class="small muted" style="margin:-4px 0 0">${esc(P.faseNome)} · ${P.k==='pesca'||P.k==='aves' ? 'peso médio ' + fKg(P.peso) : fNum(P.peso) + ' kg'}${P.pesoInformado ? '' : ' (peso estimado: pese para ficar mais certo)'}${lote ? ` · ${fNum(P.n)} ${CRIA[a.ativ].un||'animais'}` : ''}</p>
     ${P.rende.map(r => r.big ? `<div class="result"><span class="muted small">${esc(r.k)}</span><span class="big">${esc(r.v)}</span>${r.s?`<span class="small muted">${esc(r.s)}</span>`:''}</div>` : '').join('')}
     ${P.rende.filter(r=>!r.big).length ? `<div class="table-wrap"><table><tbody>${P.rende.filter(r=>!r.big).map(r=>`<tr><td style="white-space:normal">${esc(r.k)}</td><td class="n" style="white-space:normal"><b>${esc(r.v)}</b></td></tr>`).join('')}</tbody></table></div>` : ''}
     <div class="card" style="display:flex;flex-direction:column;gap:8px">
-      <b>O que dar por dia</b>
-      <div class="table-wrap"><table><thead><tr><th>Comida</th><th class="n">${lote?'Cada um':'Por dia'}</th>${lote?`<th class="n">Todos</th>`:''}</tr></thead><tbody>
+      <b>A comida do dia: tudo junto</b>
+      <p class="small" style="margin:0">${P.itens.length > 1 ? 'Estas comidas <b>não são opções para escolher uma</b>. São <b>todas juntas, no mesmo dia</b>: é a dieta completa' + (lote ? ' de cada animal' : ' do animal') + '.' : 'Esta é a comida completa do dia' + (lote ? ', para cada animal' : '') + '.'}</p>
+      <div class="table-wrap"><table><thead><tr><th>Comida</th><th class="n">${lote?'Cada um':'No dia'}</th>${lote?`<th class="n">Todos</th>`:''}<th class="n">Em cada trato</th></tr></thead><tbody>
         ${P.itens.map(linha).join('')}
-        ${P.agua ? `<tr><td>Água limpa</td><td class="n">${fNum(P.agua, P.agua < 1 ? 2 : 0)} L</td>${lote?`<td class="n">${fNum(P.agua*P.n)} L</td>`:''}</tr>` : ''}
-        ${P.sal ? `<tr><td>Sal mineral</td><td class="n">${fNum(P.sal)} g</td>${lote?`<td class="n">${fKg(P.sal*P.n/1000)}</td>`:''}</tr>` : ''}
+        ${P.agua ? `<tr><td>Água limpa (à vontade)</td><td class="n">${fNum(P.agua, P.agua < 1 ? 2 : 0)} L</td>${lote?`<td class="n">${fNum(P.agua*P.n)} L</td>`:''}<td class="n muted">—</td></tr>` : ''}
+        ${P.sal ? `<tr><td>Sal mineral (no cocho, à vontade)</td><td class="n">${fNum(P.sal)} g</td>${lote?`<td class="n">${fKg(P.sal*P.n/1000)}</td>`:''}<td class="n muted">—</td></tr>` : ''}
       </tbody></table></div>
+      ${P.tratosTxt ? `<p class="small" style="margin:0"><b>Como dar:</b> ${esc(P.tratosTxt)}${lote?' A coluna "Em cada trato" já é para o grupo todo.':''}</p>` : ''}
       ${P.racao ? `<span class="small muted">Ração por mês: <b>${fKg(P.racaoMes)}</b>${P.racaoNome ? ' de ' + esc(P.racaoNome.toLowerCase()) : ''}</span>` : ''}
     </div>
+    <p class="small muted" style="margin:0">Quer trocar uma comida por outra? Toque em <b>Mudar fase, peso ou comida</b>: o app refaz a conta da dieta inteira.</p>
     ${P.dicas.map(d=>`<div class="tip">${esc(d)}</div>`).join('')}
     <button class="btn block" data-alim="mudar">Mudar fase, peso ou comida</button>
     <div id="alimForm" hidden></div>
-    <p class="small muted" style="margin:0">Valores de referência, calculados pelo peso, pela fase e pela comida. Cada animal é diferente: observe se está gordo ou magro e ajuste com o técnico ou o veterinário.</p>
+    <details class="card small"><summary><b>De onde vêm esses números</b></summary>
+      <p style="margin:8px 0">O app calcula a energia e a proteína que o animal precisa pelo peso, pela fase e pela produção, e a energia e a proteína de cada comida. As fontes:</p>
+      <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">${[...new Set(P.fontes)].map(f=>`<li>${esc(FONTES[f])}</li>`).join('')}</ul>
+      <p style="margin:8px 0 0">O limite de produção por raça é uma estimativa média. A composição dos alimentos é a média das tabelas: o capim e a palma do seu sítio podem ser melhores ou piores. Confira com o técnico ou o veterinário.</p>
+    </details>
   </section>`;
 }
 function textoAlim(a){
   const P = plano(a); if (!P) return '';
-  const L = [`${a.nome}. ${P.faseNome}.`, 'Por dia, dar:'];
-  P.itens.forEach(i => L.push(`${i.n}: ${fKg(i.kg).replace('kg','quilos').replace(' g',' gramas')}${P.n>1?' para cada um':''}.`));
-  if (P.agua) L.push(`Água limpa: ${fNum(P.agua)} litros.`);
+  const L = [`${a.nome}. ${P.faseNome}.`, `Tudo isto junto, no mesmo dia${P.n>1?', para cada animal':''}:`];
+  P.itens.forEach(i => L.push(`${i.n}: ${fKg(i.kg).replace('kg','quilos').replace(' g',' gramas')}.`));
+  if (P.agua) L.push(`Água limpa à vontade, cerca de ${fNum(P.agua)} litros.`);
+  if (P.tratosTxt) L.push(P.tratosTxt);
   P.rende.forEach(r => L.push(`${r.k}: ${r.v}.`));
   return L.join(' ');
 }
@@ -1566,7 +1777,7 @@ function formAlim(a, box, depois){
   box.hidden = false;
   box.innerHTML = `<form class="form card" id="fAlim" novalidate>
     <div class="field"><label for="alFase">Fase</label><select id="alFase">${FASES[k].map(([v,n])=>`<option value="${v}" ${c.fase===v?'selected':''}>${esc(n)}</option>`).join('')}</select></div>
-    <div class="field"><label for="alPeso">${pesoKg ? 'Peso médio em kg' : a.modo==='lote' ? 'Peso médio em kg' : 'Peso em kg'}</label><input id="alPeso" inputmode="decimal" value="${(a.alim||{}).peso||''}" placeholder="${(ultPeso(a)||{}).peso ? 'Última pesagem: ' + fQ(ultPeso(a).peso) : 'Ex.: ' + fQ(pesoPadrao(k, c.fase, a.raca))}"><span class="hint">Deixe vazio para usar a última pesagem ou um peso médio da raça.</span></div>
+    <div class="field"><label for="alPeso">${pesoKg || a.modo==='lote' ? 'Peso médio em kg' : 'Peso em kg'}</label><input id="alPeso" inputmode="decimal" value="${(a.alim||{}).peso||''}" placeholder="${(ultPeso(a)||{}).peso ? 'Última pesagem: ' + fQ(ultPeso(a).peso) : 'Ex.: ' + fQ(pesoPadrao(k, c.fase, a.raca))}"><span class="hint">Deixe vazio para usar a última pesagem ou um peso médio da raça.</span></div>
     ${vols ? `<div class="field"><label for="alVol">Comida de volume</label><select id="alVol">${Object.entries(vols).map(([v,o])=>`<option value="${v}" ${c.vol===v?'selected':''}>${esc(o.n)}</option>`).join('')}</select></div>` : ''}
     <div class="field"><label for="alConc">${RUMINANTE(k)||k==='equinos' ? 'Ração' : 'Comida'}</label><select id="alConc">${Object.entries(concs).map(([v,o])=>`<option value="${v}" ${c.conc===v?'selected':''}>${esc(o.n)}</option>`).join('')}</select></div>
     ${RUMINANTE(k) ? `<div class="field"><label for="alHoje">Ração que você dá hoje, em kg por dia (opcional)</label><input id="alHoje" inputmode="decimal" value="${c.hojeKg||''}" placeholder="Ex.: 2"><span class="hint">Para comparar com o que o app recomenda.</span></div>` : ''}
