@@ -1769,6 +1769,7 @@ function blocoAlim(a){
         ${P.agua ? `<tr><td>Água limpa (à vontade)</td><td class="n">${fNum(P.agua, P.agua < 1 ? 2 : 0)} L</td>${lote?`<td class="n">${fNum(P.agua*P.n)} L</td>`:''}<td class="n muted">—</td></tr>` : ''}
         ${P.sal ? `<tr><td>Sal mineral (no cocho, à vontade)</td><td class="n">${fNum(P.sal)} g</td>${lote?`<td class="n">${fKg(P.sal*P.n/1000)}</td>`:''}<td class="n muted">—</td></tr>` : ''}
       </tbody></table></div>
+      ${P.ms ? `<p class="small" style="margin:0"><b>Pesando a comida sem a água:</b> ${fNum(P.ms,1)} kg por dia${lote?' por animal':''}, ou ${fNum(P.ms/P.peso*100,1)}% do peso do animal.${P.itens.some(i=>/Palma/.test(i.n)) ? ' A palma é cerca de 90% água: 10 kg de palma têm só 1 kg de comida de verdade. Por isso a quantidade parece grande.' : ''}</p>` : ''}
       ${P.tratosTxt ? `<p class="small" style="margin:0"><b>Como dar:</b> ${esc(P.tratosTxt)}${lote?' A coluna "Em cada trato" já é para o grupo todo.':''}</p>` : ''}
       ${P.racao ? `<span class="small muted">Ração por mês: <b>${fKg(P.racaoMes)}</b>${P.racaoNome ? ' de ' + esc(P.racaoNome.toLowerCase()) : ''}${precoRac(P.racaoNome) ? ` · custa <b>${fR(P.racaoMes*precoRac(P.racaoNome))}</b>` : ''}</span>` : ''}
     </div>
