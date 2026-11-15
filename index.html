@@ -355,7 +355,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.8';
+const VERSAO_APP = '3.9';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1312,8 +1312,8 @@ const VOL_EQ = {
 // ração: partes do peso da ração
 const CONC = {
   racao:{n:'Ração comercial', mix:[['racao',1]]},
-  milho_soja:{n:'Milho moído com farelo de soja (3 por 1)', mix:[['milho',0.75],['soja',0.25]]},
-  milho_torta:{n:'Milho com farelo ou torta de algodão (2 por 1)', mix:[['milho',0.67],['algodao',0.33]]},
+  milho_soja:{n:'Milho moído com farelo de soja', mix:[['milho',0.75],['soja',0.25]]},
+  milho_torta:{n:'Milho com farelo ou torta de algodão', mix:[['milho',0.67],['algodao',0.33]]},
   farelo_trigo:{n:'Farelo de trigo', mix:[['trigo',1]]},
   milho:{n:'Só milho moído', mix:[['milho',1]]},
   nenhuma:{n:'Não dou ração', mix:[]}
@@ -1484,12 +1484,15 @@ function planoVaca(a, c, P){
   const elPreg = diasPrenhe > 190 ? Math.max(0, (0.00318*diasPrenhe - 0.0352) * (0.06275*PV/45) / 0.14) : 0;
   const elM = 0.08 * Math.pow(PV, 0.75), elLeite = 0.0929*3.7 + 0.0547*3.2 + 0.0395*4.8; // Mcal por kg de leite (3,7% gordura)
   const sbw = 0.96*PV, mpM = 3.8*Math.pow(sbw, 0.75), mpLeite = 32/0.67; // g
-  const calc = kg => {
+  const calc = (kg, ccX = cc, soja = 0) => {
+    // soja = farelo de soja a mais (kg), usado para completar a proteína da ração comercial
+    const mix = soja > 0 && kg > 0 ? {n:ccX.n, mix:[...ccX.mix.map(([k,p])=>[k, p*kg/(kg+soja)]), ['soja', soja/(kg+soja)]]} : ccX;
+    const kgT = kg + (kg > 0 ? soja : 0);
     let L = pot, d;
     for (let i=0;i<6;i++) {
       const fcm = 0.4*L + 15*L*0.037;
       const cap = (0.372*fcm + 0.0968*Math.pow(PV,0.75)) * (1 - Math.exp(-0.192*(sem + 3.67)));
-      d = dietaRum(PV, v, cc, kg, cap, 0.012);
+      d = dietaRum(PV, v, mix, kgT, cap, 0.012);
       const lE = (d.ms*ellDe(d.ndt) - elM - elPreg) / elLeite;
       const lP = (d.mp - mpM) / mpLeite;
       d.lE = lE; d.lP = lP;
@@ -1497,32 +1500,61 @@ function planoVaca(a, c, P){
     }
     d.L = L; return d;
   };
+  // piso de proteína da dieta inteira (a exigência real é conferida pela proteína metabolizável do NRC 2001)
+  const pbAlvo = L => clamp(9 + 0.2*L, 11, 14);
+  const maxKg = Math.min(9, meio(PV*0.018));
+  // monta as opções: mistura caseira com proporção ajustável, ou ração comercial com farelo de soja a mais
+  const FARELO = {milho_soja:'soja', milho_torta:'algodao'};
+  let opcoes;
+  if (FARELO[c.conc]) opcoes = [0.25,0.3,0.33,0.4].map(p => ({cc:{n:cc.n, mix:[['milho',1-p],[FARELO[c.conc],p]]}, soja:0, p}));
+  else if (c.conc==='racao') opcoes = [0,0.25,0.5,0.75,1,1.25,1.5,2].map(sj => ({cc, soja:sj, p:sj}));
+  else opcoes = [{cc, soja:0, p:0}];
+  let best = null;
+  if (c.conc!=='nenhuma') for (const o of opcoes) {
+    for (let x = 0.5; x <= maxKg + 1e-9; x += 0.5) {
+      if (o.soja > x*0.5) continue; // farelo a mais no máximo metade da ração
+      const d = calc(x, o.cc, o.soja);
+      if (d.L >= pot - 0.25 && d.pbPct >= pbAlvo(pot) - 0.1) { const tot = x + o.soja; if (!best || tot < best.tot - 1e-9 || (Math.abs(tot-best.tot)<1e-9 && o.p < best.o.p)) best = {o, x, tot}; break; }
+    }
+  }
+  let rec, cc2 = cc, soja = 0, atingiu = !!best;
+  if (best) { rec = best.x; cc2 = best.o.cc; soja = best.o.soja; }
+  else if (c.conc==='nenhuma') rec = 0;
+  else {
+    // não chega na meta: escolhe a opção que dá mais leite e corta a ração onde ela deixa de compensar
+    let melhor = opcoes[0], ml = -1; for (const o of opcoes) { const L = calc(maxKg, o.cc, o.soja).L; if (L > ml + 0.1) { ml = L; melhor = o; } }
+    cc2 = melhor.cc; soja = melhor.soja;
+    const fnM = kg => calc(kg, cc2, soja).L; fnM.minGanho = 1; rec = recomendar(fnM, 0.5, maxKg);
+  }
+  // com preços: corta a ração enquanto o último meio quilo não se paga
   const pr = precoRac(cc.n), pl = precoLeiteAtual(false);
-  // com preços: cada meio quilo a mais precisa pagar o próprio custo e sobrar 15%; sem preços: pelo menos 2 litros por kg
-  const fn = kg => calc(kg).L; fn.minGanho = pr && pl ? 0.5*pr/pl*1.15 : 1;
-  const maxKg = meio(PV*0.018); // ração até cerca de metade da matéria seca
-  const rec = c.conc==='nenhuma' ? 0 : recomendar(fn, 0.5, maxKg);
-  const d = calc(rec), d0 = calc(0);
+  if (pr && pl && rec > 0) { while (rec > 0.5 && (calc(rec, cc2, soja).L - calc(rec-0.5, cc2, soja).L) * pl < 0.5*pr*1.15) rec -= 0.5; }
+  const d = calc(rec, cc2, soja), d0 = calc(0);
+  const recTot = rec + (rec > 0 ? soja : 0);
   P.rende.push({k:'Leite no dia (manhã + tarde)', v:`${fNum(d.L)} litros`, s: d0.L < 1 ? 'Sem ração, esta comida de volume não tem proteína e energia para leite: a vaca tira do próprio corpo e emagrece.' : `Sem ração: cerca de ${fNum(d0.L)} litros`, big:true});
-  if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L)} litros`});
-  if (rec && d.L) { const regra = meio(d.L/3); P.rende.push({k:'Comparando com a regra prática (1 kg de ração para cada 3 litros)', v:`a regra daria ${fK(regra)} kg; o app calculou ${fK(rec)} kg (1 kg para cada ${fNum(d.L/rec,1)} L)`});
+  if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg, cc2, 0).L)} litros`});
+  if (recTot && d.L) { const rec = recTot; const regra = meio(d.L/3); P.rende.push({k:'Comparando com a regra prática (1 kg de ração para cada 3 litros)', v:`a regra daria ${fK(regra)} kg; o app calculou ${fK(rec)} kg (1 kg para cada ${fNum(d.L/rec,1)} L)`});
     if (rec > regra + 0.75) P.dicas.push('O app pede mais ração que a regra de 1 para 3 porque a comida de volume desta dieta tem pouca proteína: a ração precisa cobrir também essa falta. Com ureia na palma, ou com silagem, a conta chega perto da regra.');
     else if (rec < regra - 0.75) P.dicas.push('O app pede menos ração que a regra de 1 para 3 porque a comida de volume já sustenta parte do leite.'); }
-  if (rec && pr && pl) {
-    const custo = rec*pr, extra = (d.L - d0.L)*pl;
+  if (recTot && pr && pl) {
+    const custo = recTot*pr, extra = (d.L - d0.L)*pl;
     P.rende.push({k:'Custo da ração', v:`${fR(custo)} por dia · ${fR(custo*30)} por mês`});
     P.rende.push({k:'Leite a mais por causa da ração', v:`${fNum(d.L - d0.L)} litros = ${fR(extra)} por dia`});
     P.rende.push({k:'Sobra da ração (leite a mais menos o custo)', v:`${fR(extra - custo)} por dia · ${fR((extra - custo)*30)} por mês`});
-  } else if (rec) P.dicas.push('Coloque o preço do kg da ração e do litro de leite em "Mudar fase, peso ou comida". Assim o app recomenda só a ração que dá lucro e mostra quanto ela custa por mês.');
-  P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
+  } else if (recTot) P.dicas.push('Coloque o preço do kg da ração e do litro de leite em "Mudar fase, peso ou comida". Assim o app recomenda só a ração que dá lucro e mostra quanto ela custa por mês.');
   if (d.L < pot - 0.5) P.dicas.push(d.lP < d.lE ? 'O que segura o leite é a falta de proteína. Uma ração com mais proteína (farelo de soja ou de algodão) rende mais do que dar mais milho.' : 'O que segura o leite é a falta de energia na dieta.');
   else P.dicas.push(`A conta foi feita para ${fNum(pot)} litros por dia${c.meta ? ' (a meta que você colocou)' : hist ? ' (a média das suas anotações)' : ' (uma média para a raça no semiárido)'}. Se a vaca dá mais ou menos que isso, mude em "Mudar fase, peso ou comida".`);
   if (elPreg) P.dicas.push('Ela está no fim da prenhez: o cálculo já reserva energia para o bezerro.');
-  montarItens(P, v, d.msV, cc, rec);
+  montarItens(P, v, d.msV, cc2, rec);
+  if (soja > 0 && rec > 0) { P.itens.push({n:'Farelo de soja (para completar a proteína)', kg:soja, conc:true}); P.racao = recTot; P.dicas.push(`A ração comercial sozinha não dá a proteína que esta vaca precisa. O app juntou ${fKg(soja)} de farelo de soja por dia.`); }
+  if (FARELO[c.conc] && rec > 0) { const pf = cc2.mix[1][1]; const pbMix = compMix(cc2.mix).pb; P.dicas.push(`Mistura da ração: ${fNum((1-pf)/pf,1)} partes de milho para 1 de farelo (${fNum(pf*100)}% de farelo), com cerca de ${fNum(pbMix)}% de proteína. Para fazer 50 kg: ${fNum(50*(1-pf),1)} kg de milho e ${fNum(50*pf,1)} kg de farelo.`); }
+  if (recTot > 5) { const bic = clamp(Math.round(d.ms*0.0075*100)/100, 0.1, 0.15); P.itens.push({n:'Bicarbonato de sódio (na ração)', kg:bic, conc:true}); P.dicas.push('Com mais de 5 kg de ração por dia, misture bicarbonato de sódio na ração para proteger o rúmen contra acidose. Aumente a ração aos poucos, nunca de uma vez.'); }
+  if (!atingiu && c.conc!=='nenhuma') P.dicas.push(`Com essa comida de volume e essa ração, a vaca não chega a ${fNum(pot)} litros sem passar do limite de ração. Melhore a comida de volume (silagem, ureia na palma) em vez de aumentar a ração.`);
+  P.rende.push({k:'Proteína da dieta inteira', v:`${fNum(d.pbPct,1)}% da matéria seca (mínimo usado para ${fNum(pot)} L: ${fNum(pbAlvo(pot))}%)`});
   P.ms = d.ms;
   P.agua = Math.max(0, 15.99 + 1.58*d.ms + 0.9*d.L + 0.05*40 + 1.2*22 - aguaDaPalma(P));
   P.sal = 100;
-  P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}pode dar ${fNum(d.L)} L de leite/dia`;
+  P.curto = `${recTot ? 'Ração ' + fK(recTot) + ' kg/dia · ' : ''}pode dar ${fNum(d.L)} L de leite/dia`;
   P.tratosTxt = 'Duas ordenhas, dois tratos: metade de manhã e metade à tarde, de preferência na hora de cada ordenha. Se ela dá mais leite de manhã, pode pôr um pouco mais de ração de manhã.';
   dicasComuns(P, v, c);
 }
