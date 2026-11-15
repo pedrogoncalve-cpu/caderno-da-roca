@@ -355,7 +355,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.7.1';
+const VERSAO_APP = '3.7.2';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1503,6 +1503,9 @@ function planoVaca(a, c, P){
   const d = calc(rec), d0 = calc(0);
   P.rende.push({k:'Leite no dia (manhã + tarde)', v:`${fNum(d.L)} litros`, s: d0.L < 1 ? 'Sem ração, esta comida de volume não tem proteína e energia para leite: a vaca tira do próprio corpo e emagrece.' : `Sem ração: cerca de ${fNum(d0.L)} litros`, big:true});
   if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L)} litros`});
+  if (rec && d.L) { const regra = meio(d.L/3); P.rende.push({k:'Comparando com a regra prática (1 kg de ração para cada 3 litros)', v:`a regra daria ${fK(regra)} kg; o app calculou ${fK(rec)} kg (1 kg para cada ${fNum(d.L/rec,1)} L)`});
+    if (rec > regra + 0.75) P.dicas.push('O app pede mais ração que a regra de 1 para 3 porque a comida de volume desta dieta tem pouca proteína: a ração precisa cobrir também essa falta. Com ureia na palma, ou com silagem, a conta chega perto da regra.');
+    else if (rec < regra - 0.75) P.dicas.push('O app pede menos ração que a regra de 1 para 3 porque a comida de volume já sustenta parte do leite.'); }
   P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
   if (d.L < pot - 0.5) P.dicas.push(d.lP < d.lE ? 'O que segura o leite é a falta de proteína. Uma ração com mais proteína (farelo de soja ou de algodão) rende mais do que dar mais milho.' : 'O que segura o leite é a falta de energia na dieta.');
   else P.dicas.push(`A conta foi feita para ${fNum(pot)} litros por dia${c.meta ? ' (a meta que você colocou)' : hist ? ' (a média das suas anotações)' : ' (uma média para a raça no semiárido)'}. Se a vaca dá mais ou menos que isso, mude em "Mudar fase, peso ou comida".`);
