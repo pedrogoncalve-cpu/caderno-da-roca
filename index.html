@@ -315,6 +315,42 @@ tfoot td{font-weight:800;background:var(--surface-2)}
   .rel{border:0;padding:0}
   .kv div,th,tfoot td{background:#f2f2f2!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* cores por produção */
+.ic.cor{background:var(--c);color:#fff}
+.prod-card:not(.add){border:0;border-top:6px solid var(--c);background:color-mix(in srgb, var(--c) 10%, var(--surface));box-shadow:0 1px 0 var(--line)}
+.prod-card:not(.add) b{color:color-mix(in srgb, var(--c) 70%, var(--fg))}
+.prod-hero{border-radius:20px;padding:16px;color:#fff;background:var(--c);display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 18px color-mix(in srgb, var(--c) 30%, transparent)}
+.prod-hero .ph-top{display:flex;align-items:center;gap:12px}
+.prod-hero .ic{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;background:rgba(255,255,255,.2);color:#fff;flex:none}
+.prod-hero .ic svg{width:30px;height:30px}
+.prod-hero h1{font-size:26px;margin:0;color:#fff}
+.prod-hero .mes{display:flex;align-items:center;justify-content:space-between;gap:8px;background:rgba(0,0,0,.15);border-radius:14px;padding:4px}
+.prod-hero .mes .iconbtn{background:transparent;border-color:transparent;color:#fff}
+.prod-hero .mes b{text-transform:capitalize}
+.prod-hero .saldo{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.prod-hero .saldo .v{font-size:30px;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.prod-hero .saldo small{display:block;font-size:13px;opacity:.9;font-weight:600}
+.prod-hero .btn{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:#fff}
+.section[style*="--c"] .btn.primary,[style*="--c"] > .alim .btn.primary{background:var(--c);border-color:var(--c)}
+.acao.principal{background:var(--c,var(--red));border-color:var(--c,var(--red))}
+.acao:not(.principal) .ic{background:color-mix(in srgb, var(--c,var(--red)) 14%, var(--surface));color:var(--c,var(--red))}
+.abas{display:flex;gap:6px;flex-wrap:wrap;padding:2px}
+.abas::-webkit-scrollbar{display:none}
+.abas button{flex:1 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:10px 14px;font-weight:800;font-size:15px;cursor:pointer;white-space:nowrap;color:var(--fg)}
+.abas button[aria-pressed="true"]{background:var(--c,var(--black));border-color:var(--c,var(--black));color:#fff}
+.abas button .n{font-size:12px;opacity:.8;margin-left:4px}
+.menu{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.menu>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer;font-weight:800;font-size:17px}
+.menu>summary::-webkit-details-marker{display:none}
+.menu>summary .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex:none}
+.menu>summary .ic svg{width:22px;height:22px}
+.menu>summary .sub{display:block;font-size:13px;font-weight:600;color:var(--muted)}
+.menu>summary::after{content:'›';margin-left:auto;font-size:26px;color:var(--muted);transition:transform .15s}
+.menu[open]>summary::after{transform:rotate(90deg)}
+.menu>.corpo{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
+.menus{display:flex;flex-direction:column;gap:10px}
+@media (prefers-reduced-motion: reduce){.menu>summary::after{transition:none}}
 </style>
 </head>
 <body>
@@ -355,7 +391,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.9.1';
+const VERSAO_APP = '4.0';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -692,7 +728,7 @@ function telaInicio(){
     <p class="muted small" style="margin:-4px 0 2px">Toque numa produção para anotar e ver quanto sobrou.</p>
     <div class="prods">
       ${ks.map(k => { const a = r.porAtiv[k], sob = a ? a.ent - a.sai : null; return `
-        <button class="prod-card" data-act="abrirProd" data-id="${k}">
+        <button class="prod-card" data-act="abrirProd" data-id="${k}" style="--c:${corProd(k)}">
           ${iconeProd(k)}
           <b>${esc(nomeProd(k))}</b>
           ${sob==null ? `<span class="sob nada">Nada anotado no mês</span>` : `<span class="sob ${sob>=0?'pos':'neg'}">${sob>=0?'Sobrou':'Faltou'} ${fR(Math.abs(sob))}</span>`}
@@ -752,7 +788,7 @@ function telaBalancos(){
         const a = r.porAtiv[k], s = a.ent - a.sai;
         const w = Math.max(4, Math.abs(s)/maxAbs*100);
         return `<button class="bar-row" data-act="detAtiv" data-id="${k}" data-p="${p}">
-          <span class="lbl">${esc(nomeProd(k))}</span>
+          <span class="lbl" style="color:${corProd(k)};font-weight:800">${esc(nomeProd(k))}</span>
           <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${s>=0?'var(--good-soft)':'var(--red-soft)'};border-right:4px solid ${s>=0?'var(--good)':'var(--bad)'}"></div><span class="bar-val" style="color:${s>=0?'var(--good)':'var(--bad)'}">${fR(s)}</span></div>
           <span class="bar-sub num">entrou ${fRc(a.ent)} · saiu ${fRc(a.sai)}</span>
         </button>`;}).join('')}</div>
@@ -769,14 +805,15 @@ function telaBalancos(){
       <div style="flex:1;min-width:0"><span class="k">Choveu ${ehAno?'no ano':'no mês'}</span><div class="v">${fNum(r.chuva)} <small>mm</small></div></div>
       <button class="btn" data-act="nova" data-tipo="chuva">${ICONS.chuva.replace('<svg','<svg width="22" height="22"')} Anotar chuva</button>
     </div>
-    <div class="card">${graficoChuva(String(y))}</div>
+    <details class="card"><summary><b>Ver a chuva de ${y} mês a mês</b></summary><div style="margin-top:8px">${graficoChuva(String(y))}</div></details>
   </section>
 
-  <section class="section">
-    <div class="section-h"><h2>Anotações ${ehAno?'do ano':'do mês'}</h2><span class="muted small">${r.rs.length}</span></div>
-    <div class="chips" role="group" aria-label="Filtrar">${filtros.map(([k,n])=>`<button class="chip" data-act="filtro" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
-    ${listaRegistros(rs.slice(0,300))}
-  </section>`;
+  <details class="menu" data-menu="anot" ${ui.menuAberto==='anot'?'open':''}><summary><span class="ic cor" style="--c:#6c615b">${ICONS.anotacao}</span><span>Anotações ${ehAno?'do ano':'do mês'}<span class="sub">${r.rs.length} anotações · toque para ver e corrigir</span></span></summary>
+    <div class="corpo">
+      <div class="chips" role="group" aria-label="Filtrar">${filtros.map(([k,n])=>`<button class="chip" data-act="filtro" data-f="${k}" aria-pressed="${f===k}">${n}</button>`).join('')}</div>
+      ${listaRegistros(rs.slice(0,300))}
+    </div>
+  </details>`;
 }
 function textoBalanco(){
   const ehAno = ui.balPer==='ano', p = ehAno ? ui.mes.slice(0,4) : ui.mes, r = resumo(p);
@@ -786,9 +823,11 @@ function textoBalanco(){
   if (r.chuva) L.push(`Choveu ${fNum(r.chuva)} milímetros.`);
   return L.join(' ');
 }
+const COR_PROD = {leite:'#2f6fb0', corte:'#b3201b', caprinos:'#7d5126', ovinos:'#6f7d2c', suinos:'#c2457a', aves:'#a86500', equinos:'#6b4f3a', pesca:'#13858a', queijo:'#8f6800', graos:'#6e6410', horta:'#2f7d32', geral:'#6c615b'};
+const corProd = k => COR_PROD[k] || (String(k).startsWith('x_') ? '#5b4b8a' : '#6c615b');
 function iconeProd(k){
   const [i,c] = ICON_ATIV[k] || (String(k).startsWith('x_') ? ['servico','ic-anotacao'] : ['anotacao','ic-anotacao']);
-  return `<span class="ic ${c}">${ICONS[i]}</span>`;
+  return `<span class="ic cor" style="--c:${corProd(k)}">${ICONS[i]}</span>`;
 }
 
 /* ---------- tela de uma produção ---------- */
@@ -838,32 +877,40 @@ function telaProducao(){
   if (colh.length) extra.push(`<div class="list">${colh.map(c=>`<div class="row" style="cursor:default"><span class="tx"><b>Colheita de ${esc(c.cultura)}</b><span>${fDataC(c.data)}</span></span><span class="amt">${fQ(c.qtd)} ${esc(c.unidade)}</span></div>`).join('')}</div>`);
   const animais = S.animais.filter(a=>a.ativ===k).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{numeric:true}));
   const guias = GUIAS.filter(g => (GUIA_DA_PROD[k] || (String(k).startsWith('x_') ? ['servicos'] : [])).includes(g.f));
+  const temAnimais = !!CRIA[k];
+  const abas = [['resumo','Resumo'], ...(temAnimais ? [['animais', CRIA[k].lote ? 'Grupos' : 'Animais', animais.length]] : []), ['anotacoes','Anotações', rs.length], ...(guias.length ? [['dicas','Dicas']] : [])];
+  let aba = ui.prodAba && abas.some(x=>x[0]===ui.prodAba) ? ui.prodAba : (temAnimais ? 'animais' : 'resumo');
+  const cor = corProd(k);
+  const painel = {
+    resumo: `${extra.length ? extra.join('') : `<div class="list"><p class="empty">Anote vendas, gastos e produção. O resumo do mês aparece aqui.</p></div>`}
+      ${rs.length ? `<button class="btn block" data-act="detAtiv" data-id="${k}" data-p="${m}">Ver o balanço completo do mês</button>` : ''}`,
+    animais: temAnimais ? `<button class="btn primary block" data-act="nova" data-tipo="animal" data-prod="${k}">+ ${CRIA[k].lote?'Cadastrar grupo':'Cadastrar animal'}</button>
+      ${animais.length ? `<div class="list">${animais.map(a=>cardAnimal(a, true)).join('')}</div>` : `<div class="list"><p class="empty">Nenhum cadastrado ainda. Depois de cadastrar, o app mostra a comida do dia e quanto o animal pode render.</p></div>`}` : '',
+    anotacoes: listaRegistros(rs.sort(ordem).slice(0, ui.verTudo ? 300 : 12)) + (rs.length > 12 && !ui.verTudo ? `<button class="btn block" data-act="verTudo">Ver todas as ${rs.length} anotações</button>` : ''),
+    dicas: `<div class="list">${guias.map(g=>`<button class="row" data-act="abrirGuia" data-id="${g.id}"><span class="tx"><b>${g.t}</b><span>${g.r}</span></span>${ICONS.next}</button>`).join('')}</div>`
+  };
   return `
   <button class="link" data-act="voltarInicio">‹ Início</button>
-  <div class="prod-h">${iconeProd(k)}<div style="min-width:0"><p class="eyebrow">Minha produção</p><h1 class="h1">${esc(nomeProd(k))}</h1></div></div>
-  <div class="monthnav">
-    <button class="iconbtn" data-act="mesAnt" aria-label="Mês anterior">${ICONS.prev}</button>
-    <b style="text-transform:capitalize;font-size:18px">${MESES[mm-1]} ${y}</b>
-    <button class="iconbtn" data-act="mesProx" aria-label="Próximo mês" ${ehAtual?'disabled':''}>${ICONS.next}</button>
-  </div>
-  <div class="stat money ${sob>=0?'pos':'neg'}">
-    <span class="k">${sob>=0?'Quanto sobrou':'Gastou mais do que recebeu'}</span>
-    <span class="v">${fR(sob)}</span>
-    <span class="s num">Recebi ${fR(ent)} · Gastei ${fR(sai)}</span>
-    <div class="btn-row" style="margin-top:8px">
+  <div class="prod-hero" style="--c:${cor}">
+    <div class="ph-top">${iconeProd(k)}<h1>${esc(nomeProd(k))}</h1></div>
+    <div class="mes">
+      <button class="iconbtn" data-act="mesAnt" aria-label="Mês anterior">${ICONS.prev}</button>
+      <b>${MESES[mm-1]} ${y}</b>
+      <button class="iconbtn" data-act="mesProx" aria-label="Próximo mês" ${ehAtual?'disabled':''}>${ICONS.next}</button>
+    </div>
+    <div class="saldo">
+      <div><small>${sob>=0?'Sobrou no mês':'Faltou no mês'}</small><span class="v">${fR(Math.abs(sob))}</span><small>Recebi ${fR(ent)} · Gastei ${fR(sai)}</small></div>
       ${podeFalar()?`<button class="btn sm ouvir" data-act="ouvirProd">${ICONS.som} Ouvir</button>`:''}
-      ${rs.length?`<button class="btn sm" data-act="detAtiv" data-id="${k}" data-p="${m}">Ver detalhes</button>`:''}
     </div>
   </div>
-  <section class="section">
-    <h2 style="font-size:19px">O que você quer anotar?</h2>
-    <div class="acoes">${acoesProd(k).map((a,i)=>`<button class="acao${i===0?' principal':''}" data-act="nova" data-tipo="${a.tipo}" data-prod="${k}" ${a.produto?`data-produto="${esc(a.produto)}"`:''}><span class="ic ic-${a.tipo==='animal'?'anotacao':a.tipo}">${ICONS[a.ic]}</span>${a.t}</button>`).join('')}</div>
+  <section class="section" style="--c:${cor}">
+    <h2 style="font-size:19px">Anotar</h2>
+    <div class="acoes">${acoesProd(k).map((a,i)=>`<button class="acao${i===0?' principal':''}" data-act="nova" data-tipo="${a.tipo}" data-prod="${k}" ${a.produto?`data-produto="${esc(a.produto)}"`:''}><span class="ic">${ICONS[a.ic]}</span>${a.t}</button>`).join('')}</div>
   </section>
-  ${extra.length?`<section class="section">${extra.join('')}</section>`:''}
-  ${CRIA[k] ? `<section class="section"><div class="section-h"><h2>Meus animais <span class="muted small">${fNum(animais.reduce((s,a)=>s+qtdAnimal(a),0))}</span></h2><button class="btn sm primary" data-act="nova" data-tipo="animal" data-prod="${k}">+ ${CRIA[k].lote?'Cadastrar grupo':'Cadastrar animal'}</button></div>
-    ${animais.length ? `<div class="list">${animais.map(a=>cardAnimal(a, true)).join('')}</div>` : `<div class="list"><p class="empty">Nenhum cadastrado ainda. Toque em <b>+ ${CRIA[k].lote?'Cadastrar grupo':'Cadastrar animal'}</b>. Depois de cadastrar, o app mostra quanto dar de comida e quanto o animal pode render.</p></div>`}</section>` : ''}
-  <section class="section"><div class="section-h"><h2>Anotações do mês</h2></div>${listaRegistros(rs.sort(ordem).slice(0,30))}</section>
-  ${guias.length ? `<section class="section"><div class="section-h"><h2>Dicas</h2></div><div class="list">${guias.map(g=>`<button class="row" data-act="abrirGuia" data-id="${g.id}"><span class="tx"><b>${g.t}</b><span>${g.r}</span></span>${ICONS.next}</button>`).join('')}</div></section>` : ''}`;
+  <section class="section" style="--c:${cor}">
+    <div class="abas" role="tablist">${abas.map(([id,n,c])=>`<button role="tab" data-act="prodAba" data-v="${id}" aria-pressed="${aba===id}">${n}${c?`<span class="n">${c}</span>`:''}</button>`).join('')}</div>
+    ${painel[aba]}
+  </section>`;
 }
 
 /* ---------- falar (ler em voz alta) ---------- */
@@ -1263,7 +1310,7 @@ function formLembrete(l){
 
 /* ---------- CRIAÇÃO ---------- */
 const qtdAnimal = a => a.modo==='lote' ? (a.qtd||0) : 1;
-function iconeAtiv(k){ const [i,c] = ICON_ATIV[k] || ['vaca','ic-cria']; return `<span class="ic ${c}">${ICONS[i]}</span>`; }
+function iconeAtiv(k){ const [i] = ICON_ATIV[k] || ['vaca']; return `<span class="ic cor" style="--c:${corProd(k)}">${ICONS[i]}</span>`; }
 /* ---------- alimentação e rendimento ----------
    Cálculo por energia e proteína, com equações publicadas (ver FONTES).
    Composição dos alimentos na matéria seca (MS): ms = fração de MS, ndt e pb em %, fdn em %. */
@@ -2008,21 +2055,20 @@ const MOV = {
 function verAnimal(id){
   const a = S.animais.find(x=>x.id===id); if (!a) return;
   const c = CRIA[a.ativ] || {};
-  let corpo = '';
+  const P = {};
   if (a.modo==='lote') {
     const movs = (a.movs||[]).slice().sort((x,y)=>x.data<y.data?1:-1);
-    corpo = `
+    P.grupo = ['Quantidade', `
     <div class="result"><span class="muted small">Quantidade atual</span><span class="big">${fNum(a.qtd||0)} ${c.un||'cabeças'}</span></div>
     <div class="btn-grid">${Object.entries(MOV).map(([k,m])=>`<button class="btn" data-mov="${k}">${m.sinal>0?'+':'−'} ${m.nome}</button>`).join('')}<button class="btn" data-mov="ajuste">Corrigir contagem</button></div>
-    <div id="movForm" hidden></div>
-    ${blocoPeso(a, true)}
-    ${movs.length ? `<section class="section"><h2 style="font-size:17px">Movimentação</h2><div class="table-wrap"><table><tbody>
+    ${movs.length ? `<details class="card small"><summary><b>Movimentação</b></summary><div class="table-wrap" style="margin-top:8px"><table><tbody>
       ${movs.slice(0,30).map(m=>`<tr><td>${fData(m.data)}</td><td>${m.tipo==='inicio'?'Cadastro':m.tipo==='ajuste'?'Contagem corrigida':MOV[m.tipo]?MOV[m.tipo].nome:m.tipo}</td><td class="n">${m.tipo==='inicio'||m.tipo==='ajuste'?fNum(m.qtd):(MOV[m.tipo].sinal>0?'+':'−')+fNum(m.qtd)}</td></tr>`).join('')}
-    </tbody></table></div></section>`:''}`;
+    </tbody></table></div></details>`:''}`];
+    P.peso = ['Peso', blocoPeso(a, true)];
   } else {
     if (temRepro(a)) {
       const s = situacao(a);
-      corpo += `
+      P.cria = ['Cria', `
       <div class="card" style="display:flex;flex-direction:column;gap:10px">
         ${s.prenha ? `<div><span class="pill good">Prenha</span></div>
           <table><tbody>
@@ -2043,24 +2089,27 @@ function verAnimal(id){
         <button class="btn" data-ev="cobertura">Coberta</button>
         <button class="btn" data-ev="parto">Pariu</button>
         ${s.prenha?`<button class="btn" data-ev="vazia">Não emprenhou</button>`:''}
-      </div>`;
+      </div>`];
     }
-    if (a.ativ==='leite' || a.ativ==='caprinos') {
+    if ((a.ativ==='leite' || a.ativ==='caprinos') && temRepro(a)) {
       const leites = S.registros.filter(r=>r.tipo==='leite' && r.animal===a.id).sort(ordem);
-      if (temRepro(a)) corpo += `<section class="section"><h2 style="font-size:17px">Leite deste animal</h2>${leites.length ? listaRegistros(leites.slice(0,8)) : `<div class="list"><p class="empty">Ao anotar leite, escolha este animal para ver a produção dele aqui.</p></div>`}</section>`;
+      P.leite = ['Leite', leites.length ? listaRegistros(leites.slice(0,10)) : `<div class="list"><p class="empty">Ao anotar leite, escolha este animal para ver a produção dele aqui.</p></div>`];
     }
-    if (a.ativ!=='leite') corpo += blocoPeso(a, false);
-    const g = gmd(a); if (g && g.ultimo!=null) corpo += calcVenda(a);
-    corpo += `<div class="btn-grid"><button class="btn" data-baixa="vendeu">Vendi</button><button class="btn" data-baixa="morreu">Morreu</button></div>`;
+    if (a.ativ!=='leite') { const g = gmd(a); P.peso = ['Peso', blocoPeso(a, false) + (g && g.ultimo!=null ? calcVenda(a) : '')]; }
   }
+  const abasA = [['comida','Comida'], ...Object.entries(P).map(([k,v])=>[k,v[0]]), ['opcoes','Opções']];
+  const abaA = abasA.some(x=>x[0]===ui.animAba) ? ui.animAba : 'comida';
+  const painelA = id => id==='comida' ? blocoAlim(a) : id==='opcoes' ? `
+      ${a.modo==='animal' ? `<div class="btn-grid"><button class="btn" data-baixa="vendeu">Vendi</button><button class="btn" data-baixa="morreu">Morreu</button></div>` : ''}
+      <button class="btn block" data-act="editAnimal">Editar cadastro</button>` : P[id][1];
   abrirFolha(a.nome, `
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <p class="muted" style="margin:-8px 0 0">${esc(ativ(a.ativ).nome)}${a.modo==='animal'?` · ${a.sexo==='F'?'fêmea':'macho'}`:' · lote'}${a.raca?' · '+esc(a.raca):''}</p>
-      ${blocoAlim(a)}
-      ${corpo}
+    <div style="display:flex;flex-direction:column;gap:14px;--c:${corProd(a.ativ)}">
+      <p class="muted" style="margin:-8px 0 0">${esc(ativ(a.ativ).nome)}${a.modo==='animal'?` · ${a.sexo==='F'?'fêmea':'macho'}`:' · grupo'}${a.raca?' · '+esc(a.raca):''}</p>
+      <div class="abas" role="tablist">${abasA.map(([id,n])=>`<button role="tab" data-aba="${id}" aria-pressed="${abaA===id}">${n}</button>`).join('')}</div>
+      ${abasA.map(([id])=>`<div data-painel="${id}" style="display:flex;flex-direction:column;gap:14px" ${id===abaA?'':'hidden'}>${painelA(id)}</div>`).join('')}
       <div id="evForm" hidden></div>
-      <button class="btn block" data-act="editAnimal">Editar cadastro</button>
     </div>`, f => {
+      $$('[data-aba]', f).forEach(bt => bt.onclick = () => { ui.animAba = bt.dataset.aba; $$('[data-aba]', f).forEach(x=>x.setAttribute('aria-pressed', x===bt)); $$('[data-painel]', f).forEach(x=>x.hidden = x.dataset.painel!==bt.dataset.aba); $('#evForm', f).hidden = true; });
       $('[data-act="editAnimal"]', f).onclick = () => formAnimal(a);
       const am = $('[data-alim="mudar"]', f); if (am) am.onclick = () => formAlim(S.animais.find(x=>x.id===a.id), $('#alimForm', f), () => verAnimal(a.id));
       const ao = $('[data-alim="ouvir"]', f); if (ao) ao.onclick = () => falar(textoAlim(S.animais.find(x=>x.id===a.id)), ao);
@@ -2613,13 +2662,20 @@ function telaMais(){
   const tam = (()=>{ try { return (localStorage.getItem(KEY)||'').length; } catch(e){ return 0; } })();
   const base = Object.keys(ATIV_BASE).filter(k=>k!=='geral');
   const sugs = SUG_SERVICOS.filter(n => !S.ativExtra.some(a=>a.nome.toLowerCase()===n.toLowerCase()));
+  const item = (id, cor, ic, tit, sub, corpo) => `<details class="menu" data-menu="${id}" ${ui.menuAberto===id?'open':''}><summary><span class="ic cor" style="--c:${cor}">${ICONS[ic]}</span><span>${tit}<span class="sub">${sub}</span></span></summary><div class="corpo">${corpo}</div></details>`;
   return `
   <button class="link" data-act="voltarInicio">‹ Início</button>
   <h1 class="h1">Mais</h1>
-
-  <section class="section">
-    <div class="section-h"><h2>Minhas produções</h2></div>
-    <div class="card form">
+  <div class="menus">
+  ${item('lemb', '#a86500', 'sino', 'Lembretes', pend.length ? `${pend.length} para fazer` : 'Vacina, vermífugo, pagamento', `
+    <button class="btn primary block" data-act="novoLemb">+ Novo lembrete</button>
+    ${pend.length ? `<div class="list">${pend.map(l=>`<div class="row" style="cursor:default"><span class="ic ic-anotacao">${ICONS.sino}</span><span class="tx"><b>${esc(l.texto)}</b><span>${fData(l.data)} · ${quando(l.data)}</span></span><button class="btn sm" data-act="lembFeito" data-id="${l.id}">Feito</button><button class="iconbtn" aria-label="Editar" data-act="lembEdit" data-id="${l.id}">${ICONS.anotacao}</button></div>`).join('')}</div>`
+      : `<p class="small muted" style="margin:0">Nenhum lembrete agora.</p>`}
+    ${feitos.length?`<p class="small muted" style="margin:0">Feitos recentemente: ${feitos.map(l=>esc(l.texto)).join(' · ')}</p>`:''}`)}
+  ${item('rel', '#b3201b', 'relatorio', 'Relatórios', 'Do mês e do ano, para imprimir ou mandar', `
+    <div class="btn-row"><button class="btn gold" data-act="abrirRel" data-p="${ui.mes}">Relatório do mês</button><button class="btn" data-act="abrirRel" data-p="${ui.mes.slice(0,4)}">Relatório do ano</button></div>`)}
+  ${item('prod', '#2f7d32', 'plantio', 'Minhas produções', 'Escolher o que aparece no Início', `
+    <div class="form">
       <div class="field"><label>O que você produz</label>
         <div class="chips wrap">${base.map(k=>`<button class="chip" data-act="togAtiv" data-k="${k}" aria-pressed="${!S.ativOcultas.includes(k)}">${ATIV_BASE[k].nome}</button>`).join('')}</div>
         <span class="hint">As marcadas aparecem no Início.</span></div>
@@ -2629,53 +2685,24 @@ function telaMais(){
       <div class="field"><label for="novaAtiv">Criar outra produção ou trabalho</label>
         <div style="display:flex;gap:8px"><input id="novaAtiv" placeholder="Ex.: Manicure" style="flex:1;min-width:0"><button class="btn primary" data-act="addAtiv">Criar</button></div>
         ${sugs.length?`<div class="chips wrap" style="margin-top:4px">${sugs.map(n=>`<button class="chip" data-act="addAtivSug" data-n="${esc(n)}">+ ${esc(n)}</button>`).join('')}</div>`:''}</div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-h"><h2>Lembretes</h2><button class="btn sm primary" data-act="novoLemb">+ Lembrete</button></div>
-    ${pend.length ? `<div class="list">${pend.map(l=>`<div class="row" style="cursor:default"><span class="ic ic-anotacao">${ICONS.sino}</span><span class="tx"><b>${esc(l.texto)}</b><span>${fData(l.data)} · ${quando(l.data)}</span></span><button class="btn sm" data-act="lembFeito" data-id="${l.id}">Feito</button><button class="iconbtn" aria-label="Editar" data-act="lembEdit" data-id="${l.id}">${ICONS.anotacao}</button></div>`).join('')}</div>`
-      : `<div class="list"><p class="empty">Nenhum lembrete. Crie para vacina, vermífugo, adubação ou pagamento.</p></div>`}
-    ${feitos.length?`<p class="small muted" style="margin:0">Feitos recentemente: ${feitos.map(l=>esc(l.texto)).join(' · ')}</p>`:''}
-  </section>
-
-  <section class="section">
-    <div class="section-h"><h2>Relatórios</h2></div>
-    <div class="btn-row"><button class="btn gold" data-act="abrirRel" data-p="${ui.mes}">Relatório do mês</button><button class="btn" data-act="abrirRel" data-p="${ui.mes.slice(0,4)}">Relatório do ano</button></div>
-  </section>
-
-  <section class="section">
-    <div class="section-h"><h2>Cópia de segurança</h2></div>
-    <div class="card" style="display:flex;flex-direction:column;gap:10px">
-      <p style="margin:0">Seus dados ficam guardados só neste celular. Se trocar de aparelho ou limpar o navegador, eles se perdem. Salve uma cópia de vez em quando e mande para o seu WhatsApp ou e-mail.</p>
-      <div class="btn-row">
-        <button class="btn gold" data-act="exportar">Salvar cópia</button>
-        <button class="btn" data-act="importar">Restaurar cópia</button>
-      </div>
-      <input type="file" id="arqImport" accept=".json,application/json" hidden>
-      <p class="small muted" style="margin:0">${S.registros.length} anotações · ${S.animais.length} cadastros na criação · ${fNum(tam/1024,1)} KB${S.ultimoBackup?` · última cópia em ${fData(S.ultimoBackup)}`:' · nenhuma cópia salva ainda'}</p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-h"><h2>Instalar no celular</h2></div>
-    <div class="card" style="display:flex;flex-direction:column;gap:10px">
-      ${instalado() ? `<p style="margin:0">O app já está instalado neste aparelho.</p>` : `
-      <button class="btn primary" data-act="instalar" ${deferredPrompt?'':'hidden'}>Instalar o Caderno da Roça</button>
-      <p style="margin:0" class="small"><b>Android (Chrome):</b> toque nos três pontinhos ⋮ e depois em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p>
-      <p style="margin:0" class="small"><b>iPhone (Safari):</b> toque em Compartilhar e depois em <b>Adicionar à Tela de Início</b>.</p>`}
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-h"><h2>Ajustes</h2></div>
-    <div class="card form">
+    </div>`)}
+  ${item('copia', '#2f6fb0', 'anotacao', 'Cópia de segurança', S.ultimoBackup ? `Última em ${fData(S.ultimoBackup)}` : 'Nenhuma cópia salva ainda', `
+    <p style="margin:0">Seus dados ficam só neste celular. Salve uma cópia de vez em quando e mande para o seu WhatsApp ou e-mail.</p>
+    <div class="btn-row"><button class="btn gold" data-act="exportar">Salvar cópia</button><button class="btn" data-act="importar">Restaurar cópia</button></div>
+    <input type="file" id="arqImport" accept=".json,application/json" hidden>
+    <p class="small muted" style="margin:0">${S.registros.length} anotações · ${S.animais.length} cadastros na criação · ${fNum(tam/1024,1)} KB</p>`)}
+  ${item('inst', '#13858a', 'mais', 'Instalar no celular', instalado() ? 'Já instalado' : 'Usar como aplicativo, sem internet', instalado() ? `<p style="margin:0">O app já está instalado neste aparelho.</p>` : `
+    <button class="btn primary" data-act="instalar" ${deferredPrompt?'':'hidden'}>Instalar o Caderno da Roça</button>
+    <p style="margin:0" class="small"><b>Android (Chrome):</b> toque nos três pontinhos ⋮ e depois em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p>
+    <p style="margin:0" class="small"><b>iPhone (Safari):</b> toque em Compartilhar e depois em <b>Adicionar à Tela de Início</b>.</p>`)}
+  ${item('ajustes', '#6c615b', 'anotacao', 'Ajustes', S.nome ? esc(S.nome) : 'Nome do sítio, apagar dados', `
+    <div class="form">
       <div class="field"><label for="cfgNome">Nome do produtor ou do sítio</label><input id="cfgNome" value="${esc(S.nome)}" placeholder="Ex.: Sítio Boa Vista"></div>
       <button class="btn" data-act="salvarNome">Salvar nome</button>
       ${S.exemplo?`<button class="btn" data-act="apagarEx">Apagar dados de exemplo</button>`:`<button class="btn" data-act="verExemplo">Carregar dados de exemplo</button>`}
       <button class="btn danger" data-act="apagarTudo">Apagar todos os dados</button>
-    </div>
-  </section>
+    </div>`)}
+  </div>
   <p class="small muted" style="margin:0">Caderno da Roça · funciona sem internet · versão ${VERSAO_APP}<br>© 2026 ${AUTOR}. Todos os direitos reservados.<br>As orientações são gerais e não substituem a assistência técnica.</p>`;
 }
 let deferredPrompt = null;
@@ -2719,6 +2746,7 @@ function abrirWhats(txt){ window.open('https://wa.me/?text=' + encodeURIComponen
 
 /* ---------- ligação dos botões ---------- */
 function ligar(v){
+  $$('details.menu', v).forEach(d => d.addEventListener('toggle', () => { if (d.open) { ui.menuAberto = d.dataset.menu; $$('details.menu', v).forEach(o => { if (o !== d) o.open = false; }); } else if (ui.menuAberto === d.dataset.menu) ui.menuAberto = null; }));
   v.onclick = e => {
     const b = e.target.closest('[data-act]'); if (!b) return;
     const act = b.dataset.act, id = b.dataset.id;
@@ -2727,7 +2755,7 @@ function ligar(v){
       case 'mesAnt': ui.mes = iso(new Date(y, m-2, 1)).slice(0,7); render(); break;
       case 'mesProx': ui.mes = iso(new Date(y, m, 1)).slice(0,7); render(); break;
       case 'balPer': ui.balPer = b.dataset.v; render(); break;
-      case 'abrirProd': ui.prod = id; irPara('producao'); break;
+      case 'abrirProd': ui.prod = id; ui.prodAba = null; ui.verTudo = false; irPara('producao'); break;
       case 'nova': {
         const t = b.dataset.tipo, k = b.dataset.prod;
         if (t==='animal') { ui.cria = k; formAnimal(); break; }
@@ -2748,9 +2776,11 @@ function ligar(v){
       case 'relCompartilhar': compartilharRelatorio(ui.relPer || ui.mes); break;
       case 'relImprimir': window.print(); break;
       case 'filtro': ui.filtro = b.dataset.f; render(); break;
+      case 'prodAba': ui.prodAba = b.dataset.v; ui.verTudo = false; render(); break;
+      case 'verTudo': ui.verTudo = true; render(); break;
       case 'editReg': { const r = S.registros.find(x=>x.id===id); if (r) formRegistro(r.tipo, r); break; }
       case 'novoAnimal': formAnimal(); break;
-      case 'verAnimal': verAnimal(id); break;
+      case 'verAnimal': ui.animAba = 'comida'; verAnimal(id); break;
       case 'criaF': ui.cria = b.dataset.f; render(); break;
       case 'guiaF': ui.guiaFiltro = b.dataset.f; render(); break;
       case 'abrirGuia': ui.guia = id; ui.tab='guias'; render(); window.scrollTo(0,0); break;
