@@ -355,7 +355,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.9';
+const VERSAO_APP = '3.9.1';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1292,8 +1292,8 @@ const ALIM = {
   soja:{n:'Farelo de soja', ms:0.90, ndt:81, pb:50, fdn:15, dg:0.65},
   algodao:{n:'Farelo ou torta de algodão', ms:0.91, ndt:65, pb:33, fdn:30, dg:0.6},
   trigo:{n:'Farelo de trigo', ms:0.90, ndt:70, pb:15, fdn:42, dg:0.75},
-  racao:{n:'Ração comercial (cerca de 20% de proteína)', ms:0.88, ndt:72, pb:22.7, fdn:20, dg:0.65},
-  ureia:{n:'Ureia (misturada na palma)', ms:1, ndt:0, pb:281, fdn:0, dg:1}
+  racao:{n:'Ração comercial', ms:0.88, ndt:72, pb:22.7, fdn:20, dg:0.65},
+  ureia:{n:'Ureia (na palma)', ms:1, ndt:0, pb:281, fdn:0, dg:1}
 };
 // comida de volume: partes da MS do volumoso
 const VOL = {
@@ -1546,7 +1546,7 @@ function planoVaca(a, c, P){
   else P.dicas.push(`A conta foi feita para ${fNum(pot)} litros por dia${c.meta ? ' (a meta que você colocou)' : hist ? ' (a média das suas anotações)' : ' (uma média para a raça no semiárido)'}. Se a vaca dá mais ou menos que isso, mude em "Mudar fase, peso ou comida".`);
   if (elPreg) P.dicas.push('Ela está no fim da prenhez: o cálculo já reserva energia para o bezerro.');
   montarItens(P, v, d.msV, cc2, rec);
-  if (soja > 0 && rec > 0) { P.itens.push({n:'Farelo de soja (para completar a proteína)', kg:soja, conc:true}); P.racao = recTot; P.dicas.push(`A ração comercial sozinha não dá a proteína que esta vaca precisa. O app juntou ${fKg(soja)} de farelo de soja por dia.`); }
+  if (soja > 0 && rec > 0) { P.itens.push({n:'Farelo de soja', kg:soja, conc:true}); P.racao = recTot; P.dicas.push(`A ração comercial sozinha não dá a proteína que esta vaca precisa. O app juntou ${fKg(soja)} de farelo de soja por dia.`); }
   if (FARELO[c.conc] && rec > 0) { const pf = cc2.mix[1][1]; const pbMix = compMix(cc2.mix).pb; P.dicas.push(`Mistura da ração: ${fNum((1-pf)/pf,1)} partes de milho para 1 de farelo (${fNum(pf*100)}% de farelo), com cerca de ${fNum(pbMix)}% de proteína. Para fazer 50 kg: ${fNum(50*(1-pf),1)} kg de milho e ${fNum(50*pf,1)} kg de farelo.`); }
   if (recTot > 5) { const bic = clamp(Math.round(d.ms*0.0075*100)/100, 0.1, 0.15); P.itens.push({n:'Bicarbonato de sódio (na ração)', kg:bic, conc:true}); P.dicas.push('Com mais de 5 kg de ração por dia, misture bicarbonato de sódio na ração para proteger o rúmen contra acidose. Aumente a ração aos poucos, nunca de uma vez.'); }
   if (!atingiu && c.conc!=='nenhuma') P.dicas.push(`Com essa comida de volume e essa ração, a vaca não chega a ${fNum(pot)} litros sem passar do limite de ração. Melhore a comida de volume (silagem, ureia na palma) em vez de aumentar a ração.`);
@@ -1787,32 +1787,38 @@ function blocoAlim(a){
   const P = plano(a); if (!P) return '';
   const lote = P.n > 1 || a.modo==='lote';
   const t = P.tratos || 2;
-  const linha = i => `<tr><td style="white-space:normal">${esc(i.n)}</td><td class="n">${fKg(i.kg)}</td>${lote?`<td class="n">${fKg(i.kg*P.n)}</td>`:''}<td class="n muted">${fKg(i.kg*(lote?P.n:1)/t)}</td></tr>`;
+  const mult = lote ? P.n : 1;
+  const big = P.rende.find(r=>r.big), outros = P.rende.filter(r=>!r.big);
+  const alerta = P.dicas.find(d => /^Ureia|bicarbonato/i.test(d));
+  const resto = P.dicas.filter(d => d !== alerta);
+  const custo = precoRac(P.racaoNome);
   return `<section class="section alim">
-    <div class="section-h"><h2 style="font-size:18px">Alimentação e rendimento</h2>${podeFalar()?`<button class="btn sm ouvir" data-alim="ouvir">${ICONS.som} Ouvir</button>`:''}</div>
-    <p class="small muted" style="margin:-4px 0 0">${esc(P.faseNome)} · ${P.k==='pesca'||P.k==='aves' ? 'peso médio ' + fKg(P.peso) : fNum(P.peso) + ' kg'}${P.pesoInformado ? '' : ' (peso estimado: pese para ficar mais certo)'}${lote ? ` · ${fNum(P.n)} ${CRIA[a.ativ].un||'animais'}` : ''}</p>
-    ${P.rende.map(r => r.big ? `<div class="result"><span class="muted small">${esc(r.k)}</span><span class="big">${esc(r.v)}</span>${r.s?`<span class="small muted">${esc(r.s)}</span>`:''}</div>` : '').join('')}
-    ${P.rende.filter(r=>!r.big).length ? `<div class="table-wrap"><table><tbody>${P.rende.filter(r=>!r.big).map(r=>`<tr><td style="white-space:normal">${esc(r.k)}</td><td class="n" style="white-space:normal"><b>${esc(r.v)}</b></td></tr>`).join('')}</tbody></table></div>` : ''}
+    <div class="section-h"><h2 style="font-size:18px">Comida e rendimento</h2>${podeFalar()?`<button class="btn sm ouvir" data-alim="ouvir">${ICONS.som} Ouvir</button>`:''}</div>
+    ${big ? `<div class="result"><span class="muted small">${esc(big.k)}</span><span class="big">${esc(big.v)}</span></div>` : ''}
     <div class="card" style="display:flex;flex-direction:column;gap:8px">
-      <b>A comida do dia: tudo junto</b>
-      <p class="small" style="margin:0">${P.itens.length > 1 ? 'Estas comidas <b>não são opções para escolher uma</b>. São <b>todas juntas, no mesmo dia</b>: é a dieta completa' + (lote ? ' de cada animal' : ' do animal') + '.' : 'Esta é a comida completa do dia' + (lote ? ', para cada animal' : '') + '.'}</p>
-      <div class="table-wrap"><table><thead><tr><th>Comida</th><th class="n">${lote?'Cada um':'No dia'}</th>${lote?`<th class="n">Todos</th>`:''}<th class="n">Em cada trato</th></tr></thead><tbody>
-        ${P.itens.map(linha).join('')}
-        ${P.agua ? `<tr><td>Água limpa (à vontade)</td><td class="n">${fNum(P.agua, P.agua < 1 ? 2 : 0)} L</td>${lote?`<td class="n">${fNum(P.agua*P.n)} L</td>`:''}<td class="n muted">—</td></tr>` : ''}
-        ${P.sal ? `<tr><td>Sal mineral (no cocho, à vontade)</td><td class="n">${fNum(P.sal)} g</td>${lote?`<td class="n">${fKg(P.sal*P.n/1000)}</td>`:''}<td class="n muted">—</td></tr>` : ''}
+      <b>Comida do dia, tudo junto${lote ? ` (${fNum(P.n)} ${CRIA[a.ativ].un||'animais'})` : ''}</b>
+      <div class="table-wrap"><table><thead><tr><th>Comida</th><th class="n">No dia</th><th class="n">Cada trato</th></tr></thead><tbody>
+        ${P.itens.map(i=>`<tr><td style="white-space:normal">${esc(i.n)}</td><td class="n"><b>${fKg(i.kg*mult)}</b></td><td class="n muted">${fKg(i.kg*mult/t)}</td></tr>`).join('')}
+        ${P.agua || P.sal ? `<tr><td colspan="3" class="muted" style="white-space:normal">${[P.agua?'Água limpa':'', P.sal?'sal mineral':''].filter(Boolean).join(' e ')} à vontade</td></tr>` : ''}
       </tbody></table></div>
-      ${P.ms ? `<p class="small" style="margin:0"><b>Pesando a comida sem a água:</b> ${fNum(P.ms,1)} kg por dia${lote?' por animal':''}, ou ${fNum(P.ms/P.peso*100,1)}% do peso do animal.${P.itens.some(i=>/Palma/.test(i.n)) ? ' A palma é cerca de 90% água: 10 kg de palma têm só 1 kg de comida de verdade. Por isso a quantidade parece grande.' : ''}</p>` : ''}
-      ${P.tratosTxt ? `<p class="small" style="margin:0"><b>Como dar:</b> ${esc(P.tratosTxt)}${lote?' A coluna "Em cada trato" já é para o grupo todo.':''}</p>` : ''}
-      ${P.racao ? `<span class="small muted">Ração por mês: <b>${fKg(P.racaoMes)}</b>${P.racaoNome ? ' de ' + esc(P.racaoNome.toLowerCase()) : ''}${precoRac(P.racaoNome) ? ` · custa <b>${fR(P.racaoMes*precoRac(P.racaoNome))}</b>` : ''}</span>` : ''}
+      <span class="small">${t} tratos por dia${P.racao ? ` · ração no mês: <b>${fKg(P.racaoMes)}</b>${custo ? ` (${fR(P.racaoMes*custo)})` : ''}` : ''}</span>
     </div>
-    <p class="small muted" style="margin:0">Quer trocar uma comida por outra? Toque em <b>Mudar fase, peso ou comida</b>: o app refaz a conta da dieta inteira.</p>
-    ${P.dicas.map(d=>`<div class="tip">${esc(d)}</div>`).join('')}
-    <button class="btn block" data-alim="mudar">Mudar fase, peso ou comida</button>
+    ${alerta ? `<div class="tip">${esc(alerta)}</div>` : ''}
+    <button class="btn block" data-alim="mudar">Mudar comida, fase ou peso</button>
     <div id="alimForm" hidden></div>
-    <details class="card small"><summary><b>De onde vêm esses números</b></summary>
-      <p style="margin:8px 0">O app calcula a energia e a proteína que o animal precisa pelo peso, pela fase e pela produção, e a energia e a proteína de cada comida. As fontes:</p>
-      <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">${[...new Set(P.fontes)].map(f=>`<li>${esc(FONTES[f])}</li>`).join('')}</ul>
-      <p style="margin:8px 0 0">O limite de produção por raça é uma estimativa média. A composição dos alimentos é a média das tabelas: o capim e a palma do seu sítio podem ser melhores ou piores. Confira com o técnico ou o veterinário.</p>
+    <details class="card small"><summary><b>Mais detalhes</b></summary>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+        <p style="margin:0">${esc(P.faseNome)} · ${P.k==='pesca'||P.k==='aves' ? 'peso médio ' + fKg(P.peso) : fNum(P.peso) + ' kg'}${P.pesoInformado ? '' : ' (peso estimado)'}${big && big.s ? `. ${esc(big.s)}` : ''}</p>
+        ${lote ? `<p style="margin:0">Para cada animal: ${P.itens.map(i=>`${esc(i.n.toLowerCase())} ${fKg(i.kg)}`).join(', ')}.</p>` : ''}
+        ${outros.map(r=>`<p style="margin:0">${esc(r.k)}: <b>${esc(r.v)}</b></p>`).join('')}
+        ${P.agua ? `<p style="margin:0">Água: cerca de ${fNum(P.agua*mult, P.agua*mult < 1 ? 2 : 0)} litros por dia${P.sal ? ` · sal mineral: cerca de ${fNum(P.sal*mult)} g` : ''}.</p>` : ''}
+        ${P.ms ? `<p style="margin:0">Sem a água das comidas: ${fNum(P.ms,1)} kg por dia${lote?' por animal':''} (${fNum(P.ms/P.peso*100,1)}% do peso).${P.itens.some(i=>/Palma/.test(i.n)) ? ' A palma é quase toda água, por isso a quantidade parece grande.' : ''}</p>` : ''}
+        ${P.tratosTxt ? `<p style="margin:0">${esc(P.tratosTxt)}</p>` : ''}
+        ${resto.map(d=>`<p style="margin:0">• ${esc(d)}</p>`).join('')}
+        <p style="margin:0"><b>Fontes:</b></p>
+        <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">${[...new Set(P.fontes)].map(f=>`<li>${esc(FONTES[f])}</li>`).join('')}</ul>
+        <p style="margin:0">São valores de referência. Confira com o técnico ou o veterinário.</p>
+      </div>
     </details>
   </section>`;
 }
@@ -1879,20 +1885,19 @@ function telaCriacao(){
   const rac = resumoRacao();
   return `
   <h1 class="h1">Criação</h1>
-  <p class="muted small" style="margin:-6px 0 0">Seus animais separados por criação, com quanto dar de comida e quanto cada um pode render. Toque num animal para ver tudo.</p>
-  ${rac.length ? `<div class="card" style="display:flex;flex-direction:column;gap:8px"><b>Ração para todos os animais</b>
+  ${rac.length ? `<div class="card" style="display:flex;flex-direction:column;gap:8px"><b>Ração de todos os animais</b>
     <div class="table-wrap"><table><thead><tr><th>Ração</th><th class="n">Por dia</th><th class="n">Por mês</th>${rac.some(([,v])=>v.preco)?'<th class="n">Custo no mês</th>':''}</tr></thead><tbody>
     ${rac.map(([n,v])=>`<tr><td style="white-space:normal">${esc(n)}</td><td class="n">${fKg(v.dia)}</td><td class="n"><b>${fKg(v.mes)}</b></td>${rac.some(([,x])=>x.preco)?`<td class="n">${v.preco?fR(v.mes*v.preco):'—'}</td>`:''}</tr>`).join('')}</tbody></table></div>
-    <span class="small muted">Use para planejar a compra. Muda quando você muda a comida ou a fase de cada animal.</span></div>` : ''}
+    </div>` : ''}
   ${grupos.map(([k,as]) => { const n = as.reduce((s,a)=>s+qtdAnimal(a),0); return `
     <section class="section">
       <div class="section-h cria-h">${iconeAtiv(k)}<h2 style="flex:1;min-width:0">${esc(ativ(k).nome)}</h2><span class="muted small">${fNum(n)} ${n===1?'animal':CRIA[k].un||'animais'} · ${statCria(k)}</span></div>
       <div class="list">${as.map(a=>cardAnimal(a, true)).join('')}</div>
-      <button class="link" data-act="abrirProd" data-id="${k}" style="align-self:flex-start">Abrir ${esc(nomeProd(k))} para cadastrar ou anotar ›</button>
+      <button class="link" data-act="abrirProd" data-id="${k}" style="align-self:flex-start">Abrir ${esc(nomeProd(k))} ›</button>
     </section>`; }).join('')}
   ${!grupos.length ? `<div class="list"><p class="empty">Nenhum animal cadastrado ainda. Para cadastrar, abra a produção (Leite, Cabras, Galinhas…) e toque em <b>Cadastrar</b>.</p></div>` : ''}
   ${semAnimal.length ? `<section class="section"><div class="section-h"><h2>Cadastrar animais</h2></div><div class="chips">${semAnimal.map(k=>`<button class="chip" data-act="abrirProd" data-id="${k}">${esc(nomeProd(k))}</button>`).join('')}</div></section>` : ''}
-  <div class="card small muted">Gestação média usada nos avisos: vaca 283 dias, égua cerca de 340, cabra e ovelha 150, porca 114. Secagem da vaca: 60 dias antes do parto. As quantidades de comida são valores de referência: confirme com o técnico ou o veterinário.</div>`;
+  <p class="small muted" style="margin:0">Toque num animal para ver a comida do dia.</p>`;
 }
 function statCria(k){
   const as = S.animais.filter(a=>a.ativ===k);
