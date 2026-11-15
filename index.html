@@ -355,7 +355,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '3.7';
+const VERSAO_APP = '3.7.1';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1394,7 +1394,8 @@ function pesoPadrao(k, fase, raca){
 }
 function leiteRecente(a){
   const lim = addDias(hoje(), -15);
-  const rs = S.registros.filter(r => r.tipo==='leite' && r.animal===a.id && r.data >= lim && r.litros);
+  // soma manhã + tarde de cada dia; ignora o dia de hoje se só uma ordenha foi anotada
+  const rs = S.registros.filter(r => r.tipo==='leite' && r.animal===a.id && r.data >= lim && r.litros && !(r.data===hoje() && (r.manha==null) !== (r.tarde==null)));
   return rs.length ? rs.reduce((s,r)=>s+r.litros,0) / rs.length : null;
 }
 const VOL_DE = k => k==='equinos' ? VOL_EQ : VOL;
@@ -1500,7 +1501,7 @@ function planoVaca(a, c, P){
   const maxKg = meio(PV*0.018); // ração até cerca de metade da matéria seca
   const rec = c.conc==='nenhuma' ? 0 : recomendar(fn, 0.5, maxKg);
   const d = calc(rec), d0 = calc(0);
-  P.rende.push({k:'Leite por dia', v:`${fNum(d.L)} litros`, s: d0.L < 1 ? 'Sem ração, esta comida de volume não tem proteína e energia para leite: a vaca tira do próprio corpo e emagrece.' : `Sem ração: cerca de ${fNum(d0.L)} litros`, big:true});
+  P.rende.push({k:'Leite no dia (manhã + tarde)', v:`${fNum(d.L)} litros`, s: d0.L < 1 ? 'Sem ração, esta comida de volume não tem proteína e energia para leite: a vaca tira do próprio corpo e emagrece.' : `Sem ração: cerca de ${fNum(d0.L)} litros`, big:true});
   if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L)} litros`});
   P.rende.push({k:'Proteína da dieta', v:`${fNum(d.pbPct,1)}% da matéria seca`});
   if (d.L < pot - 0.5) P.dicas.push(d.lP < d.lE ? 'O que segura o leite é a falta de proteína. Uma ração com mais proteína (farelo de soja ou de algodão) rende mais do que dar mais milho.' : 'O que segura o leite é a falta de energia na dieta.');
@@ -1511,7 +1512,7 @@ function planoVaca(a, c, P){
   P.agua = Math.max(0, 15.99 + 1.58*d.ms + 0.9*d.L + 0.05*40 + 1.2*22 - aguaDaPalma(P));
   P.sal = 100;
   P.curto = `${rec ? 'Ração ' + fK(rec) + ' kg/dia · ' : ''}pode dar ${fNum(d.L)} L de leite/dia`;
-  P.tratosTxt = 'Divida em 2 tratos: metade de manhã e metade à tarde. A ração pode ser dada na hora de cada ordenha.';
+  P.tratosTxt = 'Duas ordenhas, dois tratos: metade de manhã e metade à tarde, de preferência na hora de cada ordenha. Se ela dá mais leite de manhã, pode pôr um pouco mais de ração de manhã.';
   dicasComuns(P, v, c);
 }
 function aguaDaPalma(P){ return P.itens.filter(i=>/Palma/.test(i.n)).reduce((s,i)=>s+i.kg*0.9,0); }
@@ -1609,7 +1610,7 @@ function planoPeq(a, c, P){
     const fn = kg => calc(kg).L; fn.minGanho = 0.15; // pelo menos 1,5 L por kg de ração
     rec = c.conc==='nenhuma' ? 0 : recomendar(fn, passo, PV*0.02);
     d = calc(rec); const d0 = calc(0);
-    P.rende.push({k:'Leite por dia', v:`${fNum(d.L,1)} litros`, s: d0.L < 0.2 ? 'Sem ração, esta comida de volume não dá para produzir leite: a cabra emagrece.' : `Sem ração: cerca de ${fNum(d0.L,1)} litros`, big:true});
+    P.rende.push({k:'Leite no dia (todas as ordenhas)', v:`${fNum(d.L,1)} litros`, s: d0.L < 0.2 ? 'Sem ração, esta comida de volume não dá para produzir leite: a cabra emagrece.' : `Sem ração: cerca de ${fNum(d0.L,1)} litros`, big:true});
     if (c.hojeKg != null && c.conc!=='nenhuma') P.rende.push({k:`Com o que você dá hoje (${fK(c.hojeKg)} kg)`, v:`${fNum(calc(c.hojeKg).L,1)} litros`});
     P.curto = `${rec ? 'Ração ' + fK(dec1(rec)) + ' kg/dia · ' : ''}pode dar ${fNum(d.L,1)} L de leite/dia`;
   } else if (f==='engorda') {
@@ -1789,7 +1790,7 @@ function formAlim(a, box, depois){
     <div class="field"><label for="alPeso">${pesoKg || a.modo==='lote' ? 'Peso médio em kg' : 'Peso em kg'}</label><input id="alPeso" inputmode="decimal" value="${(a.alim||{}).peso||''}" placeholder="${(ultPeso(a)||{}).peso ? 'Última pesagem: ' + fQ(ultPeso(a).peso) : 'Ex.: ' + fQ(pesoPadrao(k, c.fase, a.raca))}"><span class="hint">Deixe vazio para usar a última pesagem ou um peso médio da raça.</span></div>
     ${vols ? `<div class="field"><label for="alVol">Comida de volume</label><select id="alVol">${Object.entries(vols).map(([v,o])=>`<option value="${v}" ${c.vol===v?'selected':''}>${esc(o.n)}</option>`).join('')}</select></div>` : ''}
     <div class="field"><label for="alConc">${RUMINANTE(k)||k==='equinos' ? 'Ração' : 'Comida'}</label><select id="alConc">${Object.entries(concs).map(([v,o])=>`<option value="${v}" ${c.conc===v?'selected':''}>${esc(o.n)}</option>`).join('')}</select></div>
-    ${(k==='leite' || k==='caprinos') ? `<div class="field" id="alMetaF"><label for="alMeta">Quantos litros ela dá por dia (ou quer que dê)</label><input id="alMeta" inputmode="decimal" value="${c.meta||''}" placeholder="Ex.: ${k==='leite'?'8':'1,5'}"><span class="hint">Só para quem está dando leite. Deixe vazio para usar a média das suas anotações.</span></div>` : ''}
+    ${(k==='leite' || k==='caprinos') ? `<div class="field" id="alMetaF"><label for="alMeta">Quantos litros ela dá no dia, somando manhã e tarde (ou quer que dê)</label><input id="alMeta" inputmode="decimal" value="${c.meta||''}" placeholder="Ex.: ${k==='leite'?'8':'1,5'}"><span class="hint">Só para quem está dando leite. Deixe vazio para usar a média das suas anotações.</span></div>` : ''}
     ${RUMINANTE(k) ? `<div class="field"><label for="alHoje">Ração que você dá hoje, em kg por dia (opcional)</label><input id="alHoje" inputmode="decimal" value="${c.hojeKg||''}" placeholder="Ex.: 2"><span class="hint">Para comparar com o que o app recomenda.</span></div>` : ''}
     <button class="btn primary" type="submit">Calcular</button>
   </form>`;
