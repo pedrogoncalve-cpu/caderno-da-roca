@@ -351,6 +351,8 @@ tfoot td{font-weight:800;background:var(--surface-2)}
 .menu>.corpo{padding:0 14px 14px;display:flex;flex-direction:column;gap:10px}
 .menus{display:flex;flex-direction:column;gap:10px}
 @media (prefers-reduced-motion: reduce){.menu>summary::after{transition:none}}
+.check{display:flex;gap:10px;align-items:center;font-weight:700;font-size:15px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--c,var(--red))}
 </style>
 </head>
 <body>
@@ -391,7 +393,7 @@ const AUTOR = 'Pedro Gonçalves de Oliveira Silva';
    ========================================================= */
 
 const KEY = 'caderno-da-roca-v1';
-const VERSAO_APP = '4.0';
+const VERSAO_APP = '4.1';
 
 /* ---------- atividades ---------- */
 const ATIV_BASE = {
@@ -1752,6 +1754,17 @@ function planoEq(a, c, P){
 }
 /* porcos — NRC (1998) e Rostagno et al. (2017) */
 function planoSui(a, c, P){
+  const idade = a.nasc ? diffDias(a.nasc, hoje()) : null;
+  if (idade != null && idade < 28 && !(a.alim||{}).fase) {
+    P.fontes.push('nrcSuinos','rostagno');
+    const kg = idade < 10 ? 0 : 0.03 + (idade-10)*0.008;
+    if (kg) { P.itens.push({n:'Ração pré-inicial para leitões', kg, conc:true}); P.racao = kg; P.racaoNome = 'Ração pré-inicial para leitões'; }
+    P.rende.push({k:'Leitões mamando', v:`${idade} dias de vida`, s:'Até os 10 dias, só o leite da porca. Depois, ofereça um pouco de ração pré-inicial no cocho para acostumar antes da desmama (21 a 28 dias).', big:true});
+    P.dicas.push('Leitão novo precisa de lugar quente e seco, sem vento. Água limpa sempre à vontade.');
+    P.curto = idade < 10 ? 'Mamando · só leite da porca' : `Mamando · ${fNum(kg*1000)} g de ração pré-inicial por leitão`;
+    P.agua = 0.3; P.sal = 0; P.tratosTxt = 'Ração pré-inicial à vontade em cocho pequeno, trocada todo dia.';
+    return;
+  }
   const PV = c.peso, f = c.fase, r = RAC_SUI[c.conc];
   P.fontes.push('nrcSuinos','rostagno');
   let kg = 0;
@@ -1966,6 +1979,8 @@ function cardAnimal(a, comAlim){
   let sub = esc(ativ(a.ativ).nome) + (a.raca ? ' · ' + esc(a.raca) : '');
   if (a.modo==='lote') {
     pills.push(`<span class="pill gray">${fNum(a.qtd||0)} ${CRIA[a.ativ]&&CRIA[a.ativ].un||'cabeças'}</span>`);
+    if (a.machos!=null || a.femeas!=null) pills.push(`<span class="pill gray">${a.machos||0} ♂ · ${a.femeas||0} ♀</span>`);
+    if (a.nasc) pills.push(`<span class="pill gray">${diffDias(a.nasc, hoje())} dias de vida</span>`);
     const p = ultPeso(a); if (p) pills.push(`<span class="pill gray">peso médio ${fQ(p.peso)} kg</span>`);
   } else {
     const s = situacao(a);
@@ -2089,7 +2104,10 @@ function verAnimal(id){
         <button class="btn" data-ev="cobertura">Coberta</button>
         <button class="btn" data-ev="parto">Pariu</button>
         ${s.prenha?`<button class="btn" data-ev="vazia">Não emprenhou</button>`:''}
-      </div>`];
+      </div>
+      ${(partos => partos.length ? `<div class="card" style="display:flex;flex-direction:column;gap:6px"><b>Partos anotados</b><div class="table-wrap"><table><thead><tr><th>Data</th><th class="n">Machos</th><th class="n">Fêmeas</th><th class="n">Total</th></tr></thead><tbody>
+        ${partos.map(r=>`<tr><td>${fData(r.data)}</td><td class="n">${r.machos!=null?r.machos:'—'}</td><td class="n">${r.femeas!=null?r.femeas:'—'}</td><td class="n"><b>${r.crias||1}</b>${r.mortos?` <span class="muted small">+${r.mortos} mortos</span>`:''}</td></tr>`).join('')}
+        </tbody></table></div></div>` : '')(S.registros.filter(r => r.evento==='parto' && (r.animal===a.id || (!r.animal && r.ativ===a.ativ && String(r.desc||'').startsWith(a.nome+' ')))).sort((x,y)=>x.data<y.data?1:-1))}`];
     }
     if ((a.ativ==='leite' || a.ativ==='caprinos') && temRepro(a)) {
       const leites = S.registros.filter(r=>r.tipo==='leite' && r.animal===a.id).sort(ordem);
@@ -2120,15 +2138,30 @@ function verAnimal(id){
         const tit = {cio:'Data em que viu o cio', cobertura:'Data da cobertura ou inseminação', parto:'Data do parto', vazia:'Data em que confirmou'}[ev];
         box.hidden = false;
         box.innerHTML = `<form class="form card" id="fEv"><div class="field"><label for="evData">${tit}</label><input id="evData" type="date" value="${hoje()}" max="${hoje()}"></div>
-          ${ev==='parto'?`<div class="field"><label for="evCrias">Quantas crias nasceram?</label><input id="evCrias" inputmode="numeric" value="1"></div>`:''}
+          ${ev==='parto'?`<div class="inline"><div class="field"><label for="evMachos">Machos</label><input id="evMachos" inputmode="numeric" value="${a.ativ==='suinos'?'':'0'}" placeholder="0"></div><div class="field"><label for="evFemeas">Fêmeas</label><input id="evFemeas" inputmode="numeric" value="${a.ativ==='suinos'?'':'0'}" placeholder="0"></div></div>
+          ${a.ativ==='suinos'?`<div class="field"><label for="evMortos">Nasceram mortos (opcional)</label><input id="evMortos" inputmode="numeric" placeholder="0"></div>
+          <label class="check"><input type="checkbox" id="evGrupo" checked> Cadastrar os leitões vivos como um grupo na criação</label>`:''}
+          <p class="small muted" id="evTot" style="margin:0"></p>`:''}
           <button class="btn primary" type="submit">Salvar</button></form>`;
         box.scrollIntoView({behavior:'smooth', block:'center'});
+        const tot = $('#evTot', f);
+        if (tot) { const atual = () => { const m = Math.max(0, Math.round(num($('#evMachos',f).value)||0)), fe = Math.max(0, Math.round(num($('#evFemeas',f).value)||0)); tot.textContent = m+fe ? `Total: ${m+fe} nascidos vivos` : ''; }; $('#evMachos',f).oninput = atual; $('#evFemeas',f).oninput = atual; }
         $('#fEv', f).onsubmit = e => {
           e.preventDefault();
           const d = $('#evData', f).value || hoje();
           const up = {cio:{ultCio:d}, cobertura:{cobertura:d, ultCio:d}, parto:{ultParto:d}, vazia:{cobertura:null, ultCio:d}}[ev];
           S.animais = S.animais.map(y => y.id===a.id ? {...y, ...up} : y);
-          if (ev==='parto') { const n = Math.max(1, Math.round(num(($('#evCrias',f)||{}).value)||1)); S.registros.push({id:uid(), criado:Date.now(), tipo:'anotacao', evento:'parto', crias:n, data:d, ativ:a.ativ, desc:`${a.nome} pariu (${n} cria${n>1?'s':''})`}); }
+          if (ev==='parto') {
+            const int = id => Math.max(0, Math.round(num(($('#'+id,f)||{}).value)||0));
+            const mc = int('evMachos'), fm = int('evFemeas'), mo = int('evMortos'), n = mc + fm;
+            if (!n) { toast('Coloque quantos machos e quantas fêmeas nasceram'); $('#evMachos', f).focus(); return; }
+            const nomeCria = a.ativ==='suinos' ? (n>1?'leitões':'leitão') : (n>1?'crias':'cria');
+            S.registros.push({id:uid(), criado:Date.now(), tipo:'anotacao', evento:'parto', animal:a.id, crias:n, machos:mc, femeas:fm, mortos:mo||undefined, data:d, ativ:a.ativ,
+              desc:`${a.nome} pariu ${n} ${nomeCria} (${mc} macho${mc===1?'':'s'}, ${fm} fêmea${fm===1?'':'s'})${mo?` · ${mo} ${mo===1?'nasceu morto':'nasceram mortos'}`:''}`});
+            if (a.ativ==='suinos' && ($('#evGrupo',f)||{}).checked) {
+              S.animais.push({id:uid(), ativ:'suinos', modo:'lote', nome:`Leitões de ${a.nome} (${fData(d).slice(0,5)})`, raca:a.raca||'', qtd:n, machos:mc, femeas:fm, mae:a.id, nasc:d, movs:[{data:d, tipo:'inicio', qtd:n}], pesagens:[]});
+            }
+          }
           save(); verAnimal(a.id); render(); toast('Anotado');
         };
       });
