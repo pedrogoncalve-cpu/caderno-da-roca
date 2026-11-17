@@ -156,6 +156,28 @@ footer{background:var(--black);color:#b9a98f;font-size:13px;padding:26px 0 calc(
 footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 footer a{color:#e6d9bd}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.mod{transition:none}}
+.portas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:30px}
+@media (max-width:900px){.portas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.portas{grid-template-columns:1fr}}
+.porta{background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--c);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.porta .pn{width:34px;height:34px;border-radius:10px;background:var(--c);color:#fff;font-weight:900;display:grid;place-items:center}
+.porta h3{font-size:19px;color:var(--c)}
+.porta p{color:var(--muted);font-size:15px}
+.base{margin-top:14px;background:var(--black);color:#fff;border-radius:14px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.base b{color:var(--gold);font-family:var(--display);font-size:18px}
+.base span{color:#e6d9bd;font-size:15px}
+.progs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:26px}
+@media (max-width:900px){.progs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.progs{grid-template-columns:1fr}}
+.progs div{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.progs b{font-family:var(--display);font-size:20px;color:var(--red)}
+.progs span{font-size:15px;color:var(--muted)}
+.progs small{margin-top:auto;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--gold-deep)}
+.nota{margin-top:18px;font-size:15px;color:var(--muted);background:var(--surface);border-left:4px solid var(--gold);border-radius:0 12px 12px 0;padding:12px 14px}
+.steps{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+@media (max-width:1000px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media (max-width:520px){.steps{grid-template-columns:1fr!important}}
+.plan a{color:var(--red);font-weight:700}
 </style>
 </head>
 <body>
@@ -169,8 +191,8 @@ footer a{color:#e6d9bd}
     <ul>
       <li><a href="#como">Como funciona</a></li>
       <li><a href="#modulos">Módulos</a></li>
-      <li><a href="#privacidade">Privacidade</a></li>
-      <li><a href="#planos">Planos</a></li>
+      <li><a href="#federal">Programas</a></li>
+      <li><a href="#implantacao">Implantação</a></li>
     </ul>
     <a class="btn gold" href="#contato">Agendar<span class="lg">&nbsp;apresentação</span></a>
   </div>
@@ -180,20 +202,20 @@ footer a{color:#e6d9bd}
 <header class="hero" id="topo">
   <div class="wrap">
     <div>
-      <p class="eyebrow" style="color:var(--gold)">Para Secretarias Municipais de Agricultura</p>
+      <p class="eyebrow" style="color:var(--gold)">Plataforma para Secretarias Municipais de Agricultura</p>
       <h1 style="margin-top:10px">O agricultor anota no celular. <em>A prefeitura enxerga o campo.</em></h1>
-      <p class="l">Um aplicativo simples, que funciona sem internet e fala em voz alta, para a família registrar a produção. E um painel para a Secretaria acompanhar comunidades, chuva, fila do trator, merenda escolar, CAF, água e assistência técnica.</p>
+      <p class="l">Uma plataforma única para toda a Secretaria: o app do produtor, o app de campo dos técnicos, o sistema de trabalho de cada setor e o portal do secretário. Tudo o que cada um registra vai para a mesma base, com mapa, fotos, relatórios e os programas federais organizados.</p>
       <div class="ctas">
         <a class="btn gold" href="../painel/">Ver o painel funcionando</a>
         <a class="btn line" href="../">Abrir o app do produtor</a>
       </div>
       <ul class="facts">
-        <li><b>14</b>módulos no painel</li>
-        <li><b>Sem internet</b>o app funciona no sítio</li>
-        <li><b>LGPD</b>a família decide o que compartilha</li>
+        <li><b>4</b>portas de entrada, uma base só</li>
+        <li><b>Sem internet</b>no sítio e no campo</li>
+        <li><b>Até 2 meses</b>para implantar</li>
       </ul>
     </div>
-    <figure><img src="figura1.jpg" width="1600" height="1047" alt="Telas do aplicativo Caderno da Roça: início com as produções, tela do leite e registro das duas ordenhas"></figure>
+    <figure><img src="figura1.jpg" width="1600" height="1004" alt="Telas do aplicativo Caderno da Roça: início com as produções, tela do leite e registro das duas ordenhas"></figure>
   </div>
 </header>
 
@@ -213,12 +235,15 @@ footer a{color:#e6d9bd}
 <section id="como" class="alt">
   <div class="wrap">
     <p class="eyebrow">Como funciona</p>
-    <h2 class="h2">Do sítio ao gabinete em três passos</h2>
-    <ol class="flow">
-      <li><h3>A família anota</h3><p>No app, com botões grandes como "Tirei leite", "Vendi" e "Choveu". Funciona sem internet e lê tudo em voz alta.</p></li>
-      <li><h3>A família autoriza</h3><p>Ela escolhe participar e compartilhar com a Secretaria. Pode sair quando quiser.</p></li>
-      <li><h3>A Secretaria enxerga</h3><p>O painel mostra os números somados por comunidade, sem expor a renda de ninguém, e gera relatórios e planilhas.</p></li>
-    </ol>
+    <h2 class="h2">Quatro portas de entrada, uma base de dados só</h2>
+    <p class="lead">Cada pessoa usa a parte da plataforma feita para o seu trabalho. Tudo o que é registrado vai para a mesma base, e o secretário acompanha tudo num só lugar.</p>
+    <div class="portas">
+      <div class="porta" style="--c:#2f7d32"><span class="pn">1</span><h3>Produtor</h3><p>Anota produção, vendas e gastos no app, pede trator ou carro-pipa e acompanha a fila.</p></div>
+      <div class="porta" style="--c:#13858a"><span class="pn">2</span><h3>Técnico</h3><p>No campo, mesmo sem sinal: cadastro com GPS, visitas com fotos, relatórios e laudos.</p></div>
+      <div class="porta" style="--c:#5b4b8a"><span class="pn">3</span><h3>Setores</h3><p>Cada setor trabalha na sua parte: máquinas, água, obras, insumos, atendimento e programas.</p></div>
+      <div class="porta" style="--c:#b3201b"><span class="pn">4</span><h3>Secretário</h3><p>Portal com tudo junto: painéis, mapa, alertas, prazos e relatórios para decidir.</p></div>
+    </div>
+    <div class="base"><b>Base de dados única</b><span>Servidor no Brasil · login individual · cada perfil vê só o que precisa · cópia de segurança diária</span></div>
   </div>
 </section>
 
@@ -227,26 +252,38 @@ footer a{color:#e6d9bd}
     <div>
       <p class="eyebrow">Para o produtor</p>
       <h2 class="h2">Feito para quem tem pouca leitura</h2>
-      <p class="lead">O aplicativo é organizado por produção: leite, queijo, galinhas, cabras, porcos, peixes, roçado, horta e serviços como frete e pipa d'água.</p>
+      <p class="lead">Organizado por produção, com cores e botões grandes: leite, queijo, gado, cabras, ovelhas, porcos, galinhas, peixes, roçado, horta e serviços como frete e pipa d'água.</p>
       <ul class="ticks">
-        <li>Mostra quanto sobrou em cada produção no mês</li>
-        <li>Calcula o total da venda, o custo do litro de leite e o rendimento do queijo</li>
-        <li>Registra as duas ordenhas do dia e avisa sobre cio e parto</li>
-        <li>Relatório mensal e guias técnicos com leitura em voz alta</li>
-        <li>Instala pelo navegador, sem loja e sem ocupar espaço</li>
+        <li>Mostra quanto sobrou em cada produção, no mês e no ano</li>
+        <li>Calcula a comida do dia de cada animal e quanto ele pode render, com base em tabelas científicas</li>
+        <li>Registra as duas ordenhas, cio, cobertura, parto, machos e fêmeas</li>
+        <li>Lê tudo em voz alta e funciona sem internet</li>
+        <li>Pede serviços à Secretaria e recebe avisos</li>
       </ul>
     </div>
-    <figure><img src="figura2.jpg" width="1600" height="1047" loading="lazy" alt="Telas do aplicativo: venda com total automático, relatório mensal e guia com leitura em voz alta"><figcaption>Telas do aplicativo com dados fictícios de demonstração.</figcaption></figure>
+    <figure><img src="figura2.jpg" width="1600" height="1482" loading="lazy" alt="Telas do aplicativo: criação com a ração de todos os animais e balanço do mês por produção"><figcaption>Telas do aplicativo com dados fictícios de demonstração.</figcaption></figure>
   </div>
 </section>
 
-<section id="modulos" class="alt">
+<section id="tecnicos" class="alt">
   <div class="wrap">
-    <p class="eyebrow">Para a Secretaria</p>
-    <h2 class="h2">Um painel com tudo o que a agricultura do município precisa</h2>
+    <p class="eyebrow">Para os técnicos e os setores</p>
+    <h2 class="h2">O trabalho do dia a dia, registrado na hora</h2>
+    <div class="cards">
+      <div class="card"><div class="ic" style="background:#dff1f1;color:#13858a"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="10" r="3"/><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11z"/></svg></div><h3>App do técnico</h3><p>Cadastro de produtores com localização, visitas com fotos e GPS, relatório em PDF, laudos do Garantia-Safra e vistoria de obras. Funciona sem sinal e envia quando pegar internet.</p></div>
+      <div class="card"><div class="ic" style="background:#ebe7f5;color:#5b4b8a"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg></div><h3>Sistema dos setores</h3><p>Fila do trator e das máquinas, carro-pipa com rota, obras com fotos de antes e depois, entrega de sementes sem duplicidade e registro de atendimento.</p></div>
+      <div class="card"><div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div><h3>Mapa do município</h3><p>Produtores, obras, visitas e pedidos de serviço no mapa, com camadas que se ligam e desligam. Fotos com data, hora e local.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="modulos">
+  <div class="wrap">
+    <p class="eyebrow">Para o secretário</p>
+    <h2 class="h2">Tudo o que a agricultura do município precisa, num painel</h2>
     <p class="lead">Toque em qualquer módulo para abrir a demonstração com dados fictícios.</p>
     <div class="mods">
-      <a class="mod" href="../painel/#visao"><span class="tag">Panorama</span><h3>Visão geral</h3><p>Produção, chuva, serviços e alertas do mês numa tela só.</p><span class="go">Ver →</span></a>
+      <a class="mod" href="../painel/#visao"><span class="tag">Panorama</span><h3>Visão geral</h3><p>Produção, chuva, serviços, prazos e alertas do mês numa tela só.</p><span class="go">Ver →</span></a>
       <a class="mod" href="../painel/#comunidades"><span class="tag">Panorama</span><h3>Comunidades</h3><p>Leite, ovos, queijo e chuva por comunidade, com histórico de 12 meses.</p><span class="go">Ver →</span></a>
       <a class="mod" href="../painel/#mapa"><span class="tag">Panorama</span><h3>Mapa do município</h3><p>Comunidades, cisternas, barreiros e pedidos de trator no mapa.</p><span class="go">Ver →</span></a>
       <a class="mod" href="../painel/#chuva"><span class="tag">Produção e clima</span><h3>Chuva e seca</h3><p>Pluviômetros das famílias contra a média histórica, e perdas de safra.</p><span class="go">Ver →</span></a>
@@ -257,22 +294,42 @@ footer a{color:#e6d9bd}
       <a class="mod" href="../painel/#tecnico"><span class="tag">Serviços</span><h3>Assistência técnica</h3><p>Visitas com foto e localização, e quem está há mais tempo sem visita.</p><span class="go">Ver →</span></a>
       <a class="mod" href="../painel/#merenda"><span class="tag">Programas</span><h3>Merenda escolar e PAA</h3><p>Acompanha o mínimo legal de 45% e mostra onde há produção para comprar.</p><span class="go">Ver →</span></a>
       <a class="mod" href="../painel/#caf"><span class="tag">Programas</span><h3>CAF e Garantia-Safra</h3><p>Cadastros vencendo, famílias sem CAF e sugestão de mutirão.</p><span class="go">Ver →</span></a>
-      <a class="mod" href="../painel/#federal"><span class="tag">Programas</span><h3>Sistemas federais</h3><p>Prazos, conferência e planilhas prontas para SISPAA, SGGS, Rede CAF e FNDE, com os laudos do Garantia-Safra.</p><span class="go">Ver →</span></a>
+      <a class="mod" href="../painel/#federal"><span class="tag">Programas</span><h3>Sistemas federais</h3><p>Prazos, conferência e planilhas prontas para SISPAA, SGGS, Rede CAF e FNDE.</p><span class="go">Ver →</span></a>
       <a class="mod" href="../painel/#avisos"><span class="tag">Comunicação</span><h3>Avisos aos produtores</h3><p>Mensagens que chegam no app da família e podem ser ouvidas.</p><span class="go">Ver →</span></a>
       <a class="mod" href="../painel/#relatorios"><span class="tag">Comunicação</span><h3>Relatórios</h3><p>Relatório mensal e planilhas para o prefeito, o conselho e o Tribunal de Contas.</p><span class="go">Ver →</span></a>
     </div>
   </div>
 </section>
 
+<section id="federal" class="alt">
+  <div class="wrap">
+    <p class="eyebrow">Programas e sistemas federais</p>
+    <h2 class="h2">Nenhum prazo perdido, nenhum lançamento recusado</h2>
+    <p class="lead">A plataforma organiza a parte operacional de cada programa e deixa tudo pronto para a equipe lançar nos sistemas do governo federal.</p>
+    <div class="progs">
+      <div><b>PNAE</b><span>Oferta dos produtores, chamada pública, entregas por escola e o mínimo de 45% da agricultura familiar</span><small>Prestação de contas · FNDE</small></div>
+      <div><b>PAA</b><span>Fornecedores, entregas, notas, entidades atendidas e limite por família</span><small>SISPAA · MDS</small></div>
+      <div><b>Garantia-Safra</b><span>Inscrições, chuva por comunidade e laudos de vistoria com fotos feitos pelos técnicos</span><small>SGGS · MDA</small></div>
+      <div><b>CAF</b><span>Vencimentos, mutirões e cadastros preparados, se a Prefeitura for da Rede CAF</span><small>Rede CAF · MDA</small></div>
+    </div>
+    <ul class="ticks">
+      <li><span><b>Prazos:</b> aviso antes de cada prazo, como o envio dos laudos do Garantia-Safra</span></li>
+      <li><span><b>Conferência:</b> o sistema aponta CAF vencido, entrega sem nota e família perto do limite antes do lançamento</span></li>
+      <li><span><b>Pronto para copiar:</b> planilhas na ordem dos campos de cada sistema federal</span></li>
+    </ul>
+    <p class="nota">Os sistemas federais só aceitam lançamentos feitos por servidores autorizados, com login gov.br. A plataforma prepara, confere e avisa; o lançamento continua com a equipe.</p>
+  </div>
+</section>
+
 <section id="privacidade">
   <div class="wrap">
     <p class="eyebrow">Privacidade e LGPD</p>
-    <h2 class="h2">A família é dona dos seus dados</h2>
+    <h2 class="h2">Dados protegidos, regras claras</h2>
     <div class="priv">
-      <div><b>Participação voluntária</b><span>Ninguém é obrigado. A família escolhe compartilhar e pode parar a qualquer momento.</span></div>
-      <div><b>Números somados</b><span>O painel mostra totais por comunidade. A renda de uma família nunca aparece.</span></div>
-      <div><b>Grupos pequenos protegidos</b><span>Comunidades com menos de 5 famílias participantes aparecem agrupadas.</span></div>
-      <div><b>Funciona no aparelho</b><span>Os registros ficam guardados no celular do produtor, mesmo sem internet.</span></div>
+      <div><b>A Prefeitura é a dona dos dados</b><span>Ela é a controladora, como manda a LGPD. O desenvolvedor só trata os dados para o sistema funcionar.</span></div>
+      <div><b>O caderno pessoal é da família</b><span>Renda, vendas e gastos só saem do celular com autorização do produtor, e aparecem somados por comunidade.</span></div>
+      <div><b>Cada um vê só o que precisa</b><span>Login individual, permissões por perfil e registro de quem viu e quem alterou.</span></div>
+      <div><b>Servidor no Brasil</b><span>Comunicação criptografada e cópia de segurança diária. No fim do contrato, a Prefeitura recebe todos os dados.</span></div>
     </div>
   </div>
 </section>
@@ -280,25 +337,26 @@ footer a{color:#e6d9bd}
 <section id="implantacao" class="alt">
   <div class="wrap">
     <p class="eyebrow">Implantação</p>
-    <h2 class="h2">Em funcionamento em poucas semanas</h2>
+    <h2 class="h2">Funcionando em até 2 meses, em cinco fases</h2>
+    <p class="lead">Cada fase já entrega algo que funciona, e é paga só depois de aprovada pela Secretaria.</p>
     <div class="steps">
-      <div><small>Passo 1</small><h3>Apresentação</h3><p>Demonstração para o secretário e a equipe técnica.</p></div>
-      <div><small>Passo 2</small><h3>Configuração</h3><p>Comunidades, técnicos, programas e a identidade do município no painel.</p></div>
-      <div><small>Passo 3</small><h3>Formação</h3><p>Treinamento dos técnicos e agentes, e oficinas nas associações.</p></div>
-      <div><small>Passo 4</small><h3>Acompanhamento</h3><p>Suporte, ajustes e relatório de uso a cada mês.</p></div>
+      <div><small>Fase 1 · até 7 dias</small><h3>Base</h3><p>Servidor, login dos perfis e cadastro de produtores e comunidades com localização.</p></div>
+      <div><small>Fase 2 · até 14 dias</small><h3>Técnicos</h3><p>App de campo com visitas, fotos, GPS, relatórios e laudos, testado nas comunidades.</p></div>
+      <div><small>Fase 3 · até 14 dias</small><h3>Setores</h3><p>Máquinas, carro-pipa, obras, insumos, atendimento e pedidos pelo app do produtor.</p></div>
+      <div><small>Fase 4 · até 14 dias</small><h3>Programas</h3><p>PNAE, PAA, CAF, Garantia-Safra e a preparação para os sistemas federais.</p></div>
+      <div><small>Fase 5 · até 7 dias</small><h3>Gestão</h3><p>Portal do secretário com dados reais: painéis, mapa, alertas e relatórios.</p></div>
     </div>
   </div>
 </section>
 
 <section id="planos">
   <div class="wrap">
-    <p class="eyebrow">Planos</p>
-    <h2 class="h2">Comece pelo essencial e amplie depois</h2>
-    <p class="lead">O aplicativo continua gratuito para o produtor. A prefeitura contrata o painel e os módulos que precisar.</p>
+    <p class="eyebrow">Como contratar</p>
+    <h2 class="h2">Licença de uso, com tudo incluído</h2>
     <div class="plans">
-      <div class="plan"><h3>Essencial</h3><p class="pr">Valores sob consulta</p><ul><li>Painel com visão geral e comunidades</li><li>Chuva e seca</li><li>Avisos aos produtores</li><li>Relatórios mensais</li></ul></div>
-      <div class="plan star"><h3>Gestão</h3><p class="pr">Valores sob consulta</p><ul><li>Tudo do Essencial</li><li>Máquinas e trator</li><li>Sementes, insumos e água</li><li>Merenda escolar e PAA</li><li>CAF e Garantia-Safra</li></ul></div>
-      <div class="plan"><h3>Completo</h3><p class="pr">Valores sob consulta</p><ul><li>Tudo do Gestão</li><li>Assistência técnica com visitas</li><li>Mapa do município</li><li>Diagnóstico produtivo</li><li>Formação das equipes</li></ul></div>
+      <div class="plan"><h3>Implantação</h3><p class="pr">Valor por fase, pago na entrega</p><ul><li>Configuração da plataforma para o município</li><li>Cadastro inicial das comunidades e da equipe</li><li>Treinamento dos técnicos e dos setores</li></ul></div>
+      <div class="plan star"><h3>Mensalidade</h3><p class="pr">Começa depois da primeira fase</p><ul><li>Licença para usuários ilimitados</li><li>Hospedagem no Brasil e cópia de segurança diária</li><li>Suporte em dias úteis e atualizações</li><li>App gratuito para as famílias</li></ul></div>
+      <div class="plan"><h3>Documentos</h3><p class="pr">Para a Secretaria analisar</p><ul><li><a href="../escopo/">Documento de escopo</a>, com módulos, fases e responsabilidades</li><li>Proposta comercial com valores, sob consulta</li></ul></div>
     </div>
   </div>
 </section>
