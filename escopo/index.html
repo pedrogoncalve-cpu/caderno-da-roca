@@ -46,7 +46,8 @@ main{padding:28px 0 60px;display:flex;flex-direction:column;gap:36px;min-width:0
 section{display:flex;flex-direction:column;gap:14px;scroll-margin-top:16px}
 .n{font-size:13px;font-weight:800;color:var(--red);letter-spacing:.06em;text-transform:uppercase}
 h1.t{font-family:var(--display);font-size:clamp(28px,4.5vw,42px)}
-h2{font-family:var(--display);font-size:clamp(22px,3vw,28px)}
+h2{font-family:var(--display);font-size:clamp(22px,3vw,28px);display:flex;align-items:baseline;gap:10px}
+.sn{display:inline-grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:10px;background:var(--red);color:#fff;font-size:18px;flex:none;align-self:center}
 h3{font-size:17px}
 .lead{font-size:18px;color:var(--muted);max-width:760px}
 .meta{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted)}
@@ -89,8 +90,16 @@ tbody td:first-child{min-width:220px}
 @media (max-width:620px){.sign{grid-template-columns:1fr}}
 footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:var(--muted)}
 @media print{
-  .top .btnp,nav.toc{display:none} .shell{display:block} body{background:#fff;font-size:12pt} main{padding-top:10px}
-  .card,.fase,.pend,table{break-inside:avoid} section{break-inside:auto}
+  .top .btnp,nav.toc{display:none} .shell{display:block;padding:0} body{background:#fff;font-size:10.5pt} main{padding-top:6px;display:block}
+  section{display:block;margin-top:22px} section>*+*{margin-top:10px}
+  h2{break-after:avoid;font-size:20px} h3{break-after:avoid}
+  .card,.fase,.pend,.grid>*,tr,.risk,.diagram{break-inside:avoid}
+  .grid{gap:10px} .g4{grid-template-columns:repeat(4,minmax(0,1fr))} .g4 .card{padding:12px} .g4 .card p{font-size:9.5pt}
+  .g2,.g3{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  table{font-size:9pt} th,td{padding:6px 8px} td.c{white-space:normal} th{white-space:normal}
+  tbody td:first-child{min-width:0;width:26%}
+  .table-wrap{overflow:visible}
+  .lead{font-size:12pt} h1.t{font-size:26pt}
   a{color:inherit;text-decoration:none}
 }
 </style>
@@ -134,7 +143,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="visao">
-  <p class="n">1</p><h2>Visão geral</h2>
+  <h2><span class="sn">1</span>Visão geral</h2>
   <div class="card">
     <svg class="diagram" viewBox="0 0 760 330" role="img" aria-label="Quatro portas de entrada ligadas a uma base de dados única">
       <defs><marker id="seta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8a7d75"/></marker></defs>
@@ -159,7 +168,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="perfis">
-  <p class="n">2</p><h2>Perfis e acessos</h2>
+  <h2><span class="sn">2</span>Perfis e acessos</h2>
   <p>Cada pessoa entra com login próprio. O sistema mostra só o que o perfil dela pode ver e registra quem fez cada alteração.</p>
   <div class="table-wrap"><table>
     <thead><tr><th>Informação</th><th>Produtor</th><th>Técnico</th><th>Setor</th><th>Secretário</th></tr></thead>
@@ -177,7 +186,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="modulos">
-  <p class="n">3</p><h2>Módulos</h2>
+  <h2><span class="sn">3</span>Módulos</h2>
   <div class="grid g2">
     <div class="card"><h3 style="color:var(--good)">App do produtor (já existe; será ampliado)</h3><ul>
       <li>Produções, vendas, gastos, leite, criação, alimentação e balanços (já pronto)</li>
@@ -209,7 +218,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="programas">
-  <p class="n">4</p><h2>Programas</h2>
+  <h2><span class="sn">4</span>Programas</h2>
   <p>A plataforma organiza a parte operacional de cada programa. O envio de dados aos sistemas federais continua sendo feito pela equipe (ver item 9).</p>
   <div class="table-wrap"><table>
     <thead><tr><th>Programa</th><th>O que a plataforma faz</th></tr></thead>
@@ -227,7 +236,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="mapa">
-  <p class="n">5</p><h2>Mapa, localização e fotos</h2>
+  <h2><span class="sn">5</span>Mapa, localização e fotos</h2>
   <div class="grid g3">
     <div class="card"><h3>Localização</h3><p>O técnico marca a propriedade pelo GPS do celular, no próprio local. Obras, visitas e serviços também ficam marcados no mapa.</p></div>
     <div class="card"><h3>Fotos</h3><p>Tiradas pelo app, com data, hora e localização gravadas. Ficam ligadas à visita, à obra ou ao laudo e entram nos relatórios em PDF.</p></div>
@@ -236,7 +245,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="dados">
-  <p class="n">6</p><h2>Dados e LGPD</h2>
+  <h2><span class="sn">6</span>Dados e LGPD</h2>
   <div class="grid g2">
     <div class="card"><h3>Papéis</h3><ul>
       <li><b>Prefeitura:</b> controladora dos dados. Decide como os dados são usados.</li>
@@ -252,7 +261,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="tecnologia">
-  <p class="n">7</p><h2>Tecnologia</h2>
+  <h2><span class="sn">7</span>Tecnologia</h2>
   <div class="table-wrap"><table>
     <thead><tr><th>Parte</th><th>Solução proposta</th></tr></thead>
     <tbody>
@@ -266,7 +275,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="fases">
-  <p class="n">8</p><h2>Fases de entrega</h2>
+  <h2><span class="sn">8</span>Fases de entrega</h2>
   <p>Cada fase entrega algo que já funciona. Os prazos serão definidos com a Secretaria (ver item 12).</p>
   <div class="card fase" style="--c:var(--black)"><div class="num">1<small>Base</small></div><div><h3>Base de dados, login e cadastro de produtores</h3><ul>
     <li>Servidor, perfis, permissões e cópias de segurança</li><li>Cadastro de produtores, propriedades e comunidades com localização</li><li>Usuários do secretário, dos setores e dos técnicos</li></ul>
@@ -287,7 +296,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="fora">
-  <p class="n">9</p><h2>O que não está incluído</h2>
+  <h2><span class="sn">9</span>O que não está incluído</h2>
   <div class="card"><ul>
     <li><b>Envio automático aos sistemas federais</b> (CAF, sistemas do FNDE e do PAA): não há ligação aberta para prefeituras. A plataforma prepara os dados, e a equipe faz o envio.</li>
     <li><b>Aparelhos e internet:</b> celulares, tablets, computadores e acesso à internet ficam por conta da Prefeitura e dos usuários.</li>
@@ -297,7 +306,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="resp">
-  <p class="n">10</p><h2>Responsabilidades</h2>
+  <h2><span class="sn">10</span>Responsabilidades</h2>
   <div class="grid g2">
     <div class="card"><h3>Da Prefeitura</h3><ul>
       <li>Indicar um responsável pelo projeto na Secretaria</li><li>Informar os setores, as pessoas e as regras de cada programa</li><li>Pagar o servidor (ou autorizar a contratação em seu nome)</li><li>Liberar a equipe para treinamento e testes</li><li>Atuar como controladora dos dados (LGPD)</li></ul></div>
@@ -307,7 +316,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="riscos">
-  <p class="n">11</p><h2>Riscos e como tratar</h2>
+  <h2><span class="sn">11</span>Riscos e como tratar</h2>
   <div class="card risk"><span class="lvl alto">Alto</span><div><b>Sincronização sem internet</b><p>Dois técnicos alterando o mesmo cadastro, ou registros feitos sem sinal por vários dias. <i>Tratamento:</i> regras de quem prevalece, histórico de alterações e testes no campo antes da entrega da fase 2.</p></div></div>
   <div class="card risk"><span class="lvl alto">Alto</span><div><b>Suporte e manutenção contínuos</b><p>O sistema exige acompanhamento depois da entrega. <i>Tratamento:</i> contrato de suporte com tempo de resposta definido e, se necessário, uma pessoa de apoio.</p></div></div>
   <div class="card risk"><span class="lvl medio">Médio</span><div><b>Adesão dos produtores e da equipe</b><p><i>Tratamento:</i> treinamento por comunidade, uso por técnicos desde o início e telas simples com leitura em voz alta.</p></div></div>
@@ -316,7 +325,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="pendencias">
-  <p class="n">12</p><h2>A definir com a Secretaria</h2>
+  <h2><span class="sn">12</span>A definir com a Secretaria</h2>
   <div class="pend"><ul>
     <li>Prazo de cada fase e data de início</li>
     <li>Valor do contrato, forma de pagamento e modalidade de contratação</li>
