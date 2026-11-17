@@ -291,7 +291,7 @@ const GRUPOS = [
   ['Panorama', [['visao','Visão geral'],['comunidades','Comunidades'],['mapa','Mapa do município']]],
   ['Produção e clima', [['chuva','Chuva e seca'],['diagnostico','Diagnóstico produtivo']]],
   ['Serviços', [['maquinas','Máquinas e trator'],['sementes','Sementes e insumos'],['agua','Água e carro-pipa'],['tecnico','Assistência técnica']]],
-  ['Programas', [['merenda','Merenda e PAA'],['caf','CAF e Garantia-Safra']]],
+  ['Programas', [['merenda','Merenda e PAA'],['caf','CAF e Garantia-Safra'],['federal','Sistemas federais']]],
   ['Comunicação', [['avisos','Avisos aos produtores'],['relatorios','Relatórios']]],
 ];
 const TABS = GRUPOS.flatMap(g=>g[1]);
@@ -393,6 +393,7 @@ function alertas(){
   COMS.filter(c => chuvaAno(c) < ma*0.7).slice(0,2).forEach(c => L.push({n:'warn', t:`${c.nome}: chuva ${fN(100-chuvaAno(c)/ma*100)}% abaixo da média no ano`, d:'Atenção à reserva de forragem e à água.'}));
   const velhos = fila().filter(p=>p.dias>45).length; if (velhos) L.push({n:'red', t:`${velhos} pedidos de trator esperam há mais de 45 dias`, d:'Veja a fila em Máquinas e trator.'});
   const falta = REPASSE_PNAE*META_PNAE - pnaeExec(); if (falta>0) L.push({n:'warn', t:`Merenda: faltam ${fRk(falta)} para o mínimo de 45%`, d:'Há oferta de ovos, queijo e hortaliças nas comunidades para completar.'});
+  L.unshift({n:'red', t:`Garantia-Safra: laudos vencem em ${FED_PRAZOS[0].dias} dias`, d:'3 laudos de vistoria ainda não foram anexados ao SGGS. Veja em Sistemas federais.'});
   L.push({n:'info', t:`${sumC('cafVence')} famílias com CAF vencendo`, d:'Sem CAF válido, a família fica fora do Pronaf, do PAA e da merenda.'});
   return L.slice(0,5);
 }
@@ -638,6 +639,82 @@ function telaMerenda(){
 }
 
 /* ---------- CAF E GARANTIA-SAFRA ---------- */
+
+/* ---------- sistemas federais (fictício) ---------- */
+const fmtD = d => d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});
+const emDias = n => { const d = new Date(hoje); d.setDate(d.getDate()+n); return d; };
+const cpfFake = i => `***.${String(100+i*37%900).padStart(3,'0')}.${String(200+i*53%800).padStart(3,'0')}-**`;
+const FED_PRAZOS = [
+  {dias:4, sis:'SGGS', prog:'Garantia-Safra', t:'Enviar os laudos de vistoria da safra', d:'3 laudos ainda não foram anexados. Se o prazo passar, o município perde a avaliação de perdas da safra.', n:'red'},
+  {dias:9, sis:'SISPAA', prog:'PAA', t:'Atestar as notas fiscais das entregas do mês', d:'O MDS só paga os agricultores depois das notas atestadas no sistema.', n:'warn'},
+  {dias:18, sis:'SGGS', prog:'Garantia-Safra', t:'Homologação das inscrições pelo conselho rural (CMDRS)', d:'14 inscrições aguardam a reunião do conselho.', n:'warn'},
+  {dias:34, sis:'Rede CAF', prog:'CAF', t:'Mutirão de renovação do CAF', d:`${sumC('cafVence')} famílias com CAF vencendo nos próximos 90 dias.`, n:'info'},
+  {dias:75, sis:'FNDE', prog:'PNAE', t:'Prestação de contas anual da merenda escolar', d:'Compras da agricultura familiar já consolidadas por fornecedor e por escola.', n:'info'}
+];
+const LAUDOS = COMS.filter(c => c.fator < .8).flatMap((c,k) => Array.from({length:3}, (_,j) => {
+  const i = k*3+j; const st = i < 6 ? 'Enviado ao SGGS' : i < 9 ? 'Pronto para anexar' : 'Falta vistoria';
+  return {id:'L'+i, fam:nomeFam(i+40), com:c.nome, tec:c.tec, area:dec1(between(0.8,3.5)), cult:pick(['Milho','Feijão','Milho e feijão']), perda: Math.round(between(45,92)), fotos: st==='Falta vistoria'?0:Math.round(between(3,6)), st, data: st==='Falta vistoria'?null:emDias(-Math.round(between(2,25)))};
+}));
+function dec1(x){ return Math.round(x*10)/10; }
+const PEND = [
+  {sis:'SISPAA', t:'CAF vencido', d:`${FORN[5].nome} (fornecedor do PAA): renove o CAF antes de lançar a próxima entrega.`},
+  {sis:'SISPAA', t:'Entrega sem nota fiscal', d:`${FORN[2].nome}: entrega de ${FORN[2].prod.toLowerCase()} registrada sem número de nota.`},
+  {sis:'SISPAA', t:'Perto do limite anual por família', d:`${FORN[8].nome} já usou 92% do limite anual de venda ao PAA.`},
+  {sis:'SGGS', t:'Inscrição sem CAF ativo', d:`${nomeFam(52)} (${COMS[1].nome}): a inscrição no Garantia-Safra não avança sem CAF ativo.`},
+  {sis:'FNDE', t:'Fornecedor com CAF vencido', d:`${FORN[12].nome} (merenda escolar): regularize o CAF para manter o contrato.`}
+];
+function telaFederal(){
+  const prontos = {sispaa: FORN.length*3 - 2, sggs: LAUDOS.filter(l=>l.st==='Pronto para anexar').length, caf: 11, pnae: FORN.length};
+  const prazoTxt = p => p.dias <= 7 ? `<span class="pill red">em ${p.dias} dias · ${fmtD(emDias(p.dias))}</span>` : p.dias <= 30 ? `<span class="pill warn">em ${p.dias} dias · ${fmtD(emDias(p.dias))}</span>` : `<span class="pill gray">em ${p.dias} dias · ${fmtD(emDias(p.dias))}</span>`;
+  const stPill = st => st==='Enviado ao SGGS' ? '<span class="pill good">Enviado ao SGGS</span>' : st==='Pronto para anexar' ? '<span class="pill blue">Pronto para anexar</span>' : '<span class="pill red">Falta vistoria</span>';
+  return `
+  ${head('Sistemas federais', 'O que precisa ser lançado em cada sistema do governo: conferido, organizado e pronto para copiar')}
+  <div class="grid g4">
+    ${kpi('Prazos nos próximos 30 dias', FED_PRAZOS.filter(p=>p.dias<=30).length, sub('o mais próximo vence em ' + FED_PRAZOS[0].dias + ' dias'))}
+    ${kpi('Pendências para corrigir', `<span style="color:var(--bad)">${PEND.length}</span>`, sub('antes de lançar nos sistemas'))}
+    ${kpi('Laudos do Garantia-Safra', `${LAUDOS.filter(l=>l.st!=='Falta vistoria').length} <small>de ${LAUDOS.length}</small>`, sub('feitos pelos técnicos, com fotos'))}
+    ${kpi('Entregas do PAA prontas', prontos.sispaa, sub('para lançar no SISPAA'))}
+  </div>
+  <div class="grid g3">
+    <div class="card"><h2>Prazos</h2><div class="alerts">${FED_PRAZOS.map(p=>`<div class="alert ${p.n}"><div style="flex:1;min-width:0"><b>${esc(p.prog)} · ${esc(p.t)}</b><span>${esc(p.d)}</span><div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap"><span class="pill gray">${esc(p.sis)}</span>${prazoTxt(p)}</div></div></div>`).join('')}</div></div>
+    <div class="card"><h2>Conferência automática</h2><p class="sub">Problemas que o sistema federal recusaria, encontrados antes do lançamento</p>
+      <div class="alerts">${PEND.map(p=>`<div class="alert red"><div><b>${esc(p.t)}</b><span>${esc(p.d)}</span><div style="margin-top:6px"><span class="pill gray">${esc(p.sis)}</span></div></div></div>`).join('')}</div></div>
+  </div>
+  <div class="card"><h2>Pronto para lançar</h2><p class="sub">Cada planilha sai na ordem dos campos do sistema federal. O servidor só copia, sem procurar papel.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Sistema</th><th>Programa</th><th>O que está pronto</th><th class="n">Itens</th><th class="no-print"></th></tr></thead>
+      <tbody>
+        <tr><td><b>SISPAA</b> · MDS</td><td>PAA</td><td style="white-space:normal">Fornecedores com CPF e CAF, entregas, quantidades, valores e notas fiscais do mês</td><td class="n">${prontos.sispaa}</td><td class="no-print"><button class="btn sm" data-act="csvSispaa">Baixar planilha</button></td></tr>
+        <tr><td><b>SGGS</b> · MDA</td><td>Garantia-Safra</td><td style="white-space:normal">Inscrições a validar e laudos de vistoria com área plantada, colheita, perda e fotos</td><td class="n">${LAUDOS.length}</td><td class="no-print"><button class="btn sm" data-act="csvSggs">Baixar planilha</button></td></tr>
+        <tr><td><b>Rede CAF</b> · MDA</td><td>CAF</td><td style="white-space:normal">Cadastros preparados pelos técnicos para emissão ou renovação (se a Prefeitura for credenciada)</td><td class="n">${prontos.caf}</td><td class="no-print"><button class="btn sm" data-act="csvCaf">Baixar planilha</button></td></tr>
+        <tr><td><b>FNDE</b></td><td>PNAE</td><td style="white-space:normal">Compras da agricultura familiar por fornecedor e por escola, com o percentual do ano</td><td class="n">${prontos.pnae}</td><td class="no-print"><button class="btn sm" data-act="csvPnae">Baixar planilha</button></td></tr>
+      </tbody>
+    </table></div></div>
+  <div class="card"><h2>Laudos de vistoria do Garantia-Safra</h2><p class="sub">Feitos pelo técnico no app, no próprio roçado, com fotos e localização. Toque num laudo para ver.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Agricultor</th><th>Comunidade</th><th>Técnico</th><th>Cultura</th><th class="n">Área (ha)</th><th class="n">Perda</th><th class="n">Fotos</th><th>Situação</th></tr></thead>
+      <tbody>${LAUDOS.map(l=>`<tr class="click" data-laudo="${l.id}" tabindex="0"><td>${esc(l.fam)}</td><td>${esc(l.com)}</td><td>${esc(l.tec)}</td><td>${esc(l.cult)}</td><td class="n">${fN(l.area,1)}</td><td class="n">${l.st==='Falta vistoria'?'—':l.perda+'%'}</td><td class="n">${l.fotos||'—'}</td><td>${stPill(l.st)}</td></tr>`).join('')}</tbody>
+    </table></div></div>
+  <p class="note">A plataforma não envia dados sozinha aos sistemas do governo federal: eles só aceitam lançamentos feitos por servidores autorizados, com login gov.br. O que ela faz é deixar tudo conferido e organizado, avisar os prazos e guardar o histórico para a prestação de contas. Nomes e números fictícios.</p>`;
+}
+function verLaudo(id){
+  const l = LAUDOS.find(x=>x.id===id); if (!l) return;
+  const foto = (k) => `<svg viewBox="0 0 160 110" style="width:100%;height:auto;border-radius:10px;display:block" role="img" aria-label="Foto ${k} do roçado"><rect width="160" height="110" fill="#d9c7a3"/><rect y="70" width="160" height="40" fill="#b79a6a"/>${Array.from({length:9},(_,j)=>`<path d="M${12+j*17},92 l2,-${18+((j*7+k*3)%14)}" stroke="#7a6a3a" stroke-width="2.5"/>`).join('')}<circle cx="${130-k*8}" cy="22" r="10" fill="#f2c94c"/><text x="6" y="104" font-size="8" fill="#3d3220">${l.data?fmtD(l.data):''} · GPS ok</text></svg>`;
+  abrirDrawer(`
+    <div class="drawer-h"><div><p class="sub" style="margin:0">Laudo de vistoria · Garantia-Safra</p><h2 style="font-size:22px;font-family:var(--display)">${esc(l.fam)}</h2></div><button class="x" aria-label="Fechar" data-fechar>×</button></div>
+    <div class="card"><div class="table-wrap"><table><tbody>
+      <tr><td>Comunidade</td><td class="n">${esc(l.com)}</td></tr>
+      <tr><td>Técnico vistoriador</td><td class="n">${esc(l.tec)}</td></tr>
+      <tr><td>Data da vistoria</td><td class="n">${l.data?l.data.toLocaleDateString('pt-BR'):'não realizada'}</td></tr>
+      <tr><td>Cultura</td><td class="n">${esc(l.cult)}</td></tr>
+      <tr><td>Área plantada</td><td class="n">${fN(l.area,1)} ha</td></tr>
+      <tr><td>Perda estimada</td><td class="n"><b>${l.st==='Falta vistoria'?'—':l.perda+'%'}</b></td></tr>
+      <tr><td>Localização</td><td class="n">${l.st==='Falta vistoria'?'—':'registrada pelo GPS'}</td></tr>
+    </tbody></table></div></div>
+    ${l.fotos ? `<div class="card"><h2>Fotos (${l.fotos})</h2><div class="grid g2">${Array.from({length:Math.min(4,l.fotos)},(_,k)=>foto(k)).join('')}</div><p class="sub" style="margin:0">Imagens ilustrativas da demonstração.</p></div>` : `<p class="note">Vistoria ainda não realizada. O técnico ${esc(l.tec)} recebeu o aviso no app.</p>`}
+    <div class="btn-row"><button class="btn gold" data-act="imprimir">Imprimir laudo</button></div>`);
+}
+
 function telaCaf(){
   const ma = mediaAno();
   return `
@@ -683,7 +760,7 @@ function telaAvisos(){
 /* ---------- RELATÓRIOS ---------- */
 function telaRelatorios(){
   const i = ui.mi;
-  const itens = [['Produção e chuva por comunidade','csvCom'],['Oferta para merenda e PAA','csvCompras'],['Fila de máquinas','csvMaq'],['Beneficiários de sementes e insumos','csvSementes'],['Situação do CAF e Garantia-Safra','csvCaf']];
+  const itens = [['Entregas do PAA para o SISPAA','csvSispaa'],['Laudos do Garantia-Safra para o SGGS','csvSggs'],['Compras do PNAE para o FNDE','csvPnae'],['Produção e chuva por comunidade','csvCom'],['Oferta para merenda e PAA','csvCompras'],['Fila de máquinas','csvMaq'],['Beneficiários de sementes e insumos','csvSementes'],['Situação do CAF e Garantia-Safra','csvCaf']];
   return `
   ${head('Relatórios', mesNome(i))}
   <div class="grid g2">
@@ -711,12 +788,15 @@ const EXPORT = {
   csvCompras: () => baixar(`oferta-merenda-paa-${sufixo()}.csv`, [['Comunidade','Leite (L)','Ovos (dz)','Queijo (kg)','Hortaliças (maços)'], ...COMS.map(c=>{const s=c.s[ui.mi]; return [c.nome, Math.round(s.leite*.35), Math.round(s.ovos*.6), Math.round(s.queijo*.5), Math.round(s.horta*.55)];})]),
   csvMaq: () => baixar(`fila-maquinas-${sufixo()}.csv`, [['Família','Comunidade','Serviço','Horas','Dias de espera','Situação','Máquina'], ...PEDIDOS.map(p=>[p.fam,p.com,p.serv,p.horas,p.dias,p.st,p.maq])]),
   csvSementes: () => baixar(`sementes-insumos-${sufixo()}.csv`, [['Comunidade', ...INSUMOS.map(x=>`${x.it} (${x.un})`), ...INSUMOS.map(x=>`${x.it} (famílias)`)], ...COMS.map(c=>[c.nome, ...c.ins.map(v=>v.q), ...c.ins.map(v=>v.f)])]),
+  csvSispaa: () => baixar(`sispaa-entregas-${sufixo()}.csv`, [['Fornecedor','CPF','CAF','Comunidade','Produto','Unidade','Quantidade','Valor (R$)','Nota fiscal','Situação'], ...FORN.map((f,i)=>[f.nome, cpfFake(i), f.caf?'ativo':'vencido', f.com, f.prod, f.un, Math.round(f.entregue/f.preco), f.entregue.toFixed(2).replace('.',','), i===2?'':String(1200+i), f.caf && i!==2 ? 'pronto' : 'corrigir antes'])]),
+  csvSggs: () => baixar(`sggs-garantia-safra-${sufixo()}.csv`, [['Agricultor','CPF','Comunidade','Técnico','Cultura','Área (ha)','Perda (%)','Fotos','Situação'], ...LAUDOS.map((l,i)=>[l.fam, cpfFake(i+40), l.com, l.tec, l.cult, String(l.area).replace('.',','), l.st==='Falta vistoria'?'':l.perda, l.fotos, l.st])]),
+  csvPnae: () => baixar(`pnae-agricultura-familiar-${sufixo()}.csv`, [['Fornecedor','CPF','CAF','Produto','Contratado (R$)','Entregue (R$)','Pago (R$)'], ...FORN.map((f,i)=>[f.nome, cpfFake(i), f.caf?'ativo':'vencido', f.prod, f.contratado, f.entregue, f.pago])]),
   csvCaf: () => baixar(`caf-garantia-safra-${sufixo()}.csv`, [['Comunidade','Cadastradas','CAF ativo','CAF vencendo','Sem CAF','Garantia-Safra'], ...COMS.map(c=>[c.nome,c.cad,c.cafAtivo,c.cafVence,c.semCaf,c.gs])]),
 };
 
 /* ---------- montagem ---------- */
-const TELAS = {visao:telaVisao, comunidades:telaComunidades, mapa:telaMapa, chuva:telaChuva, diagnostico:telaDiagnostico, maquinas:telaMaquinas, sementes:telaSementes, agua:telaAgua, tecnico:telaTecnico, merenda:telaMerenda, caf:telaCaf, avisos:telaAvisos, relatorios:telaRelatorios};
-const CONT = {maquinas: () => fila().length, agua: () => sumC('pipaAbertos'), caf: () => sumC('cafVence')};
+const TELAS = {federal:telaFederal, visao:telaVisao, comunidades:telaComunidades, mapa:telaMapa, chuva:telaChuva, diagnostico:telaDiagnostico, maquinas:telaMaquinas, sementes:telaSementes, agua:telaAgua, tecnico:telaTecnico, merenda:telaMerenda, caf:telaCaf, avisos:telaAvisos, relatorios:telaRelatorios};
+const CONT = {federal: () => PEND.length, maquinas: () => fila().length, agua: () => sumC('pipaAbertos'), caf: () => sumC('cafVence')};
 const sel = $('#mes');
 sel.innerHTML = MESES_LISTA.map((x,i)=>`<option value="${i}">${MESES[x.m]} ${x.y}</option>`).join('');
 sel.value = ui.mi; sel.onchange = () => { ui.mi = Number(sel.value); render(); };
@@ -743,6 +823,7 @@ function ligarTela(){
   }
 }
 document.addEventListener('click', e => {
+  const ld = e.target.closest('[data-laudo]'); if (ld) { verLaudo(ld.dataset.laudo); return; }
   const t = e.target.closest('[data-tab]'); if (t) { ui.tab = t.dataset.tab; history.replaceState(null,'','#'+ui.tab); render(); window.scrollTo(0,0); return; }
   const r = e.target.closest('[data-com]'); if (r) { detalheCom(r.dataset.com); return; }
   const ag = e.target.closest('[data-agendar]'); if (ag) { const p = PEDIDOS.find(x=>x.id==ag.dataset.agendar); p.st='Agendado'; p.quando=3; render(); toast(`Agendado: ${p.fam}`); return; }
@@ -758,6 +839,7 @@ document.addEventListener('change', e => { const c = e.target.closest('[data-cam
 document.addEventListener('keydown', e => {
   if (e.key==='Escape' && !$('#drawer').hidden) fecharDrawer();
   if (e.key==='Enter' && e.target.matches('tr[data-com]')) detalheCom(e.target.dataset.com);
+  if (e.key==='Enter' && e.target.matches('tr[data-laudo]')) verLaudo(e.target.dataset.laudo);
 });
 let larg = estreito(); window.addEventListener('resize', () => { if (estreito()!==larg) { larg = estreito(); render(); } });
 window.addEventListener('hashchange', () => { let h = location.hash.slice(1); if (h==='compras') h='merenda'; if (TABS.some(t=>t[0]===h)) { ui.tab = h; render(); } });
