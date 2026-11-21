@@ -126,12 +126,13 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
   <a href="#programas">4. Programas</a>
   <a href="#mapa">5. Mapa e fotos</a>
   <a href="#dados">6. Dados e LGPD</a>
-  <a href="#tecnologia">7. Tecnologia</a>
-  <a href="#fases">8. Fases de entrega</a>
-  <a href="#fora">9. O que não está incluído</a>
-  <a href="#resp">10. Responsabilidades</a>
-  <a href="#riscos">11. Riscos</a>
-  <a href="#pendencias">12. A definir</a>
+  <a href="#seguranca">7. Segurança</a>
+  <a href="#tecnologia">8. Tecnologia</a>
+  <a href="#fases">9. Fases de entrega</a>
+  <a href="#fora">10. O que não está incluído</a>
+  <a href="#resp">11. Responsabilidades</a>
+  <a href="#riscos">12. Riscos</a>
+  <a href="#pendencias">13. A definir</a>
 </nav>
 
 <main>
@@ -219,7 +220,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 
 <section id="programas">
   <h2><span class="sn">4</span>Programas</h2>
-  <p>A plataforma organiza a parte operacional de cada programa. O envio de dados aos sistemas federais continua sendo feito pela equipe (ver item 9).</p>
+  <p>A plataforma organiza a parte operacional de cada programa. O envio de dados aos sistemas federais continua sendo feito pela equipe (ver item 10).</p>
   <div class="table-wrap"><table>
     <thead><tr><th>Programa</th><th>O que a plataforma faz</th></tr></thead>
     <tbody>
@@ -260,8 +261,40 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
   </div>
 </section>
 
+<section id="seguranca">
+  <h2><span class="sn">7</span>Segurança e proteção de dados</h2>
+  <p>A plataforma guarda dados pessoais das famílias (nome, CPF, CAF, localização e produção). A segurança é feita em camadas, para que uma falha isolada não exponha os dados.</p>
+  <div class="grid g2">
+    <div class="card"><h3>Acesso</h3><ul>
+      <li><b>Login individual</b> para cada pessoa. Ninguém compartilha senha.</li>
+      <li><b>Cada perfil vê só o que é seu</b>, conforme a tabela do item 2.</li>
+      <li><b>A trava fica no servidor</b>, não só na tela: cada tabela tem regras de quem pode ler e alterar cada registro. Mesmo que alguém altere o aplicativo, o servidor recusa o acesso indevido.</li>
+      <li><b>Verificação em duas etapas</b> para o secretário e os administradores.</li>
+      <li>Saída de servidores da equipe: o acesso é desligado no mesmo dia, pelo portal.</li></ul></div>
+    <div class="card"><h3>Dados</h3><ul>
+      <li><b>Comunicação criptografada</b> (HTTPS) entre os aplicativos e o servidor.</li>
+      <li><b>Dados guardados criptografados</b>, em servidor no Brasil.</li>
+      <li><b>Fotos, laudos e relatórios</b> em armazenamento privado, que só abre para quem tem permissão.</li>
+      <li><b>Cópia de segurança diária</b>, com possibilidade de recuperar dados apagados por engano.</li>
+      <li>Código-fonte em repositório privado, sem senhas ou chaves gravadas nele.</li></ul></div>
+    <div class="card"><h3>Registro e controle</h3><ul>
+      <li><b>Histórico de quem fez o quê:</b> quem criou, alterou, apagou ou exportou um dado, e quando.</li>
+      <li>Exportações de planilhas com dados pessoais ficam registradas.</li>
+      <li>Relatório de acessos disponível para a Secretaria quando solicitado.</li></ul></div>
+    <div class="card"><h3>Celulares de campo</h3><ul>
+      <li>O app do técnico guarda no aparelho só o necessário para trabalhar sem internet.</li>
+      <li><b>Celular perdido ou roubado:</b> o acesso daquele aparelho é desligado pelo portal, e os dados pendentes deixam de ser aceitos.</li>
+      <li>Recomendação de bloqueio de tela em todos os aparelhos da equipe.</li></ul></div>
+  </div>
+  <div class="card"><h3>Em caso de incidente</h3><ul>
+    <li>O desenvolvedor comunica a Secretaria em até 24 horas após identificar qualquer incidente de segurança.</li>
+    <li>A Prefeitura, como controladora, avalia a comunicação à ANPD e aos titulares, nos termos da LGPD, com o apoio técnico do desenvolvedor.</li>
+    <li>Testes de permissão a cada fase entregue, antes do aceite.</li></ul></div>
+  <p class="note">Nenhum sistema é totalmente imune a falhas. O compromisso é seguir as boas práticas de segurança, manter registro de tudo e agir rápido se algo acontecer. Com o crescimento do uso, recomenda-se uma revisão de segurança por especialista externo.</p>
+</section>
+
 <section id="tecnologia">
-  <h2><span class="sn">7</span>Tecnologia</h2>
+  <h2><span class="sn">8</span>Tecnologia</h2>
   <div class="table-wrap"><table>
     <thead><tr><th>Parte</th><th>Solução proposta</th></tr></thead>
     <tbody>
@@ -275,8 +308,8 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="fases">
-  <h2><span class="sn">8</span>Fases de entrega</h2>
-  <p>Cada fase entrega algo que já funciona. Os prazos serão definidos com a Secretaria (ver item 12).</p>
+  <h2><span class="sn">9</span>Fases de entrega</h2>
+  <p>Cada fase entrega algo que já funciona. Os prazos serão definidos com a Secretaria (ver item 13).</p>
   <div class="card fase" style="--c:var(--black)"><div class="num">1<small>Base</small></div><div><h3>Base de dados, login e cadastro de produtores</h3><ul>
     <li>Servidor, perfis, permissões e cópias de segurança</li><li>Cadastro de produtores, propriedades e comunidades com localização</li><li>Usuários do secretário, dos setores e dos técnicos</li></ul>
     <p class="aceite"><b>Pronto quando:</b> a equipe entra com seu login e cadastra produtores, e cada perfil vê apenas o que deve.</p></div></div>
@@ -296,7 +329,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="fora">
-  <h2><span class="sn">9</span>O que não está incluído</h2>
+  <h2><span class="sn">10</span>O que não está incluído</h2>
   <div class="card"><ul>
     <li><b>Envio automático aos sistemas federais</b> (CAF, sistemas do FNDE e do PAA): não há ligação aberta para prefeituras. A plataforma prepara os dados, e a equipe faz o envio.</li>
     <li><b>Aparelhos e internet:</b> celulares, tablets, computadores e acesso à internet ficam por conta da Prefeitura e dos usuários.</li>
@@ -306,7 +339,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="resp">
-  <h2><span class="sn">10</span>Responsabilidades</h2>
+  <h2><span class="sn">11</span>Responsabilidades</h2>
   <div class="grid g2">
     <div class="card"><h3>Da Prefeitura</h3><ul>
       <li>Indicar um responsável pelo projeto na Secretaria</li><li>Informar os setores, as pessoas e as regras de cada programa</li><li>Pagar o servidor (ou autorizar a contratação em seu nome)</li><li>Liberar a equipe para treinamento e testes</li><li>Atuar como controladora dos dados (LGPD)</li></ul></div>
@@ -316,16 +349,16 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:12px;color:v
 </section>
 
 <section id="riscos">
-  <h2><span class="sn">11</span>Riscos e como tratar</h2>
+  <h2><span class="sn">12</span>Riscos e como tratar</h2>
   <div class="card risk"><span class="lvl alto">Alto</span><div><b>Sincronização sem internet</b><p>Dois técnicos alterando o mesmo cadastro, ou registros feitos sem sinal por vários dias. <i>Tratamento:</i> regras de quem prevalece, histórico de alterações e testes no campo antes da entrega da fase 2.</p></div></div>
   <div class="card risk"><span class="lvl alto">Alto</span><div><b>Suporte e manutenção contínuos</b><p>O sistema exige acompanhamento depois da entrega. <i>Tratamento:</i> contrato de suporte com tempo de resposta definido e, se necessário, uma pessoa de apoio.</p></div></div>
   <div class="card risk"><span class="lvl medio">Médio</span><div><b>Adesão dos produtores e da equipe</b><p><i>Tratamento:</i> treinamento por comunidade, uso por técnicos desde o início e telas simples com leitura em voz alta.</p></div></div>
-  <div class="card risk"><span class="lvl medio">Médio</span><div><b>Proteção de dados pessoais</b><p><i>Tratamento:</i> permissões por perfil, login individual, registro de acessos e servidor no Brasil.</p></div></div>
+  <div class="card risk"><span class="lvl medio">Médio</span><div><b>Proteção de dados pessoais</b><p><i>Tratamento:</i> as medidas do item 7: travas no servidor, login individual, registro de acessos, criptografia e servidor no Brasil.</p></div></div>
   <div class="card risk"><span class="lvl baixo">Baixo</span><div><b>Custo do servidor crescer com as fotos</b><p><i>Tratamento:</i> fotos reduzidas automaticamente e acompanhamento mensal do uso.</p></div></div>
 </section>
 
 <section id="pendencias">
-  <h2><span class="sn">12</span>A definir com a Secretaria</h2>
+  <h2><span class="sn">13</span>A definir com a Secretaria</h2>
   <div class="pend"><ul>
     <li>Prazo de cada fase e data de início</li>
     <li>Valor do contrato, forma de pagamento e modalidade de contratação</li>
